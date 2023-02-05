@@ -1,0 +1,44 @@
+﻿@using Cblx.Dynamics;
+@using System.Reflection;
+@using System.Xml.Linq;
+@using Cblx.Dynamics.Explorer.Services;
+@inject DynamicsExplorerOptions Options
+@inject SchemaService SchemaService
+<MudNavMenu Class="pb-16">
+    <MudNavLink Href="/" Match="NavLinkMatch.All">Diagram</MudNavLink>
+    @foreach (var tbl in Options.Tables)
+    {
+        <MudNavLink Href="@($"tbl/{@tbl.Name}")" Match="NavLinkMatch.Prefix">
+            <MudStack Spacing="0">
+                <MudText>@tbl.Name</MudText>
+                <MudText Typo="Typo.caption">@tbl.InternalName</MudText>
+            </MudStack>
+        </MudNavLink>
+    }
+    @if (_notMappedTables.Any())
+    {
+        <MudDivider></MudDivider>
+        <Virtualize Items="_notMappedTables" Context="tbl">
+            <MudNavLink Match="NavLinkMatch.All" Href="@($"dyn-tbl/{@tbl}")">@tbl</MudNavLink>
+        </Virtualize>
+    }
+</MudNavMenu>
+@code{
+    private string[] _notMappedTables = Array.Empty<string>();
+    protected override async Task OnInitializedAsync()
+    {
+        var schema = await SchemaService.DocumentTask;
+        var tables = schema
+               .Descendants()
+               .Where(el => el.Name.LocalName == "EntityType")
+               .Select(el => new
+               {
+                   TableName = el.Attribute("Name")!.Value,
+               });
+        _notMappedTables = tables.Select(t => t.TableName)
+            .Except(Options.Tables
+            .Select(t => t.InternalName))
+            .Order()
+            .ToArray();
+    }
+}

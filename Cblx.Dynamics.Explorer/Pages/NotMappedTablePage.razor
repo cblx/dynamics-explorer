@@ -1,0 +1,7 @@
+﻿@page "/dyn-tbl/{TableName}"
+<TablePageComponent InternalName="@TableName"></TablePageComponent>
+@code {
+    [Parameter]
+    [EditorRequired]
+    public required string TableName { get; set; }
+}

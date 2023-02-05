@@ -1,0 +1,53 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.Components.Web
+@namespace Cblx.Dynamics.Explorer.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="~/" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
+    <link href="_content/Cblx.Dynamics.Explorer/css/site.css" rel="stylesheet" />
+    <link href="_content/Cblx.Dynamics.Explorer/Cblx.Dynamics.Explorer.bundle.scp.css" rel="stylesheet" />
+    <link href="css/site.css" rel="stylesheet" />
+    <link href="Cblx.Dynamics.Explorer.styles.css" rel="stylesheet" />
+    <link rel="icon" type="image/png" href="favicon.png"/>
+     <script>
+        window.initEr = () => {
+                const diagram = document.querySelector('#mermaid');
+                const maxWidth = parseInt(diagram.style.maxWidth.replace('px', ''));
+                let scale = maxWidth/1000;
+                if(scale < 1){ scale = 1; }
+                diagram.style.display = 'block';
+                diagram.style.height = '100vh';
+                diagram.style.width = '100%';
+                diagram.style.overflow = 'scroll';
+                diagram.style.transform = `scale(${scale})`
+            };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@9.3.0/dist/mermaid.min.js" integrity="sha384-UFKTpBFnbiXQk3or094iG5Tu+m8KFgRJzH3MW1yS/hk+JstXEc9xhyT38erH95Zk" crossorigin="anonymous"></script>
+    <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
+</head>
+<body>
+    <component type="typeof(App)" render-mode="ServerPrerendered" />
+
+    <div id="blazor-error-ui">
+        <environment include="Staging,Production">
+            An error has occurred. This application may no longer respond until reloaded.
+        </environment>
+        <environment include="Development">
+            An unhandled exception has occurred. See browser dev tools for details.
+        </environment>
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+ 
+    <script src="_framework/blazor.server.js"></script>
+    <script src="_content/MudBlazor/MudBlazor.min.js"></script>
+   
+</body>
+</html>

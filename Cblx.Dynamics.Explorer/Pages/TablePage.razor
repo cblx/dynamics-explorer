@@ -1,0 +1,18 @@
+﻿@page "/tbl/{TableName}"
+@inject DynamicsExplorerOptions Options
+<DynamicComponent Type="_componentType"></DynamicComponent>
+@code {
+    private Type _componentType = default!;
+
+    [Parameter]
+    public required string TableName { get; set; }
+
+    protected override void OnInitialized()
+    {
+    }
+
+    protected override void OnParametersSet()
+    {
+        _componentType = typeof(TablePageTemplate<>).MakeGenericType(Options.Tables.First(t => t.Name == TableName)!.Type);
+    }
+}

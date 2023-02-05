@@ -1,0 +1,33 @@
+﻿@page "/"
+@using System.Text;
+@inject DynamicsExplorerOptions Options
+@inject IJSRuntime Js
+<PageTitle>Index</PageTitle>
+@((MarkupString)_mermaidSvg)
+@code {
+    private string _mermaidJsDefinition = "";
+    private string _mermaidSvg = "";
+
+    protected override void OnInitialized()
+    {
+        if (_mermaidJsDefinition != string.Empty) { return; }
+        var sb = new StringBuilder("erDiagram");
+        sb.AppendLine();
+        foreach (var tbl in Options.Tables)
+        {
+            sb.AppendLine($"\t{tbl.Name}");
+        }
+        _mermaidJsDefinition = sb.ToString();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+
+        if (firstRender)
+        {
+            _mermaidSvg = await Js.InvokeAsync<string>("mermaid.render", "mermaid", _mermaidJsDefinition);
+            StateHasChanged();
+            await Js.InvokeVoidAsync("initEr");
+        }
+    }
+}

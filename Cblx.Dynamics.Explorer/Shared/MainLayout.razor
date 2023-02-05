@@ -1,0 +1,42 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+<MudThemeProvider IsDarkMode="true" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+<PageTitle>DynamicsExplorer</PageTitle>
+
+<MudLayout>
+    <MudAppBar>
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        Dynamics Explorer
+    </MudAppBar>
+    <MudDrawer @bind-Open="@_drawerOpen">
+        <NavMenu />
+    </MudDrawer>
+    <MudMainContent>
+        <ErrorBoundary @ref="_errorBoundary">
+            <ErrorContent>
+                <MudAlert Severity="Severity.Error" Variant="Variant.Filled">
+                    @context.Message
+                </MudAlert>
+            </ErrorContent>
+            <ChildContent>
+                @Body
+            </ChildContent>
+        </ErrorBoundary>
+    </MudMainContent>
+</MudLayout>
+@code {
+    bool _drawerOpen = true;
+    private ErrorBoundary? _errorBoundary;
+
+    protected override void OnInitialized()
+    {
+        NavigationManager.LocationChanged += (_, _) => _errorBoundary?.Recover();
+    }
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+}

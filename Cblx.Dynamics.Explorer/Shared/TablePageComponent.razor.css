@@ -1,0 +1,11 @@
+﻿::deep td {
+    white-space: nowrap;
+    max-width: 310px;
+
+}
+
+::deep .mud-tooltip-root{
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

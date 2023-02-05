@@ -1,0 +1,89 @@
+﻿@using System.Text.Json.Nodes
+@using Cblx.Dynamics
+@using System.Net.Http.Json
+@inject HttpClient HttpClient
+<MudDialog>
+    <DialogContent>
+        @if (_loading)
+        {
+            <MudProgressCircular Indeterminate></MudProgressCircular>
+        }
+        else
+        {
+            if (!_options.Any())
+            {
+                <MudAlert>No options for this column</MudAlert>
+            }
+            else
+            {
+                <MudList>
+                    @foreach (var option in _options)
+                    {
+                        <MudListItem>@option.Value - @option.Text</MudListItem>
+                    }
+                </MudList>
+            }
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="() => MudDialog.Close()">Close</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private bool _loading = true;
+    private List<PicklistOption> _options = new();
+
+    [Parameter]
+    public required JsonColumnInfo Column { get; set; }
+
+    [Parameter]
+    public string? InternalName { get; set; }
+
+    [Parameter]
+    public string? Name { get; set; }
+    
+    [CascadingParameter] 
+    MudDialogInstance MudDialog { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var col = Column;
+            string url = col.Type == "Edm.Int32" ? GetUriOptionsForInt32() : $"EntityDefinitions(LogicalName='{InternalName}')/Attributes(LogicalName='{col.Name}')/Microsoft.Dynamics.CRM.MultiSelectPicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)";
+            var options = await HttpClient.GetFromJsonAsync<JsonObject>(url);
+            if (options!.ContainsKey("value"))
+            {
+                options = options["value"]!.AsArray()!.First()!.AsObject();
+            }
+            var jsonArray = options!["OptionSet"]!["Options"] as JsonArray;
+            var picklistOptions = new List<PicklistOption>();
+            foreach (var item in jsonArray!)
+            {
+                picklistOptions.Add(new PicklistOption
+                {
+                    Text = item!["Label"]!["LocalizedLabels"]![0]!["Label"]!.GetValue<string>(),
+                    Value = item["Value"]!.GetValue<int>()
+                });
+            }
+            _options = picklistOptions;
+        }
+        catch
+        {
+            // Do nothing
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    string GetUriOptionsForInt32() => Column.Name switch
+    {
+        "statecode" =>  $"EntityDefinitions(LogicalName='{InternalName}')/Attributes/Microsoft.Dynamics.CRM.StateAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)",
+        "statuscode" => $"EntityDefinitions(LogicalName='{InternalName}')/Attributes/Microsoft.Dynamics.CRM.StatusAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)",
+        _ =>            $"EntityDefinitions(LogicalName='{InternalName}')/Attributes(LogicalName='{Column.Name}')/Microsoft.Dynamics.CRM.PicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)"
+    };
+
+}
