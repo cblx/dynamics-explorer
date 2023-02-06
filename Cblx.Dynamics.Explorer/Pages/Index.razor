@@ -2,6 +2,7 @@
 @using System.Text;
 @inject DynamicsExplorerOptions Options
 @inject IJSRuntime Js
+@inject AppBarService AppBarService
 <PageTitle>Index</PageTitle>
 @((MarkupString)_mermaidSvg)
 @code {
@@ -10,6 +11,8 @@
 
     protected override void OnInitialized()
     {
+        AppBarService.Content =@<div>Diagram</div>;
+
         if (_mermaidJsDefinition != string.Empty) { return; }
         var sb = new StringBuilder("erDiagram");
         sb.AppendLine();

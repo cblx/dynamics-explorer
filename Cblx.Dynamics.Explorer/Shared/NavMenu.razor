@@ -4,7 +4,7 @@
 @using Cblx.Dynamics.Explorer.Services;
 @inject DynamicsExplorerOptions Options
 @inject SchemaService SchemaService
-<MudNavMenu Class="pb-16">
+<MudNavMenu Dense Class="pb-16">
     <MudNavLink Href="/" Match="NavLinkMatch.All">Diagram</MudNavLink>
     @foreach (var tbl in Options.Tables)
     {

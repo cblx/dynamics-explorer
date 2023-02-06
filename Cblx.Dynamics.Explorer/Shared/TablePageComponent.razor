@@ -13,6 +13,7 @@
 @inject ApplicationService ApplicationService
 @inject SchemaService SchemaService
 @inject HttpClient HttpClient
+@inject AppBarService ToolbarService
 <PageTitle>@Name</PageTitle>
 <div scoped-css>
     <MudTable @ref="_table" ServerData="@(new Func<TableState, Task<TableData<JsonObject>>>(ServerReloadJson))"
@@ -20,24 +21,8 @@
               FixedFooter
               Bordered
               @bind-Loading="_loading"
-              Height="calc(100vh - 180px)"
+              Height="calc(100vh - 100px)"
               Dense Hover>
-        <ToolBarContent>
-            <MudStack Spacing="0">
-                <MudText Typo="Typo.h6">@Name</MudText>
-                <MudText Typo="Typo.caption">
-                    @if (Name != InternalName)
-                    {
-                        @InternalName
-                    }
-                </MudText>
-            </MudStack>
-            <MudSpacer></MudSpacer>
-            @if (TableType != null)
-            {
-                <MudButton OnClick="OpenCreate" Variant="Variant.Filled" Color="Color.Primary">New...</MudButton>
-            }
-        </ToolBarContent>
         <ColGroup>
             <col style="width: 150px" />
         </ColGroup>
@@ -48,8 +33,8 @@
                 if (col.Name.EndsWith(".FormattedValue")) { continue; }
                 if (_hiddenColumns.Contains(col.Name)) { continue; }
                 <MudTh>
-                    <MudStack Row>
-                        <MudStack>
+                    <MudStack Row AlignItems="AlignItems.Center">
+                        <MudStack Spacing="0">
                             <MudStack Row AlignItems="AlignItems.Center">
                                 <MudText Color="Color.Secondary">@col.FriendlyName</MudText>
                                 <MudText Style="color: gray !important" Typo="Typo.caption">@col.FriendlyType</MudText>
@@ -62,7 +47,7 @@
                         @if (col.Type is "Edm.Int32" or "Edm.String")
                         {
                             <MudMenu Icon="@Icons.Material.Filled.Menu" AnchorOrigin="Origin.BottomLeft">
-                                  <MudMenuItem OnClick="() => ShowOptions(col)">Show options list</MudMenuItem>
+                                <MudMenuItem OnClick="() => ShowOptions(col)">Show options list</MudMenuItem>
                             </MudMenu>
                         }
                         <MudTableSortLabel SortLabel="@col.Name" T="JsonObject">
@@ -191,6 +176,25 @@
     protected override async Task OnParametersSetAsync()
     {
         InternalName = TableType?.GetCustomAttribute<DynamicsEntityAttribute>()?.Name ?? InternalName;
+        ToolbarService.Content =
+    @<MudStack Row Class="flex-grow-1">
+        <MudStack Spacing="0">
+            <MudText Typo="Typo.h6" Style="line-height: 1">@Name</MudText>
+            <MudText Typo="Typo.caption">
+                @if (Name != InternalName)
+                {
+                    @InternalName
+                }
+            </MudText>
+        </MudStack>
+        <MudSpacer></MudSpacer>
+        @if (TableType != null)
+        {
+            <MudStack Justify="Justify.Center">
+                <MudButton Size="Size.Small" OnClick="OpenCreate" Variant="Variant.Filled" Color="Color.Primary">New...</MudButton>
+            </MudStack>
+        }
+    </MudStack>;
 
         var schema = await SchemaService.DocumentTask;
         var entityType = schema
@@ -252,7 +256,7 @@
             { "Name", Name },
             { "InternalName", InternalName }
         });
-      
+
     }
 
     private async Task OpenCreate()

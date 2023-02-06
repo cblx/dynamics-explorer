@@ -1,14 +1,16 @@
-﻿@inherits LayoutComponentBase
+﻿@using Cblx.Dynamics.Explorer.Services;
+@inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
+@inject AppBarService AppBarService
 <MudThemeProvider IsDarkMode="true" />
 <MudDialogProvider />
 <MudSnackbarProvider />
 <PageTitle>DynamicsExplorer</PageTitle>
 
 <MudLayout>
-    <MudAppBar>
+    <MudAppBar Dense>
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-        Dynamics Explorer
+        @_appBarContent
     </MudAppBar>
     <MudDrawer @bind-Open="@_drawerOpen">
         <NavMenu />
@@ -29,10 +31,20 @@
 @code {
     bool _drawerOpen = true;
     private ErrorBoundary? _errorBoundary;
+    private RenderFragment? _appBarContent;
 
     protected override void OnInitialized()
     {
+
         NavigationManager.LocationChanged += (_, _) => _errorBoundary?.Recover();
+        AppBarService.OnContentChanged += () =>
+        {
+            if (_appBarContent != AppBarService.Content)
+            {
+                _appBarContent = AppBarService.Content;
+                InvokeAsync(() => StateHasChanged());
+            }
+        };
     }
 
     void DrawerToggle()

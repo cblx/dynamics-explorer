@@ -31,6 +31,7 @@ public static class ServiceCollectionExtensions
         services.AddServerSideBlazor();
         services.AddMudServices();
         services.AddSingleton<ApplicationService>();
+        services.AddSingleton<AppBarService>();
         services.AddScoped<SchemaService>();
         return services;
     }
