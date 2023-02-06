@@ -79,7 +79,7 @@
                         string? formattedValue = context.ContainsKey(formattedValueName) ? context[formattedValueName]?.GetValue<string>() : null;
                         if (value is null)
                         {
-                            <MudText Typo="Typo.caption">NULL</MudText>
+                            <MudText Typo="Typo.caption" Style="font-style: italic; color: gray">NULL</MudText>
                         }
                         else
                         {
@@ -100,16 +100,16 @@
             <MudText>
                 @if (_endpoint == null)
                 {
-                    <span>Carregando...</span>
+                    <span>Loading...</span>
                 }
                 else
                 {
-                    <span>Tabela vazia</span>
+                    <span>Empty table</span>
                 }
             </MudText>
         </NoRecordsContent>
         <LoadingContent>
-            <MudText>Carregando...</MudText>
+            <MudText>Loading...</MudText>
         </LoadingContent>
         <PagerContent>
             <MudTablePager />
@@ -262,7 +262,7 @@
     private async Task OpenCreate()
     {
         var editPageComponentType = typeof(EditPageTemplate<>).MakeGenericType(TableType!);
-        var dialogRef = DialogService.Show(editPageComponentType, $"Criar item em {TableType!.Name}", new DialogOptions { DisableBackdropClick = true });
+        var dialogRef = DialogService.Show(editPageComponentType, $"{TableType!.Name} - Create", new DialogOptions { DisableBackdropClick = true });
         var result = await dialogRef.Result;
         if (result.Data is true)
         {
@@ -274,7 +274,7 @@
     {
         var editPageComponentType = typeof(EditPageTemplate<>).MakeGenericType(TableType!);
         var idPropertyName = TableType!.GetProperty("Id")!.GetCustomAttribute<JsonPropertyNameAttribute>()!.Name;
-        var dialogRef = DialogService.Show(editPageComponentType, $"Editar item em {TableType.Name}", new DialogParameters
+        var dialogRef = DialogService.Show(editPageComponentType, $"{TableType.Name} - Edit", new DialogParameters
         {
             { "Id", jsonObject[idPropertyName]!.GetValue<Guid>() }
         }, new DialogOptions { DisableBackdropClick = true });
