@@ -261,7 +261,7 @@
 
     async Task Submit()
     {
-        var body = new Body<TTable>();
+        var body = new Body<TTable>(Client.MetadataProvider);
         _saving = true;
         try
         {
