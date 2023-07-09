@@ -11,6 +11,6 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Cblx.Dynamics.AspNetCore" Version="0.24.0-dev.1" />
-		<PackageReference Include="MudBlazor" Version="6.2.0" />
+		<PackageReference Include="MudBlazor" Version="6.6.0" />
 	</ItemGroup>
 </Project>
