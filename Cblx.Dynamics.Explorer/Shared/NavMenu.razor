@@ -6,7 +6,8 @@
 @inject DynamicsExplorerOptions Options
 @inject SchemaService SchemaService
 <MudNavMenu Dense Class="pb-16">
-    <MudNavLink Href="/" Match="NavLinkMatch.All">Diagram</MudNavLink>
+    <MudNavLink Href="/" Match="NavLinkMatch.All">Queries</MudNavLink>
+    <MudNavLink Href="/diagram" Match="NavLinkMatch.All">Diagram (Under construction)</MudNavLink>
     <MudDivider />
     <MudTextField Placeholder="Filter tables" @bind-Value="_filter" Immediate/>
     @foreach (var tbl in _displayTables)

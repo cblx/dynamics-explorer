@@ -1,0 +1,23 @@
+﻿@page "/"
+@using System.Net.Http.Json;
+@using System.Text.Json.Nodes;
+@using System.Text.Json;
+@inject HttpClient HttpClient
+<MudStack Class="px-4">
+    <MudTextField Label="GET" Lines="10" @bind-Value="_query"/>
+    <MudStack AlignItems="AlignItems.Start">
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="RunAsync">Run</MudButton>
+    </MudStack>
+    <MudPaper Style="white-space: pre">
+        @_json
+    </MudPaper>
+</MudStack>
+@code {
+    private string _query = "accounts";
+    private string? _json;
+    public async Task RunAsync()
+    {
+        var json = await HttpClient.GetFromJsonAsync<JsonObject>(_query);
+        _json = JsonSerializer.Serialize(json, new JsonSerializerOptions { WriteIndented = true });
+    }
+}
