@@ -1,6 +1,7 @@
 ﻿@using System.Text.Json.Nodes
 @using Cblx.Dynamics
 @using System.Net.Http.Json
+@using Cblx.Dynamics.Explorer.Models;
 @inject HttpClient HttpClient
 <MudDialog>
     <DialogContent>
@@ -35,13 +36,13 @@
     private List<PicklistOption> _options = new();
 
     [Parameter]
-    public required JsonColumnInfo Column { get; set; }
+    public required ColumnInfo Column { get; set; }
 
     [Parameter]
-    public string? InternalName { get; set; }
+    public required TableInfo Table { get; set; }
 
-    [Parameter]
-    public string? Name { get; set; }
+    //[Parameter]
+    //public string? Name { get; set; }
     
     [CascadingParameter] 
     MudDialogInstance MudDialog { get; set; } = default!;
@@ -51,7 +52,7 @@
         try
         {
             var col = Column;
-            string url = col.Type == "Edm.Int32" ? GetUriOptionsForInt32() : $"EntityDefinitions(LogicalName='{InternalName}')/Attributes(LogicalName='{col.Name}')/Microsoft.Dynamics.CRM.MultiSelectPicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)";
+            string url = col.TypeName == "Edm.Int32" ? GetUriOptionsForInt32() : $"EntityDefinitions(LogicalName='{Table.OriginalName}')/Attributes(LogicalName='{col.OriginalName}')/Microsoft.Dynamics.CRM.MultiSelectPicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)";
             var options = await HttpClient.GetFromJsonAsync<JsonObject>(url);
             if (options!.ContainsKey("value"))
             {
@@ -79,11 +80,11 @@
         }
     }
 
-    string GetUriOptionsForInt32() => Column.Name switch
+    string GetUriOptionsForInt32() => Column.OriginalName switch
     {
-        "statecode" =>  $"EntityDefinitions(LogicalName='{InternalName}')/Attributes/Microsoft.Dynamics.CRM.StateAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)",
-        "statuscode" => $"EntityDefinitions(LogicalName='{InternalName}')/Attributes/Microsoft.Dynamics.CRM.StatusAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)",
-        _ =>            $"EntityDefinitions(LogicalName='{InternalName}')/Attributes(LogicalName='{Column.Name}')/Microsoft.Dynamics.CRM.PicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)"
+        "statecode" =>  $"EntityDefinitions(LogicalName='{Table.OriginalName}')/Attributes/Microsoft.Dynamics.CRM.StateAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)",
+        "statuscode" => $"EntityDefinitions(LogicalName='{Table.OriginalName}')/Attributes/Microsoft.Dynamics.CRM.StatusAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)",
+        _ =>            $"EntityDefinitions(LogicalName='{Table.OriginalName}')/Attributes(LogicalName='{Column.OriginalName}')/Microsoft.Dynamics.CRM.PicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)"
     };
 
 }

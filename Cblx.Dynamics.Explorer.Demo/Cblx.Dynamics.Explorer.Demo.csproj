@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Cblx.Dynamics.AspNetCore" Version="0.24.0-dev.33" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Cblx.Dynamics.Explorer\Cblx.Dynamics.Explorer.csproj" />
   </ItemGroup>
 

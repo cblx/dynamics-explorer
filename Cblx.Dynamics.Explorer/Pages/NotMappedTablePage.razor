@@ -1,7 +1,20 @@
-﻿@page "/dyn-tbl/{TableName}"
-<TablePageComponent InternalName="@TableName"></TablePageComponent>
+﻿@inject SchemaService SchemaService
+@page "/tbl/{TableName}"
+@using Cblx.Dynamics.Explorer.Models;
+@if (_table != null)
+{
+    <TablePageComponent Table="_table"></TablePageComponent>
+}
 @code {
     [Parameter]
     [EditorRequired]
     public required string TableName { get; set; }
+
+    private TableInfo? _table = null;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var tables = await SchemaService.GetTablesAsync();
+        _table = tables.First(t => t.OriginalName == TableName);
+    }
 }

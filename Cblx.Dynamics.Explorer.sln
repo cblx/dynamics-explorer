@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cblx.Dynamics.Explorer", "Cblx.Dynamics.Explorer\Cblx.Dynamics.Explorer.csproj", "{843BC26D-D40F-42F3-9BFD-31C2AC366DAD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cblx.Dynamics.Explorer.Demo", "Cblx.Dynamics.Explorer.Demo\Cblx.Dynamics.Explorer.Demo.csproj", "{D3D60175-91CA-4087-9DD7-FB721DE4226A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cblx.Dynamics.Explorer.Demo", "Cblx.Dynamics.Explorer.Demo\Cblx.Dynamics.Explorer.Demo.csproj", "{D3D60175-91CA-4087-9DD7-FB721DE4226A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

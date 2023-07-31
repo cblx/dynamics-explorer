@@ -1,0 +1,301 @@
+﻿@using System.Reflection;
+@using Cblx.Dynamics;
+@using System.Text.Json.Serialization;
+@using System.Linq.Expressions;
+@using Cblx.Dynamics.Explorer.Models;
+@using Cblx.Dynamics.Explorer.Shared.Converters;
+@using System.Text.Json;
+@using System.Net.Http.Json;
+@using System.Text.Json.Nodes;
+@inject IDialogService DialogService
+@inject EditDialogService EditDialogService
+@inject HttpClient HttpClient
+<div style="display: contents">
+    <MudDialog Style="width: 800px; max-width: 800px" Class="fix">
+        <TitleContent>
+            <MudStack Spacing="0">
+                <MudText>@Table.DisplayName</MudText>
+                @if (Table.HasFriendlyName)
+                {
+                    <MudText Typo="Typo.caption">@Table.OriginalName</MudText>
+                }
+                <MudDivider />
+            </MudStack>
+        </TitleContent>
+        <DialogContent>
+            <MudStack>
+                @foreach (var set in _sets)
+                {
+                    <MudStack Row>
+                        <MudStack Class="flex-1 overflow-hidden">
+                        <MudSelect Variant="Variant.Outlined"
+                                   HelperText="@(set.Column?.HasFriendlyName is true ? set.Column.OriginalName : "")"
+                                   Label="Field" @bind-Value="set.Column" @bind-Value:after="() => set.Value = null">
+
+                            @foreach (var column in Table.Columns.Where(c => c.IsEditable).Where(c => c == set.Column || !_sets.Any(s => s.Column == c)))
+                                {
+                                    <MudSelectItem Value="column">
+                                        <MudStack Spacing="0" Style="margin-top: -4px">
+                                    <MudStack Class="flex-grow-1" Spacing="0">
+                                        <MudText Typo="Typo.caption" Style="line-height: 1" Color="Color.Secondary">@column.DisplayName</MudText>
+                                        @if (column.HasFriendlyName)
+                                            {
+                                                <MudText Typo="Typo.caption" Style="line-height: 1">@column.OriginalName</MudText>
+                                            }
+                                        </MudStack>
+                                        <MudStack AlignItems="AlignItems.Start" Class="flex-grow-0">
+                                            <MudText Typo="Typo.caption" Style="color: gray !important; line-height: 1">@column.TypeName</MudText>
+                                        </MudStack>
+                                    </MudStack>
+                                </MudSelectItem>
+                                }
+                            </MudSelect>
+                        </MudStack>
+                        <MudStack Class="flex-1" AlignItems="AlignItems.Stretch" Justify="Justify.Center">
+                            @if (set.Column is null)
+                            {
+                                <MudText Align="Align.Center">Choose column</MudText>
+                            }
+                            else
+                            {
+                                switch (set.Column.TypeName)
+                                {
+                                    case "Edm.Guid":
+                                        @if (set.Column.IsForeignKey)
+                                        {
+                                            <AppNavigationField @bind-Value="set.ValueAsString"
+                                                                Column="set.Column" />
+                                        }
+                                        else
+                                        {
+                                            <MudTextField @bind-Value="set.ValueAsString"
+                                                          Variant="Variant.Outlined"
+                                                          Placeholder="NULL"
+                                                          Mask="@(new PatternMask("********-****-****-****-************"){
+                                                     CleanDelimiters = true
+                                                  })"
+                                                          HelperText="@set.ValueHelperText"
+                                                          Label="Value" />
+                                        }
+                                        break;
+                                    case "Edm.String":
+                                        <MudTextField @bind-Value="set.ValueAsString"
+                                                      Variant="Variant.Outlined"
+                                                      OnKeyDown="(args) => AlternateEmptyNull(args, set)"
+                                                      Placeholder="@(set.Value is null ? "NULL" : " ")"
+                                                      HelperText="@set.ValueHelperText"
+                                                      Label="Value" />
+                                        break;
+                                    case "Edm.Int32":
+                                        <MudNumericField @bind-Value="set.ValueAsInt32"
+                                                         Variant="Variant.Outlined"
+                                                         Placeholder="NULL"
+                                                         HelperText="@set.ValueHelperText"
+                                                         Label="Value" />
+                                        break;
+                                    case "Edm.Int64":
+                                        <MudNumericField @bind-Value="set.ValueAsInt64"
+                                                         Variant="Variant.Outlined"
+                                                         Placeholder="NULL"
+                                                         HelperText="@set.ValueHelperText"
+                                                         Label="Value" />
+                                        break;
+                                    case "Edm.Boolean":
+                                        <MudCheckBox @bind-Checked="set.ValueAsBoolean"
+                                                              TriState
+                                                     Label="Value" />
+                                        <div class="mud-input-control-helper-container px-2">
+                                            <p class="mud-input-helper-text">
+                                                <div class="d-flex">
+                                                    <div class="me-auto">@set.ValueHelperText</div>
+                                                </div>
+                                            </p>
+                                        </div>
+                                        break;
+                                    case "Edm.DateTimeOffset":
+                                        <MudTextField @bind-Value="set.ValueAsDateTime"
+                                                      InputType="InputType.DateTimeLocal"
+                                                      Variant="Variant.Outlined"
+                                                      Placeholder="NULL"
+                                                      HelperText="@set.ValueHelperText"
+                                                      Converter="new AppDateTimeIsoConverter()"
+                                                      Label="Value" />
+                                        break;
+                                    case "Edm.Date":
+                                        <MudTextField @bind-Value="set.ValueAsDateOnly"
+                                                      InputType="InputType.Date"
+                                                      Variant="Variant.Outlined"
+                                                      Placeholder="NULL"
+                                                      HelperText="@set.ValueHelperText"
+                                                      Converter="new AppDateOnlyIsoConverter()"
+                                                      Label="Value" />
+                                        break;
+                                    case "Edm.Decimal":
+                                        <MudNumericField @bind-Value="set.ValueAsDecimal"
+                                                         Variant="Variant.Outlined"
+                                                         Placeholder="NULL"
+                                                         HelperText="@set.ValueHelperText"
+                                                         Label="Value" />
+                                        break;
+                                    case "Edm.Double":
+                                        <MudNumericField @bind-Value="set.ValueAsDouble"
+                                                         Variant="Variant.Outlined"
+                                                         Placeholder="NULL"
+                                                         HelperText="@set.ValueHelperText"
+                                                         Label="Value" />
+                                        break;
+                                    default:
+                                        <MudText Color="Color.Error">Unsupported</MudText>
+                                        break;
+                                }
+                            }
+                        </MudStack>
+                        <MudIconButton OnClick="() => _sets.Remove(set)"
+                                       Icon="@Icons.Material.Filled.Remove"
+                                       Class="flex-grow-0"></MudIconButton>
+                    </MudStack>
+                }
+                <MudStack Row Reverse>
+                    <MudButton OnClick="AddFieldSet" StartIcon="@Icons.Material.Filled.Add">Add field</MudButton>
+                </MudStack>
+                <MudDivider />
+            </MudStack>
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="Cancel">Cancel</MudButton>
+            <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+        </DialogActions>
+    </MudDialog>
+    <MudOverlay @bind-Visible="_saving" DarkBackground>
+        <MudProgressCircular Indeterminate Color="Color.Secondary"></MudProgressCircular>
+    </MudOverlay>
+</div>
+@code {
+    private bool _loading = true;
+    private bool _saving = false;
+    private PropertyInfo[] _fields = Array.Empty<PropertyInfo>();
+    private Dictionary<PropertyInfo, PicklistOption[]> _options = new();
+
+    private List<EditDialogSet> _sets = new();
+
+    [Parameter]
+    public TableInfo Table { get; set; } = default!;
+
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter]
+    public Guid? Id { get; set; }
+
+    private void AlternateEmptyNull(KeyboardEventArgs args, EditDialogSet set)
+    {
+        if (args.Key == "Backspace")
+        {
+            if (set.Value == null)
+            {
+                set.Value = "";
+            }
+            else if ((set.Value as string) == "")
+            {
+                set.Value = null;
+            }
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            if (!Id.HasValue)
+            {
+                _sets.Add(new EditDialogSet()
+                    {
+                        Column = Table.Columns.FirstOrDefault(c => c.IsPrimaryKey),
+                        Value = Guid.NewGuid().ToString()
+                    });
+            }
+            else
+            {
+                var current = await HttpClient.GetFromJsonAsync<JsonObject>($"{Table.Endpoint}({Id})");
+                foreach (var col in Table.Columns.Where(c => c.IsEditable))
+                {
+                    var jsonVal = current![col.OriginalName];
+                    if (jsonVal is null) { continue; }
+                    var set = new EditDialogSet { Column = col };
+                    set.Value = col.TypeName switch
+                    {
+                        "Edm.String" => jsonVal.GetValue<string>(),
+                        "Edm.Int32" => jsonVal.GetValue<int>(),
+                        "Edm.Int64" => jsonVal.GetValue<long>(),
+                        "Edm.Boolean" => jsonVal.GetValue<bool>(),
+                        "Edm.DateTimeOffset" => jsonVal.GetValue<DateTime>(),
+                        "Edm.Date" => jsonVal.GetValue<DateOnly>(),
+                        "Edm.Decimal" => jsonVal.GetValue<decimal>(),
+                        "Edm.Double" => jsonVal.GetValue<double>(),
+                        "Edm.Guid" => jsonVal.GetValue<string>().ToString(),
+                        _ => null
+                    };
+                    set.AcceptValue();
+                    _sets.Add(set);
+
+
+                    //_sets.Add(new EditDialogSet {
+                    //    Column = col,
+                    //    Value = current[col.OriginalName]!.<object>()
+                    //});
+                    //var currentVal = current[col.OriginalName].AsValue();
+
+                    //var set = new EditDialogSet { Column = col };
+                    //if(current.Properties.TryGetValue(col.Name, out var value))
+                    //{
+                    //    set.Value = value;
+                    //}
+                    //_sets.Add(set);
+                }
+            }
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    void AddFieldSet()
+    {
+        var firstMissingColumn = Table.Columns.Where(c => c.IsEditable).Where(c => !_sets.Any(s => s.Column == c)).FirstOrDefault();
+        if (firstMissingColumn is null) { return; }
+        _sets.Add(new EditDialogSet { Column = firstMissingColumn });
+    }
+
+    async Task Submit()
+    {
+        _saving = true;
+        try
+        {
+            if (Id.HasValue)
+            {
+                await EditDialogService.PatchAsync(Id.Value, Table, _sets.ToArray());
+            }
+            else
+            {
+                await EditDialogService.PostAsync(Table, _sets.ToArray());
+            }
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            await DialogService.ShowMessageBox(new MessageBoxOptions
+                {
+                    Title = "Error",
+                    Message = ex.Message
+                });
+            Console.WriteLine(ex);
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+    void Cancel() => MudDialog.Cancel();
+
+}

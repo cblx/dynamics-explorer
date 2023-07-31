@@ -1,17 +1,17 @@
-﻿@using System.Reflection;
+﻿@*
+@using System.Reflection;
 @using Cblx.Dynamics;
-@using Cblx.OData.Client.Abstractions.Ids;
 @using System.Text.Json.Serialization;
 @using System.Linq.Expressions;
+@using Cblx.Dynamics.Explorer.Models;
 @typeparam TTable where TTable: class, new()
-@inject IODataClient Client
 @inject IDialogService DialogService
 <MudDialog Style="width: 600px" DisableSidePadding>
     <DialogContent>
         @if (_loading)
         {
             <MudStack AlignItems="AlignItems.Center">
-                <MudProgressCircular Style="margin: 0 auto" Indeterminate></MudProgressCircular>
+                <MudProgressCircular Style="margin: 0 auto" Indeterminate/>
             </MudStack>
         }
         else
@@ -144,11 +144,11 @@
         
         try
         {
-            var set = Client.From<TTable>();
+            //var set = Client.From<TTable>();
 
             if (Id.HasValue)
             {
-                _model = await set.FindAsync(Id.Value);
+                //_model = await set.FindAsync(Id.Value);
             }
             else
             {
@@ -159,7 +159,7 @@
             _fields = typeof(TTable)
                  .GetProperties()
                  .Where(p => p.PropertyType.IsValueType
-                         || p.PropertyType.BaseType == typeof(Id)
+                         //|| p.PropertyType.BaseType == typeof(Id)
                          || p.PropertyType == typeof(string)
                  ).ToArray();
 
@@ -172,20 +172,20 @@
                 {
                     try
                     {
-                        var getPickListOptionsMethod = set.GetType().GetMethod(nameof(set.GetNonGenericPicklistOptionsAsync));
-                        var memberAccessLambda = Expression.Lambda(
-                            Expression.Convert(
-                                Expression.MakeMemberAccess(
-                                    parameterExpression,
-                                    field
-                                ),
-                                typeof(object)
-                            ),
-                            parameterExpression
-                        );
+                        //var getPickListOptionsMethod = set.GetType().GetMethod(nameof(set.GetNonGenericPicklistOptionsAsync));
+                        //var memberAccessLambda = Expression.Lambda(
+                        //    Expression.Convert(
+                        //        Expression.MakeMemberAccess(
+                        //            parameterExpression,
+                        //            field
+                        //        ),
+                        //        typeof(object)
+                        //    ),
+                        //    parameterExpression
+                        //);
 
-                        var picklistOptionsTask = (Task<PicklistOption[]>)getPickListOptionsMethod!.Invoke(set, new object[] { memberAccessLambda })!;
-                        _options[field] = await picklistOptionsTask;
+                        //var picklistOptionsTask = (Task<PicklistOption[]>)getPickListOptionsMethod!.Invoke(set, new object[] { memberAccessLambda })!;
+                        //_options[field] = await picklistOptionsTask;
                     }
                     catch (Exception ex)
                     {
@@ -197,17 +197,17 @@
                 {
                     try
                     {
-                        var getPickListOptionsMethod = set.GetType().GetMethod(nameof(set.GetNonGenericMultiSelectPicklistOptionsAsync));
-                        var memberAccessLambda = Expression.Lambda(
-                                Expression.MakeMemberAccess(
-                                    parameterExpression,
-                                    field
-                                ),
-                            parameterExpression
-                        );
+                        //var getPickListOptionsMethod = set.GetType().GetMethod(nameof(set.GetNonGenericMultiSelectPicklistOptionsAsync));
+                        //var memberAccessLambda = Expression.Lambda(
+                        //        Expression.MakeMemberAccess(
+                        //            parameterExpression,
+                        //            field
+                        //        ),
+                        //    parameterExpression
+                        //);
 
-                        var picklistOptionsTask = (Task<PicklistOption[]>)getPickListOptionsMethod!.Invoke(set, new object[] { memberAccessLambda })!;
-                        _options[field] = await picklistOptionsTask;
+                        //var picklistOptionsTask = (Task<PicklistOption[]>)getPickListOptionsMethod!.Invoke(set, new object[] { memberAccessLambda })!;
+                        //_options[field] = await picklistOptionsTask;
                     }
                     catch (Exception ex)
                     {
@@ -261,40 +261,40 @@
 
     async Task Submit()
     {
-        var body = new Body<TTable>(Client.MetadataProvider);
+        //var body = new Body<TTable>(Client.MetadataProvider);
         _saving = true;
         try
         {
             var allProps = typeof(TTable).GetProperties();
             foreach (var field in _fields)
             {
-                string fieldName = field.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name ?? field.Name;
-                if (field.PropertyType.BaseType == typeof(Id) && field.Name != "Id")
-                {
-                    var id = field.GetValue(_model);
-                    if (id != null)
-                    {
-                        var guid = (Guid)id.GetType().GetProperty("Guid")!.GetValue(id)!;
-                        var navProp = allProps.FirstOrDefault(f => f.GetCustomAttribute<ReferentialConstraintAttribute>()?.Property == fieldName);
-                        if (navProp == null)
-                        {
-                            throw new InvalidOperationException($"Could not find the navigation property associated with {fieldName}. Please create a navigation property annotated with [ReferentialConstraint(..)]");
-                        }
-                        body.Bind(navProp.GetCustomAttribute<JsonPropertyNameAttribute>()!.Name, guid);
-                    }
-                }
-                else
-                {
-                    body.Set(fieldName, field.GetValue(_model));
-                }
+                //string fieldName = field.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name ?? field.Name;
+                //if (field.PropertyType.BaseType == typeof(Id) && field.Name != "Id")
+                //{
+                //    var id = field.GetValue(_model);
+                //    if (id != null)
+                //    {
+                //        var guid = (Guid)id.GetType().GetProperty("Guid")!.GetValue(id)!;
+                //        //var navProp = allProps.FirstOrDefault(f => f.GetCustomAttribute<ReferentialConstraintAttribute>()?.Property == fieldName);
+                //        //if (navProp == null)
+                //        //{
+                //        //    throw new InvalidOperationException($"Could not find the navigation property associated with {fieldName}. Please create a navigation property annotated with [ReferentialConstraint(..)]");
+                //        //}
+                //        //body.Bind(navProp.GetCustomAttribute<JsonPropertyNameAttribute>()!.Name, guid);
+                //    }
+                //}
+                //else
+                //{
+                //    body.Set(fieldName, field.GetValue(_model));
+                //}
             }
             if (Id.HasValue)
             {
-                await Client.Patch(Id, body);
+                //await Client.Patch(Id, body);
             }
             else
             {
-                await Client.Post(body);
+                //await Client.Post(body);
             }
             MudDialog.Close(DialogResult.Ok(true));
         }
@@ -314,3 +314,4 @@
     }
     void Cancel() => MudDialog.Cancel();
 }
+*@

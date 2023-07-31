@@ -1,9 +1,11 @@
-﻿using Cblx.Dynamics.AspNetCore;
+﻿using Cblx.Dynamics.Explorer.Models;
 using Cblx.Dynamics.Explorer.Services;
+using Cblx.Dynamics.Explorer.Services.Authenticator;
+using Cblx.Dynamics.Explorer.Shared;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using MudBlazor.Services;
-using OData.Client;
-using OData.Client.Abstractions;
 using System.Reflection;
 
 namespace Cblx.Dynamics.Explorer;
@@ -13,26 +15,33 @@ public static class ServiceCollectionExtensions
     {
         var options = new DynamicsExplorerOptions
         {
-            Tables = assemblies
-                .SelectMany(a => a.GetTypes())
-                .Where(t => t.GetCustomAttribute<DynamicsEntityAttribute>() != null)
-                .Select(t => new TableInfo
-                {
-                    Type = t,
-                    Name = t.Name,
-                    InternalName = t.GetCustomAttribute<DynamicsEntityAttribute>()!.Name
-                })
-                .ToArray()
+            Tables = Array.Empty<TableOptions>()
         };
         services.AddSingleton(options);
-        services.AddDynamics();
-        services.AddScoped(sp => ((sp.GetRequiredService<IODataClient>() as ODataClient)!.Invoker as HttpClient)!);
+        services.AddSingleton<IDynamicsAuthenticator, DynamicsAuthenticator>();
+        // Default Config, binding from "Dynamics" section
+        services
+            .AddOptions<DynamicsConfig>()
+            .Configure<IConfiguration>((dynamicsConfig, configuration) => configuration.GetSection("Dynamics").Bind(dynamicsConfig));
+        services.AddScoped(sp => sp.GetRequiredService<IOptions<DynamicsConfig>>().Value);
+        services
+            .AddHttpClient("IODataClient")
+            .AddHttpMessageHandler<DynamicsAuthorizationMessageHandler>()
+            .ConfigureHttpClient((sp, httpClient) =>
+            {
+                var dynamicsConfig = sp.GetRequiredService<IOptions<DynamicsConfig>>().Value;
+                httpClient.BaseAddress = DynamicsBaseAddress.FromResourceUrl(dynamicsConfig.ResourceUrl);
+            });
+        services.AddTransient<DynamicsAuthorizationMessageHandler>();
+        services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("IODataClient"));
         services.AddRazorPages();
         services.AddServerSideBlazor();
         services.AddMudServices();
         services.AddSingleton<ApplicationService>();
         services.AddSingleton<AppBarService>();
-        services.AddScoped<SchemaService>();
+        services.AddSingleton<DynamicsComponentFactory>();
+        services.AddSingleton<SchemaService>();
+        services.AddScoped<EditDialogService>();
         return services;
     }
 }

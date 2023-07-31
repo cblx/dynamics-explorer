@@ -1,4 +1,4 @@
-﻿@page "/tbl/{TableName}"
+﻿@*@page "/tbl/{TableName}"
 @inject DynamicsExplorerOptions Options
 <DynamicComponent Type="_componentType"></DynamicComponent>
 @code {
@@ -16,3 +16,4 @@
         _componentType = typeof(TablePageTemplate<>).MakeGenericType(Options.Tables.First(t => t.Name == TableName)!.Type);
     }
 }
+*@

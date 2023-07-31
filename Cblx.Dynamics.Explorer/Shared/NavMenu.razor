@@ -2,43 +2,103 @@
 @using System.Reflection;
 @using System.Xml.Linq;
 @using Cblx.Dynamics.Explorer.Services;
+@using Cblx.Dynamics.Explorer.Models;
 @inject DynamicsExplorerOptions Options
 @inject SchemaService SchemaService
 <MudNavMenu Dense Class="pb-16">
     <MudNavLink Href="/" Match="NavLinkMatch.All">Diagram</MudNavLink>
-    @foreach (var tbl in Options.Tables)
+    <MudDivider />
+    <MudTextField Placeholder="Filter tables" @bind-Value="_filter" Immediate/>
+    @foreach (var tbl in _displayTables)
     {
-        <MudNavLink Href="@($"tbl/{@tbl.Name}")" Match="NavLinkMatch.Prefix">
+        <MudNavLink Href="@($"tbl/{tbl.OriginalName}")" Match="NavLinkMatch.All">
             <MudStack Spacing="0">
-                <MudText>@tbl.Name</MudText>
-                <MudText Typo="Typo.caption">@tbl.InternalName</MudText>
+                <MudText>@tbl.DisplayName</MudText>
+                @if (tbl.HasFriendlyName)
+                {
+                    <MudText Typo="Typo.caption">@tbl.OriginalName</MudText>
+                }
             </MudStack>
         </MudNavLink>
     }
+    @* @foreach (var tbl in Options.Tables)
+    {
+    <MudNavLink Href="@($"tbl/{tbl.Name}")" Match="NavLinkMatch.Prefix">
+    <MudStack Spacing="0">
+    <MudText>@tbl.FriendlyName</MudText>
+    <MudText Typo="Typo.caption">@tbl.Name</MudText>
+    </MudStack>
+    </MudNavLink>
+    }
     @if (_notMappedTables.Any())
     {
-        <MudDivider></MudDivider>
-        <Virtualize Items="_notMappedTables" Context="tbl">
-            <MudNavLink Match="NavLinkMatch.All" Href="@($"dyn-tbl/{@tbl}")">@tbl</MudNavLink>
-        </Virtualize>
-    }
+    <MudDivider></MudDivider>
+    <Virtualize Items="_notMappedTables" Context="tblName">
+    <MudNavLink Match="NavLinkMatch.All" Href="@($"tbl/{@tblName}")">@tblName</MudNavLink>
+    </Virtualize>
+    }*@
 </MudNavMenu>
-@code{
-    private string[] _notMappedTables = Array.Empty<string>();
+@code {
+    //private string[] _notMappedTables = Array.Empty<string>();
+    private TableInfo[] _tables = Array.Empty<TableInfo>();
+    private string _filter = string.Empty;
+    public TableInfo[] _displayTables
+        => _tables.Where(
+                t => t.DisplayName.Contains(_filter, StringComparison.OrdinalIgnoreCase)
+                    || t.OriginalName?.Contains(_filter, StringComparison.OrdinalIgnoreCase) is true).ToArray();
+
     protected override async Task OnInitializedAsync()
     {
-        var schema = await SchemaService.DocumentTask;
-        var tables = schema
-               .Descendants()
-               .Where(el => el.Name.LocalName == "EntityType")
-               .Select(el => new
-               {
-                   TableName = el.Attribute("Name")!.Value,
-               });
-        _notMappedTables = tables.Select(t => t.TableName)
-            .Except(Options.Tables
-            .Select(t => t.InternalName))
-            .Order()
-            .ToArray();
+        _tables = await SchemaService.GetTablesAsync();
+
+        //var schema = await SchemaService.DocumentTask;
+
+        //var blackList = new string[]
+        //{
+        //    //"aaduser",
+        //    //"accountleads",
+        //    //"aciviewmapper",
+        //    //"actioncard",
+        //    //"actioncarduserstate",
+        //    //"activitymimeattachment",
+        //    //"AttributeMetadata",
+        //    //"availabletimes",
+        //    //"backgroundoperation",
+        //    //"BigIntAttributeMetadata",
+        //    //"bookableresource",
+        //    //"bookableresourcebooking",
+        //    //"bookableresourcebookingheader",
+        //    //"bookableresourcecategory",
+        //    //"bookableresourcecategoryassn",
+        //    //"bookableresourcecharacteristic",
+        //    //"bookableresourcegroup",
+        //    //"BooleanAttributeMetadata"
+
+        //};
+
+        //var endpoints = schema
+        //             .Descendants()
+        //             .Where(el => el.Name.LocalName == "EntitySet")
+        //             //.Where(el => el.Attribute("EntityType")!.Value.EndsWith($".{tbl.TableName}"))
+        //             .Select(el => new
+        //             {
+        //                 EndpointName = el.Attribute("Name")!.Value,
+        //                 EntityName = el.Attribute("EntityType")!.Value.Split('.').Last()
+        //             }).ToDictionary(el => el.EntityName);
+
+        //var tables = schema
+        //       .Descendants()
+        //       .Where(el => el.Name.LocalName == "EntityType")
+        //       .Select(el => new TableInfo
+        //       {
+        //           TableName = el.Attribute("Name")!.Value,
+        //       })
+        //       .Where(tbl => !blackList.Contains(tbl.TableName))
+        //       .Where(tbl => endpoints.TryGetValue(tbl.TableName, out var endpoint));
+        //_notMappedTables = tables.Select(t => t.TableName)
+        //    .Except(Options.Tables
+        //    .Select(t => t.Name))
+        //    .Order()
+        //    .ToArray();
     }
 }

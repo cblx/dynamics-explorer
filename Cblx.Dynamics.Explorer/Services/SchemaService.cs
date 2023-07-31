@@ -1,22 +1,47 @@
 ﻿using System.Xml.Linq;
+using Cblx.Dynamics.Explorer.Models;
 
 namespace Cblx.Dynamics.Explorer.Services;
 
-public class SchemaService
+internal class SchemaService
 {
-    private readonly HttpClient _httpClient;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly DynamicsExplorerOptions _options;
+    private readonly DynamicsComponentFactory _factory;
+    private TableInfo[] _tables  = Array.Empty<TableInfo>();
 
     public Task<XDocument> DocumentTask { get; }
-    public SchemaService(HttpClient httpClient)
+    public SchemaService(
+        //HttpClient httpClient, 
+        IHttpClientFactory httpClientFactory,
+        DynamicsExplorerOptions options, DynamicsComponentFactory factory)
     {
-        _httpClient = httpClient;
+        _httpClientFactory = httpClientFactory;
+        _options = options;
+        _factory = factory;
         DocumentTask = LoadSchemaAsync();
     }
 
     private async Task<XDocument> LoadSchemaAsync()
     {
-        var schema = await _httpClient.GetStringAsync("$metadata");
+        var httpClient = _httpClientFactory.CreateClient("IODataClient");
+        var schema = await httpClient.GetStringAsync("$metadata");
         var xDocument = XDocument.Parse(schema);
         return xDocument;
+    }
+
+    internal async Task<TableInfo[]> GetTablesAsync()
+    {
+        if(_tables.Any()) { return _tables; }
+        var document = await DocumentTask;
+        var tables = document
+            .Descendants()
+            .Where(e => e.Name.LocalName == "EntityType")
+            .Select(e => _factory.CreateTable(e))
+            .Where(t => t.HasEndpoint)
+            .ToArray();
+        _tables = tables;
+        Console.WriteLine($"Loaded {_tables.Length} tables");
+        return tables;
     }
 }

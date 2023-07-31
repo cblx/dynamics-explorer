@@ -1,6 +1,8 @@
-﻿namespace Cblx.Dynamics.Explorer;
+﻿using Cblx.Dynamics.Explorer.Models;
 
-internal class DynamicsExplorerOptions
+namespace Cblx.Dynamics.Explorer;
+
+public class DynamicsExplorerOptions
 {
-    public required TableInfo[] Tables { get; init; }
+    public required TableOptions[] Tables { get; init; }
 }
