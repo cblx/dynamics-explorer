@@ -28,127 +28,10 @@
                 {
                     <MudStack Row>
                         <MudStack Class="flex-1 overflow-hidden">
-                        <MudSelect Variant="Variant.Outlined"
-                                   HelperText="@(set.Column?.HasFriendlyName is true ? set.Column.OriginalName : "")"
-                                   Label="Field" @bind-Value="set.Column" @bind-Value:after="() => set.Value = null">
-
-                            @foreach (var column in Table.Columns.Where(c => c.IsEditable).Where(c => c == set.Column || !_sets.Any(s => s.Column == c)))
-                                {
-                                    <MudSelectItem Value="column">
-                                        <MudStack Spacing="0" Style="margin-top: -4px">
-                                    <MudStack Class="flex-grow-1" Spacing="0">
-                                        <MudText Typo="Typo.caption" Style="line-height: 1" Color="Color.Secondary">@column.DisplayName</MudText>
-                                        @if (column.HasFriendlyName)
-                                            {
-                                                <MudText Typo="Typo.caption" Style="line-height: 1">@column.OriginalName</MudText>
-                                            }
-                                        </MudStack>
-                                        <MudStack AlignItems="AlignItems.Start" Class="flex-grow-0">
-                                            <MudText Typo="Typo.caption" Style="color: gray !important; line-height: 1">@column.TypeName</MudText>
-                                        </MudStack>
-                                    </MudStack>
-                                </MudSelectItem>
-                                }
-                            </MudSelect>
+                            <AppSetFieldField Set="set" Sets="_sets" Table="Table"/>
                         </MudStack>
                         <MudStack Class="flex-1" AlignItems="AlignItems.Stretch" Justify="Justify.Center">
-                            @if (set.Column is null)
-                            {
-                                <MudText Align="Align.Center">Choose column</MudText>
-                            }
-                            else
-                            {
-                                switch (set.Column.TypeName)
-                                {
-                                    case "Edm.Guid":
-                                        @if (set.Column.IsForeignKey)
-                                        {
-                                            <AppNavigationField @bind-Value="set.ValueAsString"
-                                                                Column="set.Column" />
-                                        }
-                                        else
-                                        {
-                                            <MudTextField @bind-Value="set.ValueAsString"
-                                                          Variant="Variant.Outlined"
-                                                          Placeholder="NULL"
-                                                          Mask="@(new PatternMask("********-****-****-****-************"){
-                                                     CleanDelimiters = true
-                                                  })"
-                                                          HelperText="@set.ValueHelperText"
-                                                          Label="Value" />
-                                        }
-                                        break;
-                                    case "Edm.String":
-                                        <MudTextField @bind-Value="set.ValueAsString"
-                                                      Variant="Variant.Outlined"
-                                                      OnKeyDown="(args) => AlternateEmptyNull(args, set)"
-                                                      Placeholder="@(set.Value is null ? "NULL" : " ")"
-                                                      HelperText="@set.ValueHelperText"
-                                                      Label="Value" />
-                                        break;
-                                    case "Edm.Int32":
-                                        <MudNumericField @bind-Value="set.ValueAsInt32"
-                                                         Variant="Variant.Outlined"
-                                                         Placeholder="NULL"
-                                                         HelperText="@set.ValueHelperText"
-                                                         Label="Value" />
-                                        break;
-                                    case "Edm.Int64":
-                                        <MudNumericField @bind-Value="set.ValueAsInt64"
-                                                         Variant="Variant.Outlined"
-                                                         Placeholder="NULL"
-                                                         HelperText="@set.ValueHelperText"
-                                                         Label="Value" />
-                                        break;
-                                    case "Edm.Boolean":
-                                        <MudCheckBox @bind-Checked="set.ValueAsBoolean"
-                                                              TriState
-                                                     Label="Value" />
-                                        <div class="mud-input-control-helper-container px-2">
-                                            <p class="mud-input-helper-text">
-                                                <div class="d-flex">
-                                                    <div class="me-auto">@set.ValueHelperText</div>
-                                                </div>
-                                            </p>
-                                        </div>
-                                        break;
-                                    case "Edm.DateTimeOffset":
-                                        <MudTextField @bind-Value="set.ValueAsDateTime"
-                                                      InputType="InputType.DateTimeLocal"
-                                                      Variant="Variant.Outlined"
-                                                      Placeholder="NULL"
-                                                      HelperText="@set.ValueHelperText"
-                                                      Converter="new AppDateTimeIsoConverter()"
-                                                      Label="Value" />
-                                        break;
-                                    case "Edm.Date":
-                                        <MudTextField @bind-Value="set.ValueAsDateOnly"
-                                                      InputType="InputType.Date"
-                                                      Variant="Variant.Outlined"
-                                                      Placeholder="NULL"
-                                                      HelperText="@set.ValueHelperText"
-                                                      Converter="new AppDateOnlyIsoConverter()"
-                                                      Label="Value" />
-                                        break;
-                                    case "Edm.Decimal":
-                                        <MudNumericField @bind-Value="set.ValueAsDecimal"
-                                                         Variant="Variant.Outlined"
-                                                         Placeholder="NULL"
-                                                         HelperText="@set.ValueHelperText"
-                                                         Label="Value" />
-                                        break;
-                                    case "Edm.Double":
-                                        <MudNumericField @bind-Value="set.ValueAsDouble"
-                                                         Variant="Variant.Outlined"
-                                                         Placeholder="NULL"
-                                                         HelperText="@set.ValueHelperText"
-                                                         Label="Value" />
-                                        break;
-                                    default:
-                                        <MudText Color="Color.Error">Unsupported</MudText>
-                                        break;
-                                }
-                            }
+                            <AppSetValueField Set="set" />
                         </MudStack>
                         <MudIconButton OnClick="() => _sets.Remove(set)"
                                        Icon="@Icons.Material.Filled.Remove"
@@ -187,21 +70,7 @@
     [Parameter]
     public Guid? Id { get; set; }
 
-    private void AlternateEmptyNull(KeyboardEventArgs args, EditDialogSet set)
-    {
-        if (args.Key == "Backspace")
-        {
-            if (set.Value == null)
-            {
-                set.Value = "";
-            }
-            else if ((set.Value as string) == "")
-            {
-                set.Value = null;
-            }
-        }
-    }
-
+  
     protected override async Task OnInitializedAsync()
     {
         try
@@ -237,20 +106,6 @@
                     };
                     set.AcceptValue();
                     _sets.Add(set);
-
-
-                    //_sets.Add(new EditDialogSet {
-                    //    Column = col,
-                    //    Value = current[col.OriginalName]!.<object>()
-                    //});
-                    //var currentVal = current[col.OriginalName].AsValue();
-
-                    //var set = new EditDialogSet { Column = col };
-                    //if(current.Properties.TryGetValue(col.Name, out var value))
-                    //{
-                    //    set.Value = value;
-                    //}
-                    //_sets.Add(set);
                 }
             }
         }

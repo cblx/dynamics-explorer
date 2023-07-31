@@ -1,0 +1,121 @@
+﻿@using Cblx.Dynamics.Explorer.Models;
+@using System.Linq.Expressions;
+@using Cblx.Dynamics.Explorer.Shared.Converters;
+@if (Set.Column is null)
+{
+    <MudText Align="Align.Center">Choose column</MudText>
+}
+else
+{
+    switch (Set.Column!.TypeName)
+    {
+        case "Edm.Guid":
+            @if (Set.Column.IsForeignKey)
+            {
+                <AppNavigationField @bind-Value="Set.ValueAsString"
+                                    Column="Set.Column" />
+            }
+            else
+            {
+                <MudTextField @bind-Value="Set.ValueAsString"
+                              Variant="Variant.Outlined"
+                              Placeholder="NULL"
+                              Mask="@(new PatternMask("********-****-****-****-************"){
+                                                     CleanDelimiters = true
+                                                  })"
+                              HelperText="@Set.ValueHelperText"
+                              Label="Value" />
+            }
+            break;
+        case "Edm.String":
+            <MudTextField @bind-Value="Set.ValueAsString"
+                          Variant="Variant.Outlined"
+                          OnKeyDown="(args) => AlternateEmptyNull(args, Set)"
+                          Placeholder="@(Set.Value is null ? "NULL" : " ")"
+                          HelperText="@Set.ValueHelperText"
+                          Label="Value" />
+            break;
+        case "Edm.Int32":
+            <MudNumericField @bind-Value="Set.ValueAsInt32"
+                             Variant="Variant.Outlined"
+                             Placeholder="NULL"
+                             HelperText="@Set.ValueHelperText"
+                             Label="Value" />
+            break;
+        case "Edm.Int64":
+            <MudNumericField @bind-Value="Set.ValueAsInt64"
+                             Variant="Variant.Outlined"
+                             Placeholder="NULL"
+                             HelperText="@Set.ValueHelperText"
+                             Label="Value" />
+            break;
+        case "Edm.Boolean":
+            <MudCheckBox @bind-Checked="Set.ValueAsBoolean"
+                          TriState
+                         Label="Value" />
+            <div class="mud-input-control-helper-container px-2">
+                <p class="mud-input-helper-text">
+                    <div class="d-flex">
+                        <div class="me-auto">@Set.ValueHelperText</div>
+                    </div>
+                </p>
+            </div>
+            break;
+        case "Edm.DateTimeOffset":
+            <MudTextField @bind-Value="Set.ValueAsDateTime"
+                          InputType="InputType.DateTimeLocal"
+                          Variant="Variant.Outlined"
+                          Placeholder="NULL"
+                          HelperText="@Set.ValueHelperText"
+                          Converter="new AppDateTimeIsoConverter()"
+                          Label="Value" />
+            break;
+        case "Edm.Date":
+            <MudTextField @bind-Value="Set.ValueAsDateOnly"
+                          InputType="InputType.Date"
+                          Variant="Variant.Outlined"
+                          Placeholder="NULL"
+                          HelperText="@Set.ValueHelperText"
+                          Converter="new AppDateOnlyIsoConverter()"
+                          Label="Value" />
+            break;
+        case "Edm.Decimal":
+            <MudNumericField @bind-Value="Set.ValueAsDecimal"
+                             Variant="Variant.Outlined"
+                             Placeholder="NULL"
+                             HelperText="@Set.ValueHelperText"
+                             Label="Value" />
+            break;
+        case "Edm.Double":
+            <MudNumericField @bind-Value="Set.ValueAsDouble"
+                             Variant="Variant.Outlined"
+                             Placeholder="NULL"
+                             HelperText="@Set.ValueHelperText"
+                             Label="Value" />
+            break;
+        default:
+            <MudText Color="Color.Error">Unsupported</MudText>
+            break;
+    }
+}
+@code {
+    [Parameter]
+    [EditorRequired]
+    public required EditDialogSet Set { get; set; }
+
+    private void AlternateEmptyNull(KeyboardEventArgs args, EditDialogSet set)
+    {
+        if (args.Key == "Backspace")
+        {
+            if (set.Value == null)
+            {
+                set.Value = "";
+            }
+            else if ((set.Value as string) == "")
+            {
+                set.Value = null;
+            }
+        }
+    }
+
+}

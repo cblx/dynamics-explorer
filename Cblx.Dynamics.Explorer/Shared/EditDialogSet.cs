@@ -2,7 +2,7 @@
 using System.Text.Json;
 namespace Cblx.Dynamics.Explorer.Shared;
 
-internal class EditDialogSet
+public class EditDialogSet
 {
     public ColumnInfo? Column { get; set; }
     public object? Value { get; set; }
