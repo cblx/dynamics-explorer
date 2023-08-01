@@ -89,7 +89,7 @@
         {
             string id = item![foreignPkColumn.OriginalName]!.GetValue<string>();
             foundIds.Add(id);
-            string name = item![foreignEntityPrimaryNameAttribute]!.GetValue<string>();
+            string name = item![foreignEntityPrimaryNameAttribute]?.GetValue<string>() ?? "NAME NOT FOUND";
             _foundItems[id] = new SearchItem
                 {
                     Text = name,
