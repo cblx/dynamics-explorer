@@ -37,6 +37,8 @@ internal class SchemaService
         var tables = document
             .Descendants()
             .Where(e => e.Name.LocalName == "EntityType")
+            .Where(e => _options.IgnoreTables == null 
+                    || !_options.IgnoreTables(new IgnoreTableContext { LogicalName = e.Attribute("Name")!.Value }))
             .Select(e => _factory.CreateTable(e))
             .Where(t => t.HasEndpoint)
             .ToArray();

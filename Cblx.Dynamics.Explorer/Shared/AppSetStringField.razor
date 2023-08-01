@@ -65,13 +65,13 @@ else
     {
         try
         {
-            JsonObject? json = await HttpClient.GetFromJsonAsync<JsonObject>($"EntityDefinitions(LogicalName='{Set.Column.Table.OriginalName}')/Attributes(LogicalName='{Set.Column.OriginalName}')/Microsoft.Dynamics.CRM.MultiSelectPicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)"); ;
-            Options = json["OptionSet"]["Options"]
+            var json = await HttpClient.GetFromJsonAsync<JsonObject>($"EntityDefinitions(LogicalName='{Set.Column!.Table.OriginalName}')/Attributes(LogicalName='{Set.Column.OriginalName}')/Microsoft.Dynamics.CRM.MultiSelectPicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)"); ;
+            Options = json!["OptionSet"]!["Options"]!
                 .AsArray()
                 .Select(j => new PicklistOption
                     {
-                        Text = j["Label"]["LocalizedLabels"][0]["Label"].GetValue<string>(),
-                        Value = j["Value"].GetValue<int>()
+                        Text = j!["Label"]!["LocalizedLabels"]![0]!["Label"]!.GetValue<string>(),
+                        Value = j["Value"]!.GetValue<int>()
                     }).ToArray();
         }
         catch { }

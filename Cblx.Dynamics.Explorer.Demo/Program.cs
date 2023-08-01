@@ -13,9 +13,11 @@ builder.Services.AddDynamicsExplorer(
 );
 var options = new DynamicsExplorerOptions
 {
-    //Tables = Array.Empty<TableInfo>()
-    Tables =
-    typeof(TbAccount).Assembly
+    IgnoreTables = table => table.LogicalName.StartsWith("ms") 
+                            || table.LogicalName.StartsWith("app")
+                            || table.LogicalName.StartsWith("book")
+                            || table.LogicalName.StartsWith("bot"),
+    Tables = typeof(TbAccount).Assembly
         .GetTypes()
         .Where(t => t.GetCustomAttribute<DynamicsEntityAttribute>() != null)
         .Select(t => new TableOptions

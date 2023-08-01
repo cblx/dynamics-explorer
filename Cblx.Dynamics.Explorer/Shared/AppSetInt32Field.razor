@@ -33,7 +33,7 @@ else{
         try
         {
             JsonObject? json = null;
-            if (Set.Column.OriginalName == "statuscode")
+            if (Set.Column!.OriginalName == "statuscode")
             {
                 json = await HttpClient.GetFromJsonAsync<JsonObject>($"EntityDefinitions(LogicalName='{Set.Column.Table.OriginalName}')/Attributes(LogicalName='statuscode')/Microsoft.Dynamics.CRM.StatusAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)");
             }
@@ -45,12 +45,12 @@ else{
             {
                 json = await HttpClient.GetFromJsonAsync<JsonObject>($"EntityDefinitions(LogicalName='{Set.Column.Table.OriginalName}')/Attributes(LogicalName='{Set.Column.OriginalName}')/Microsoft.Dynamics.CRM.PicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)");
             }
-            Options = json["OptionSet"]["Options"]
+            Options = json!["OptionSet"]!["Options"]!
                 .AsArray()
                 .Select(j => new PicklistOption
                 {
-                    Text = j["Label"]["LocalizedLabels"][0]["Label"].GetValue<string>(),
-                    Value = j["Value"].GetValue<int>()
+                    Text = j!["Label"]!["LocalizedLabels"]![0]!["Label"]!.GetValue<string>(),
+                    Value = j["Value"]!.GetValue<int>()
                 }).ToArray();
         }catch{}
     }
