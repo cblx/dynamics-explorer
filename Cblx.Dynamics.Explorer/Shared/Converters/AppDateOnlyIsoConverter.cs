@@ -5,7 +5,7 @@ namespace Cblx.Dynamics.Explorer.Shared.Converters;
 internal class AppDateOnlyIsoConverter : DefaultConverter<DateOnly?>
 {
     /// <summary>
-    /// Espera-se datas em formato ISO
+    /// ISO formatted dates
     /// yyyy-MM-dd
     /// yyyy-MM-dd HH:mm:ss
     /// </summary>
@@ -21,7 +21,7 @@ internal class AppDateOnlyIsoConverter : DefaultConverter<DateOnly?>
         }
         catch (FormatException)
         {
-            UpdateGetError("Data inválida");
+            UpdateGetError("Invalid date");
         }
         return null;
     }

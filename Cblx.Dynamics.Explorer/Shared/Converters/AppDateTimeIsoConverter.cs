@@ -7,7 +7,7 @@ internal class AppDateTimeIsoConverter : DefaultConverter<DateTime?>
     public bool DateOnly { get; set; }
 
     /// <summary>
-    /// Espera-se datas em formato ISO
+    /// ISO formatted dates
     /// yyyy-MM-dd
     /// yyyy-MM-dd HH:mm:ss
     /// </summary>
@@ -23,7 +23,7 @@ internal class AppDateTimeIsoConverter : DefaultConverter<DateTime?>
         }
         catch (FormatException)
         {
-            UpdateGetError("Data inválida");
+            UpdateGetError("Invalid date");
         }
         return null;
     }
