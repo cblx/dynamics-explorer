@@ -11,7 +11,7 @@ using System.Reflection;
 namespace Cblx.Dynamics.Explorer;
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddDynamicsExplorer(this IServiceCollection services, params Assembly[] assemblies)
+    public static IServiceCollection AddDynamicsExplorer(this IServiceCollection services)
     {
         var options = new DynamicsExplorerOptions
         {

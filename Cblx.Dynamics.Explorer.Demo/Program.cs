@@ -7,10 +7,7 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
-builder.Services.AddDynamicsExplorer(
-    // mapping assemblies
-    typeof(TbAccount).Assembly
-);
+builder.Services.AddDynamicsExplorer();
 var options = new DynamicsExplorerOptions
 {
     IgnoreTables = table => table.LogicalName.StartsWith("ms") 
