@@ -28,12 +28,7 @@ else
             }
             break;
         case "Edm.String":
-            <MudTextField @bind-Value="Set.ValueAsString"
-                          Variant="Variant.Outlined"
-                          OnKeyDown="(args) => AlternateEmptyNull(args, Set)"
-                          Placeholder="@(Set.Value is null ? "NULL" : " ")"
-                          HelperText="@Set.ValueHelperText"
-                          Label="Value" />
+            <AppSetStringField Set="Set"/>
             break;
         case "Edm.Int32":
             <AppSetInt32Field Set="Set"/>
@@ -98,20 +93,4 @@ else
     [Parameter]
     [EditorRequired]
     public required EditDialogSet Set { get; set; }
-
-    private void AlternateEmptyNull(KeyboardEventArgs args, EditDialogSet set)
-    {
-        if (args.Key == "Backspace")
-        {
-            if (set.Value == null)
-            {
-                set.Value = "";
-            }
-            else if ((set.Value as string) == "")
-            {
-                set.Value = null;
-            }
-        }
-    }
-
 }

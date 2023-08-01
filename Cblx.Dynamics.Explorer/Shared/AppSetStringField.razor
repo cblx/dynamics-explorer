@@ -1,0 +1,79 @@
+﻿@using System.Text.Json.Nodes;
+@using System.Net.Http.Json;
+@using Cblx.Dynamics.Explorer.Models;
+@inject HttpClient HttpClient
+@if (Options != null)
+{
+    <MudSelect T="string"
+               Label="Value"
+               Variant="Variant.Outlined"
+               MultiSelection
+               HelperText="@Set.ValueHelperText"
+               MultiSelectionTextFunc="@((items) => {
+                                        return string.Join(", ", items.Select(textValue => {
+                                            var option = Options.FirstOrDefault(o => o.Value.ToString() == textValue);
+                                            return option != null ? option.Text : textValue;
+                                        }));
+                                    })"
+               SelectedValues="@(Set.ValueAsString?.Split(','))"
+               SelectedValuesChanged="@(val => {
+                                        if(val.Any())
+                                        {
+                                            Set.ValueAsString = string.Join(",", val);
+                                        }
+                                        else
+                                        {
+                                            Set.ValueAsString = null;
+                                        }
+                                    })">
+        @foreach (var option in Options)
+        {
+            <MudSelectItem Value="@(option.Value.ToString())">@option.Text</MudSelectItem>
+        }
+    </MudSelect>
+}
+else
+{
+    <MudTextField @bind-Value="Set.ValueAsString"
+                  Variant="Variant.Outlined"
+                  OnKeyDown="(args) => AlternateEmptyNull(args, Set)"
+                  Placeholder="@(Set.Value is null ? "NULL" : " ")"
+                  HelperText="@Set.ValueHelperText"
+                  Label="Value" />
+}
+@code {
+    [Parameter]
+    [EditorRequired]
+    public required EditDialogSet Set { get; set; }
+    private PicklistOption[]? Options = null;
+    private void AlternateEmptyNull(KeyboardEventArgs args, EditDialogSet set)
+    {
+        if (args.Key == "Backspace")
+        {
+            if (set.Value == null)
+            {
+                set.Value = "";
+            }
+            else if ((set.Value as string) == "")
+            {
+                set.Value = null;
+            }
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            JsonObject? json = await HttpClient.GetFromJsonAsync<JsonObject>($"EntityDefinitions(LogicalName='{Set.Column.Table.OriginalName}')/Attributes(LogicalName='{Set.Column.OriginalName}')/Microsoft.Dynamics.CRM.MultiSelectPicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)"); ;
+            Options = json["OptionSet"]["Options"]
+                .AsArray()
+                .Select(j => new PicklistOption
+                    {
+                        Text = j["Label"]["LocalizedLabels"][0]["Label"].GetValue<string>(),
+                        Value = j["Value"].GetValue<int>()
+                    }).ToArray();
+        }
+        catch { }
+    }
+}

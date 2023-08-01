@@ -30,9 +30,9 @@ else{
     private PicklistOption[]? Options = null;
     protected override async Task OnInitializedAsync()
     {
-        JsonObject? json = null;
         try
         {
+            JsonObject? json = null;
             if (Set.Column.OriginalName == "statuscode")
             {
                 json = await HttpClient.GetFromJsonAsync<JsonObject>($"EntityDefinitions(LogicalName='{Set.Column.Table.OriginalName}')/Attributes(LogicalName='statuscode')/Microsoft.Dynamics.CRM.StatusAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)");
@@ -53,7 +53,5 @@ else{
                     Value = j["Value"].GetValue<int>()
                 }).ToArray();
         }catch{}
-
-        //if(Set.C)
     }
 }
