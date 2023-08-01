@@ -1,7 +1,7 @@
 ﻿@using Cblx.Dynamics.Explorer.Models;
 <MudSelect Variant="Variant.Outlined"
            HelperText="@(Set.Column?.HasFriendlyName is true ? Set.Column.OriginalName : "")"
-           Label="Field" @bind-Value="Set.Column" @bind-Value:after="() => Set.Value = null">
+           Label="Field" @bind-Value="Set.Column" @bind-Value:after="AfterChange">
 
     @foreach (var column in Table.Columns.Where(c => c.IsEditable).Where(c => c == Set.Column || !Sets.Any(s => s.Column == c)))
     {
@@ -33,4 +33,14 @@
     [Parameter]
     [EditorRequired]
     public List<EditDialogSet> Sets { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback OnChange { get; set; }
+
+    public void AfterChange()
+    {
+        Set.Value = null;
+        OnChange.InvokeAsync(null);
+
+    }
 }

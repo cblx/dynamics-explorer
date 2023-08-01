@@ -25,4 +25,10 @@ internal class AppDateOnlyIsoConverter : DefaultConverter<DateOnly?>
         }
         return null;
     }
+
+    protected override string? ConvertToString(DateOnly? arg)
+    {
+        if (arg is null) { return null; }
+        return arg.Value.ToString("yyyy-MM-dd");
+    }
 }

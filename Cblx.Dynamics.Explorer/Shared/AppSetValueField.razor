@@ -36,11 +36,7 @@ else
                           Label="Value" />
             break;
         case "Edm.Int32":
-            <MudNumericField @bind-Value="Set.ValueAsInt32"
-                             Variant="Variant.Outlined"
-                             Placeholder="NULL"
-                             HelperText="@Set.ValueHelperText"
-                             Label="Value" />
+            <AppSetInt32Field Set="Set"/>
             break;
         case "Edm.Int64":
             <MudNumericField @bind-Value="Set.ValueAsInt64"

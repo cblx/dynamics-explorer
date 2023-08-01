@@ -1,10 +1,5 @@
 ﻿@using System.Reflection;
-@using Cblx.Dynamics;
-@using System.Text.Json.Serialization;
-@using System.Linq.Expressions;
 @using Cblx.Dynamics.Explorer.Models;
-@using Cblx.Dynamics.Explorer.Shared.Converters;
-@using System.Text.Json;
 @using System.Net.Http.Json;
 @using System.Text.Json.Nodes;
 @inject IDialogService DialogService
@@ -27,16 +22,20 @@
                 @foreach (var set in _sets)
                 {
                     <MudStack Row>
-                        <MudStack Class="flex-1 overflow-hidden">
-                            <AppSetFieldField Set="set" Sets="_sets" Table="Table"/>
-                        </MudStack>
-                        <MudStack Class="flex-1" AlignItems="AlignItems.Stretch" Justify="Justify.Center">
-                            <AppSetValueField Set="set" />
-                        </MudStack>
+                    <MudStack Class="flex-1 overflow-hidden">
+                        <AppSetFieldField Set="set" Sets="_sets" Table="Table" OnChange="() => StateHasChanged()" />
+                    </MudStack>
+                    <MudStack Class="flex-1" AlignItems="AlignItems.Stretch" Justify="Justify.Center">
+                        <AppSetValueField Set="set" />
+                    </MudStack>
+                    <MudStack>
                         <MudIconButton OnClick="() => _sets.Remove(set)"
+                                       Color="Color.Error"
+                                       Size="Size.Small"
                                        Icon="@Icons.Material.Filled.Remove"
                                        Class="flex-grow-0"></MudIconButton>
                     </MudStack>
+                </MudStack>
                 }
                 <MudStack Row Reverse>
                     <MudButton OnClick="AddFieldSet" StartIcon="@Icons.Material.Filled.Add">Add field</MudButton>
@@ -70,7 +69,7 @@
     [Parameter]
     public Guid? Id { get; set; }
 
-  
+
     protected override async Task OnInitializedAsync()
     {
         try
@@ -98,7 +97,7 @@
                         "Edm.Int64" => jsonVal.GetValue<long>(),
                         "Edm.Boolean" => jsonVal.GetValue<bool>(),
                         "Edm.DateTimeOffset" => jsonVal.GetValue<DateTime>(),
-                        "Edm.Date" => jsonVal.GetValue<DateOnly>(),
+                        "Edm.Date" => DateOnly.FromDateTime(jsonVal.GetValue<DateTime>()),
                         "Edm.Decimal" => jsonVal.GetValue<decimal>(),
                         "Edm.Double" => jsonVal.GetValue<double>(),
                         "Edm.Guid" => jsonVal.GetValue<string>().ToString(),

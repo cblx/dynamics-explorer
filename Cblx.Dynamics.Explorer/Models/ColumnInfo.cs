@@ -4,9 +4,9 @@ namespace Cblx.Dynamics.Explorer.Models;
 
 public class ColumnInfo
 {
-    public ColumnInfo(XElement propertyElement,DynamicsComponentFactory factory)
+    public ColumnInfo(TableInfo table, XElement propertyElement, DynamicsComponentFactory factory)
     {
-
+        Table = table;
         var entityElement = propertyElement.Parent!;
         var entityOptions = factory.GetTableOptions(entityElement);
         DisplayName = propertyElement.Attribute("Name")!.Value;
@@ -73,6 +73,8 @@ public class ColumnInfo
             ForeignTable = factory.CreateTable(foreignTableElement!);
         }
     }
+
+    public TableInfo Table { get; }
     
     public bool IsEditable { get; }
 

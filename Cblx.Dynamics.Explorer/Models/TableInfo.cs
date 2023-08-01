@@ -70,6 +70,7 @@ public class TableInfo
             .Where(e => e.Name.LocalName == "Property")
             .Select(propertyElement 
                 => new ColumnInfo(
+                    this,
                     propertyElement, 
                     factory
                     //options?.Columns.FirstOrDefault(c => c.Name == propertyElement.Attribute("Name")!.Value)
