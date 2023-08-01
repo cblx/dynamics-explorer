@@ -4,20 +4,41 @@
 @using System.Text.Json;
 @inject HttpClient HttpClient
 <MudStack Class="px-4">
-    <MudTextField Label="GET" Lines="10" @bind-Value="_query"/>
+    <MudTextField Label="GET" Lines="10" @bind-Value="_query" />
     <MudStack AlignItems="AlignItems.Start">
-        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="RunAsync">Run</MudButton>
+        <MudButton Disabled="_searching" Color="Color.Primary" Variant="Variant.Filled" OnClick="RunAsync">Run</MudButton>
     </MudStack>
-    <MudPaper Style="white-space: pre">
-        @_json
+    @if(_searching)
+    {
+        <MudProgressCircular Size="Size.Small" Indeterminate />
+    }else{
+    <MudPaper>
+        <Virtualize Items="_json">
+            <div style="white-space: pre">
+                @context
+            </div>
+        </Virtualize>
     </MudPaper>
+    }
 </MudStack>
 @code {
     private string _query = "accounts";
-    private string? _json;
+    private string[] _json = Array.Empty<string>();
+    private bool _searching = false;
     public async Task RunAsync()
     {
-        var json = await HttpClient.GetFromJsonAsync<JsonObject>(_query);
-        _json = JsonSerializer.Serialize(json, new JsonSerializerOptions { WriteIndented = true });
+        _searching = true;
+        try
+        {
+            var response = await HttpClient.GetAsync(_query);
+            var json = await response.Content.ReadFromJsonAsync<JsonObject>();
+            var strJson = JsonSerializer.Serialize(json, new JsonSerializerOptions { WriteIndented = true });
+            _json = strJson.ToString().Split(Environment.NewLine);
+        }
+        catch { }
+        finally
+        {
+            _searching = false;
+        }
     }
 }
