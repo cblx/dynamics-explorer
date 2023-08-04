@@ -79,6 +79,7 @@ public class TableInfo
             .ToList();
         Columns = Columns
             .OrderByDescending(c => c.IsPrimaryKey)
+            .ThenBy(c => c.OriginalName == c.DisplayName)
             .ThenBy(c => c.OriginalName.StartsWith('_'))
             .ThenBy(c => c.DisplayName).ToList();
         if(options != null)

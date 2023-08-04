@@ -41,6 +41,7 @@ internal class SchemaService
                     || !_options.IgnoreTables(new IgnoreTableContext { LogicalName = e.Attribute("Name")!.Value }))
             .Select(e => _factory.CreateTable(e))
             .Where(t => t.HasEndpoint)
+            .OrderBy(t => t.OriginalName == t.DisplayName)
             .ToArray();
         _tables = tables;
         Console.WriteLine($"Loaded {_tables.Length} tables");
