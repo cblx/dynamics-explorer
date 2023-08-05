@@ -1,6 +1,7 @@
 ﻿using Cblx.Dynamics.Explorer.Models;
 using Cblx.Dynamics.Explorer.Services;
 using Cblx.Dynamics.Explorer.Services.Authenticator;
+using Cblx.Dynamics.Explorer.Services.DynamicsServices;
 using Cblx.Dynamics.Explorer.Shared;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,6 +38,8 @@ public static class ServiceCollectionExtensions
         services.AddRazorPages();
         services.AddServerSideBlazor();
         services.AddMudServices();
+        services.AddDynamicsServices();
+        services.AddScoped<ExplorerHttpClient>();
         services.AddSingleton<ApplicationService>();
         services.AddSingleton<AppBarService>();
         services.AddSingleton<DynamicsComponentFactory>();

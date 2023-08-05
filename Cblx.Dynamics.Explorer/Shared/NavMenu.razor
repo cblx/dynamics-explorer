@@ -1,105 +1,49 @@
-﻿@using Cblx.Dynamics;
-@using System.Reflection;
-@using System.Xml.Linq;
-@using Cblx.Dynamics.Explorer.Services;
-@using Cblx.Dynamics.Explorer.Models;
-@inject DynamicsExplorerOptions Options
-@inject SchemaService SchemaService
-<MudNavMenu Dense Class="pb-16">
+﻿@using Cblx.Dynamics.Explorer.Services.DynamicsServices.ListTablesForMenu;
+@inject IListEntitiesForMenuHandler Handler
+<MudNavMenu Dense Class="pb-16 relative">
     <MudNavLink Href="/" Match="NavLinkMatch.All">Queries</MudNavLink>
     <MudNavLink Href="/diagram" Match="NavLinkMatch.All">Diagram (Under construction)</MudNavLink>
     <MudDivider />
-    <MudTextField Placeholder="Filter tables" @bind-Value="_filter" Immediate/>
-    @foreach (var tbl in _displayTables)
-    {
-        <MudNavLink Href="@($"tbl/{tbl.OriginalName}")" Match="NavLinkMatch.All">
-            <MudStack Spacing="0">
-                <MudText>@tbl.DisplayName</MudText>
-                @if (tbl.HasFriendlyName)
-                {
-                    <MudText Typo="Typo.caption">@tbl.OriginalName</MudText>
-                }
-            </MudStack>
-        </MudNavLink>
-    }
-    @* @foreach (var tbl in Options.Tables)
-    {
-    <MudNavLink Href="@($"tbl/{tbl.Name}")" Match="NavLinkMatch.Prefix">
-    <MudStack Spacing="0">
-    <MudText>@tbl.FriendlyName</MudText>
-    <MudText Typo="Typo.caption">@tbl.Name</MudText>
+    <MudStack Row>
+        <MudTextField Placeholder="Filter tables" @bind-Value="_filter" Immediate />
+        <MudIconButton OnClick="LoadAsync" Icon="@Icons.Material.Filled.Refresh" />
     </MudStack>
-    </MudNavLink>
-    }
-    @if (_notMappedTables.Any())
-    {
-    <MudDivider></MudDivider>
-    <Virtualize Items="_notMappedTables" Context="tblName">
-    <MudNavLink Match="NavLinkMatch.All" Href="@($"tbl/{@tblName}")">@tblName</MudNavLink>
-    </Virtualize>
-    }*@
+    <MudStack Class="relative">
+        @foreach (var tbl in _displayedEntities)
+        {
+            <MudNavLink Href="@($"tbl/{tbl.LogicalName}")" Match="NavLinkMatch.All">
+                <MudStack Spacing="0">
+                    <MudText Typo="Typo.caption" Class="truncate" Color="Color.Primary">@tbl.LogicalName</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">@(tbl.DisplayName ?? "-")</MudText>
+                        <MudText Typo="Typo.caption" Color="Color.Tertiary">@(tbl.CustomName ?? "-")</MudText>
+                    </MudStack>
+                </MudNavLink>
+            <MudDivider Light />
+        }
+        <MudOverlay Visible="_loading" Absolute DarkBackground/>
+    </MudStack>
 </MudNavMenu>
 @code {
-    //private string[] _notMappedTables = Array.Empty<string>();
-    private TableInfo[] _tables = Array.Empty<TableInfo>();
+    private bool _loading = true;
+    private EntityDto[] _entities = Array.Empty<EntityDto>();
     private string _filter = string.Empty;
-    public TableInfo[] _displayTables
-        => _tables.Where(
-                t => t.DisplayName.Contains(_filter, StringComparison.OrdinalIgnoreCase)
-                    || t.OriginalName?.Contains(_filter, StringComparison.OrdinalIgnoreCase) is true).ToArray();
+    private EntityDto[] _displayedEntities
+           => _entities.Where(
+               t => t.DisplayName?.Contains(_filter, StringComparison.OrdinalIgnoreCase) is true
+                   || t.LogicalName?.Contains(_filter, StringComparison.OrdinalIgnoreCase) is true).ToArray();
 
-    protected override async Task OnInitializedAsync()
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+    private async Task LoadAsync()
     {
-        _tables = await SchemaService.GetTablesAsync();
-
-        //var schema = await SchemaService.DocumentTask;
-
-        //var blackList = new string[]
-        //{
-        //    //"aaduser",
-        //    //"accountleads",
-        //    //"aciviewmapper",
-        //    //"actioncard",
-        //    //"actioncarduserstate",
-        //    //"activitymimeattachment",
-        //    //"AttributeMetadata",
-        //    //"availabletimes",
-        //    //"backgroundoperation",
-        //    //"BigIntAttributeMetadata",
-        //    //"bookableresource",
-        //    //"bookableresourcebooking",
-        //    //"bookableresourcebookingheader",
-        //    //"bookableresourcecategory",
-        //    //"bookableresourcecategoryassn",
-        //    //"bookableresourcecharacteristic",
-        //    //"bookableresourcegroup",
-        //    //"BooleanAttributeMetadata"
-
-        //};
-
-        //var endpoints = schema
-        //             .Descendants()
-        //             .Where(el => el.Name.LocalName == "EntitySet")
-        //             //.Where(el => el.Attribute("EntityType")!.Value.EndsWith($".{tbl.TableName}"))
-        //             .Select(el => new
-        //             {
-        //                 EndpointName = el.Attribute("Name")!.Value,
-        //                 EntityName = el.Attribute("EntityType")!.Value.Split('.').Last()
-        //             }).ToDictionary(el => el.EntityName);
-
-        //var tables = schema
-        //       .Descendants()
-        //       .Where(el => el.Name.LocalName == "EntityType")
-        //       .Select(el => new TableInfo
-        //       {
-        //           TableName = el.Attribute("Name")!.Value,
-        //       })
-        //       .Where(tbl => !blackList.Contains(tbl.TableName))
-        //       .Where(tbl => endpoints.TryGetValue(tbl.TableName, out var endpoint));
-        //_notMappedTables = tables.Select(t => t.TableName)
-        //    .Except(Options.Tables
-        //    .Select(t => t.Name))
-        //    .Order()
-        //    .ToArray();
+        try
+        {
+            _loading = true;
+            _entities = await Handler.GetAsync();
+        }
+        finally
+        {
+            _loading = false;
+        }
     }
 }
