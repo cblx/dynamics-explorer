@@ -1,3 +1,11 @@
 ::deep .mud-navmenu{
     padding-bottom: 64px;
 }
+
+::deep .mud-nav-link {
+    padding: 0 !important;
+}
+
+::deep .mud-nav-link-text{
+    margin-left: 8px !important
+}

@@ -143,17 +143,7 @@
     [Parameter]
     [EditorRequired]
     public required TableInfo Table { get; set; }
-
-    //[Parameter]
-    //public Type? TableType { get; set; }
-    //[Parameter]
-    //public string? InternalName { get; set; }
-
     private string? Error = null;
-
-    //private string? Name => TableType?.Name ?? InternalName;
-    //private string? _endpoint;
-    //private JsonColumnInfo[] _jsonColumns = Array.Empty<JsonColumnInfo>();
     private Dictionary<string, PropertyInfo> _properties = new();
     private Dictionary<string, int> _columnOrders = new();
     private Guid[] _applicationUsersIds = default!;
