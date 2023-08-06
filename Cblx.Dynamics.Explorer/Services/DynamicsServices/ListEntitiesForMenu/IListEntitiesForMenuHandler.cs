@@ -1,7 +1,5 @@
-﻿namespace Cblx.Dynamics.Explorer.Services.DynamicsServices.ListTablesForMenu
+﻿namespace Cblx.Dynamics.Explorer.Services.DynamicsServices.ListTablesForMenu;
+public interface IListEntitiesForMenuHandler
 {
-    public interface IListEntitiesForMenuHandler
-    {
-        Task<EntityDto[]> GetAsync();
-    }
+    Task<EntityDto[]> GetAsync();
 }

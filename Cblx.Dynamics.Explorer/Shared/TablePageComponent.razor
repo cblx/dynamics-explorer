@@ -1,5 +1,6 @@
 ﻿@using Cblx.Dynamics.Explorer.Models;
 @using Cblx.Dynamics.Explorer.Services;
+@using Cblx.Dynamics.Explorer.Services.DynamicsServices.ListEntityAttributes;
 @using Microsoft.AspNetCore.Components.Rendering;
 @using System.Linq.Expressions;
 @using System.Reflection;
@@ -12,6 +13,7 @@
 @inject SchemaService SchemaService
 @inject HttpClient HttpClient
 @inject AppBarService ToolbarService
+@inject IGetEntityForTableHandler GetEntityHandler
 <PageTitle>@Table.DisplayName</PageTitle>
 <div scoped-css>
     <MudTable @ref="_table" ServerData="@(new Func<TableState, Task<TableData<JsonObject>>>(ServerReloadJson))"
@@ -26,29 +28,26 @@
         </ColGroup>
         <HeaderContent>
             <MudTh></MudTh>
-            @foreach (var col in Table.Columns)
+            @foreach (var attr in _entity?.Attributes ?? Array.Empty<AttributeDto>())
             {
-               @* if (col.Name.EndsWith(".FormattedValue")) { continue; }
-                if (_hiddenColumns.Contains(col.Name)) { continue; }*@
-                <MudTh>
+                <MudTh Style="padding: 2px;">
                     <MudStack Row AlignItems="AlignItems.Center">
                         <MudStack Spacing="0">
-                            <MudStack Row AlignItems="AlignItems.Center">
-                                <MudText Color="Color.Secondary">@col.DisplayName</MudText>
-                                @*<MudText Style="color: gray !important" Typo="Typo.caption">@col.FriendlyType</MudText>*@
-                            </MudStack>
+                            <MudText Typo="Typo.caption" Color="Color.Primary">@attr.LogicalName</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary" Style="line-height: 1; white-space: nowrap">@(attr.DisplayName ?? "-")</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Tertiary">@(attr.CustomName ?? "-")</MudText>
                             <MudStack Row>
-                            <MudText Typo="Typo.caption">@col.OriginalName</MudText>
-                            <MudText Style="color: gray !important" Typo="Typo.caption">@col.TypeName</MudText>
-                        </MudStack>
-                    </MudStack>
-                        @if (col.TypeName is "Edm.Int32" or "Edm.String")
+                                <MudText Typo="Typo.caption" Color="Color.Warning">@attr.AttributeType</MudText>
+                                <MudText Typo="Typo.caption" Style="color: gray">@((attr.DerivedType ?? "-").Split('.').Last())</MudText>
+                            </MudStack>
+                            </MudStack>
+                            @if (attr.AttributeType is "Picklist")
                         {
                             <MudMenu Icon="@Icons.Material.Filled.Menu" AnchorOrigin="Origin.BottomLeft">
-                                <MudMenuItem OnClick="() => ShowOptions(col)">Show options list</MudMenuItem>
+                                <MudMenuItem OnClick="() => ShowOptions(attr)">Show options list</MudMenuItem>
                             </MudMenu>
                         }
-                        <MudTableSortLabel SortLabel="@col.OriginalName" T="JsonObject">
+                        <MudTableSortLabel SortLabel="@attr.LogicalName" T="JsonObject">
                             <MudIcon Icon="@Icons.Material.Filled.Sort"></MudIcon>
                         </MudTableSortLabel>
                     </MudStack>
@@ -59,21 +58,18 @@
             <MudTd>
                 <MudStack Row>
                     @{
-                        //var createdById = context["_createdby_value"]?.GetValue<Guid?>().GetValueOrDefault() ?? Guid.Empty;
-                        var canChange = true; //TableType != null && _applicationUsersIds.Contains(createdById);
+                        var canChange = true;
                     }
                     <MudIconButton OnClick="() => OpenEdit(context)" Disabled="!canChange" Color="Color.Primary" Icon="@Icons.Material.Outlined.Edit" Size="Size.Small"></MudIconButton>
                     <MudIconButton OnClick="() => DeleteAsync(context)" Disabled="!canChange" Color="Color.Error" Icon="@Icons.Material.Outlined.Delete" Size="Size.Small"></MudIconButton>
                 </MudStack>
             </MudTd>
-            @foreach (var col in Table.Columns)
+            @foreach (var attr in _entity?.Attributes ?? Array.Empty<AttributeDto>())
             {
-                //if (col.Name.EndsWith(".FormattedValue")) { continue; }
-                //if (_hiddenColumns.Contains(col.Name)) { continue; }
-                <MudTd DataLabel="@(col.DisplayName)">
+                <MudTd DataLabel="@(attr.LogicalName)">
                     @{
-                        var value = context[col.OriginalName];
-                        string formattedValueName = $"{col.OriginalName}@OData.Community.Display.V1.FormattedValue";
+                        var value = context[attr.LogicalName];
+                        string formattedValueName = $"{attr.LogicalName}@OData.Community.Display.V1.FormattedValue";
                         string? formattedValue = context.ContainsKey(formattedValueName) ? context[formattedValueName]?.GetValue<string>() : null;
                         if (value is null)
                         {
@@ -93,33 +89,6 @@
                     }
                 </MudTd>
             }
-            @*@foreach (var col in _jsonColumns)
-            {
-                if (col.Name.EndsWith(".FormattedValue")) { continue; }
-                if (_hiddenColumns.Contains(col.Name)) { continue; }
-                <MudTd DataLabel="@(col.FriendlyName ?? col.Name)">
-                    @{
-                        var value = context[col.Name];
-                        string formattedValueName = $"{col.Name}@OData.Community.Display.V1.FormattedValue";
-                        string? formattedValue = context.ContainsKey(formattedValueName) ? context[formattedValueName]?.GetValue<string>() : null;
-                        if (value is null)
-                        {
-                            <MudText Typo="Typo.caption" Style="font-style: italic; color: gray">NULL</MudText>
-                        }
-                        else
-                        {
-                            <MudStack Spacing="0">
-                                <MudTooltip Text="@value.ToString()">
-                                    <MudText Typo="Typo.overline">@value.ToString()</MudText>
-                                </MudTooltip>
-                                <MudTooltip Text="@formattedValue">
-                                    <MudText Color="Color.Tertiary" Typo="Typo.caption">@formattedValue</MudText>
-                                </MudTooltip>
-                            </MudStack>
-                        }
-                    }
-                </MudTd>
-            }*@
         </RowTemplate>
         <NoRecordsContent>
             @if (Error != null)
@@ -148,32 +117,27 @@
     private Dictionary<string, int> _columnOrders = new();
     private Guid[] _applicationUsersIds = default!;
     private MudTable<JsonObject> _table = default!;
+    private EntityDto? _entity = null;
     private bool _loading = false;
-    private readonly string[] _hiddenColumns = new string[]
-        {
-      "@odata.etag",
-      "_owningbusinessunit_value",
-      "_ownerid_value",
-      "_owninguser_value",
-      "versionnumber",
-      "overriddencreatedon",
-      "importsequencenumber",
-      "_modifiedonbehalfby_value",
-      "utcconversiontimezonecode",
-      "_createdonbehalfby_value",
-      "_owningteam_value",
-      "timezoneruleversionnumber"
-        };
+    //private readonly string[] _hiddenColumns = new string[]
+    //    {
+    //  "@odata.etag",
+    //  "_owningbusinessunit_value",
+    //  "_ownerid_value",
+    //  "_owninguser_value",
+    //  "versionnumber",
+    //  "overriddencreatedon",
+    //  "importsequencenumber",
+    //  "_modifiedonbehalfby_value",
+    //  "utcconversiontimezonecode",
+    //  "_createdonbehalfby_value",
+    //  "_owningteam_value",
+    //  "timezoneruleversionnumber"
+    //    };
 
     private async Task<TableData<JsonObject>> ServerReloadJson(TableState state)
     {
         Error = null;
-        //if (_endpoint == null)
-        //{
-        //    Error = "Endpoint not found for this entity.";
-        //    _loading = false;
-        //    return new TableData<JsonObject>() { TotalItems = 0, Items = Array.Empty<JsonObject>() };
-        //}
         _loading = true;
         StateHasChanged();
         try
@@ -215,7 +179,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        //InternalName = TableType?.GetCustomAttribute<DynamicsEntityAttribute>()?.Name ?? InternalName;
+        _entity = await GetEntityHandler.GetAsync(Table.OriginalName);
         ToolbarService.Content =
     @<MudStack Row Class="flex-grow-1">
         <MudStack Spacing="0">
@@ -228,72 +192,25 @@
             </MudText>
         </MudStack>
         <MudSpacer></MudSpacer>
-                    <MudStack Justify="Justify.Center">
-                <MudButton Size="Size.Small" OnClick="OpenCreate" Variant="Variant.Filled" Color="Color.Primary">New...</MudButton>
-            </MudStack>
-       
-            </MudStack>
+        <MudStack Justify="Justify.Center">
+            <MudButton Size="Size.Small" OnClick="OpenCreate" Variant="Variant.Filled" Color="Color.Primary">New...</MudButton>
+        </MudStack>
+
+    </MudStack>
     ;
         var tables = await SchemaService.GetTablesAsync();
-        //var table = tables.FirstOrDefault(t => t.OriginalName == InternalName);
-        //var schema = await SchemaService.DocumentTask;
-        //var entityType = schema
-        //  .Descendants()
-        //  .Where(el => el.Name.LocalName == "EntityType")
-        //  .Where(el => el.Attribute("Name")!.Value == InternalName)
-        //  .First();
-
         _applicationUsersIds = await ApplicationService.GetApplicationIdsAsync();
 
-        //if (TableType != null)
-        //{
-        //    var mappingProperties = TableType
-        //        .GetProperties()
-        //        .Where(p => p.GetCustomAttribute<JsonPropertyNameAttribute>() != null)
-        //        .Where(p => p.PropertyType.IsValueType
-        //                //|| p.PropertyType.BaseType == typeof(Id)
-        //                || p.PropertyType == typeof(string)
-        //        );
-
-        //    _properties = mappingProperties.ToDictionary(p => p.GetCustomAttribute<JsonPropertyNameAttribute>()!.Name);
-        //    int order = 0;
-        //    _columnOrders = mappingProperties.ToDictionary(p => p.GetCustomAttribute<JsonPropertyNameAttribute>()!.Name, p => order++);
-        //}
-        //_jsonColumns = entityType
-        //   .Descendants()
-        //   .Where(el => el.Name.LocalName == "Property")
-        //   .OrderBy(el => _columnOrders.GetValueOrDefault(el.Attribute("Name")!.Value, 999999))
-        //   .Select(el =>
-        //   {
-        //       var prop = _properties.GetValueOrDefault(el.Attribute("Name")!.Value);
-        //       var propType = prop?.PropertyType;
-        //       propType = propType != null ? (Nullable.GetUnderlyingType(propType) ?? propType) : null;
-        //       var info = new JsonColumnInfo
-        //           {
-        //               Name = el.Attribute("Name")!.Value,
-        //               Type = el.Attribute("Type")!.Value,
-        //               FriendlyName = prop?.Name,
-        //               FriendlyType = propType?.Name,
-        //           };
-        //       return info;
-        //   }).ToArray();
-
-        //_endpoint = schema
-        //   .Descendants()
-        //   .Where(el => el.Name.LocalName == "EntitySet")
-        //   .Where(el => el.Attribute("EntityType")!.Value.EndsWith($".{InternalName}"))
-        //   .Select(el => el.Attribute("Name")!.Value)
-        //   .FirstOrDefault();
         StateHasChanged();
         _table?.ReloadServerData();
     }
 
-    private void ShowOptions(ColumnInfo col)
+    private void ShowOptions(AttributeDto attr)
     {
-        DialogService.Show<OptionsDialog>($"{Table.DisplayName}.{col.DisplayName} options", new DialogParameters()
+        DialogService.Show<OptionsDialog>($"{Table.OriginalName}.{attr.LogicalName} options", new DialogParameters()
         {
-            { "Column", col },
-            { "Table", Table }
+            { "Attribute", attr },
+            { "EntityLogicalName", Table.OriginalName }
         });
     }
 
@@ -317,12 +234,6 @@
             { "Id", item[Table.PrimparyKeyName!]!.GetValue<Guid>() },
             { "Table", Table }
         });
-        //var editPageComponentType = typeof(EditPageTemplate<>).MakeGenericType(TableType!);
-        //var idPropertyName = TableType!.GetProperty("Id")!.GetCustomAttribute<JsonPropertyNameAttribute>()!.Name;
-        //var dialogRef = DialogService.Show(editPageComponentType, $"{TableType.Name} - Edit", new DialogParameters
-        //{
-        //    { "Id", jsonObject[idPropertyName]!.GetValue<Guid>() }
-        //}, new DialogOptions { DisableBackdropClick = true });
         var result = await dialogRef.Result;
         if (result.Data is true)
         {

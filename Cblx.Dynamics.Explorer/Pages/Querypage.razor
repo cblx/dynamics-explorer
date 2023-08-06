@@ -2,40 +2,56 @@
 @using System.Net.Http.Json;
 @using System.Text.Json.Nodes;
 @using System.Text.Json;
+@using System.Text.RegularExpressions;
+@using System.Web;
 @inject HttpClient HttpClient
 <MudStack Class="px-4">
     <MudTextField Label="GET" Lines="10" @bind-Value="_query" />
     <MudStack AlignItems="AlignItems.Start">
         <MudButton Disabled="_searching" Color="Color.Primary" Variant="Variant.Filled" OnClick="RunAsync">Run</MudButton>
     </MudStack>
-    @if(_searching)
+    @if (_searching)
     {
         <MudProgressCircular Size="Size.Small" Indeterminate />
-    }else{
-    <MudPaper>
-        <Virtualize Items="_json">
-            <div style="white-space: pre">
-                @context
-            </div>
-        </Virtualize>
-    </MudPaper>
+    }
+    else
+    {
+        @if (_error != null)
+        {
+            @_error
+        }
+        else
+        {
+            <MudPaper>
+                <Virtualize Items="_json">
+                    <div style="white-space: pre">
+                        @context
+                    </div>
+                </Virtualize>
+            </MudPaper>
+        }
     }
 </MudStack>
 @code {
     private string _query = "accounts";
     private string[] _json = Array.Empty<string>();
     private bool _searching = false;
+    private string? _error = null;
     public async Task RunAsync()
     {
         _searching = true;
+        _error = null;
         try
         {
-            var response = await HttpClient.GetAsync(_query);
+            var response = await HttpClient.GetAsync(_query.RemoveLineEndingsForODataQuery());
             var json = await response.Content.ReadFromJsonAsync<JsonObject>();
             var strJson = JsonSerializer.Serialize(json, new JsonSerializerOptions { WriteIndented = true });
             _json = strJson.ToString().Split(Environment.NewLine);
         }
-        catch { }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
         finally
         {
             _searching = false;

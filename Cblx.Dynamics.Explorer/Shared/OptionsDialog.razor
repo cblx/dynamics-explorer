@@ -2,6 +2,7 @@
 @using Cblx.Dynamics
 @using System.Net.Http.Json
 @using Cblx.Dynamics.Explorer.Models;
+@using Cblx.Dynamics.Explorer.Services.DynamicsServices.ListEntityAttributes;
 @inject HttpClient HttpClient
 <MudDialog>
     <DialogContent>
@@ -36,14 +37,11 @@
     private List<PicklistOption> _options = new();
 
     [Parameter]
-    public required ColumnInfo Column { get; set; }
+    public required AttributeDto Attribute { get; set; }
 
     [Parameter]
-    public required TableInfo Table { get; set; }
+    public required string EntityLogicalName { get; set; }
 
-    //[Parameter]
-    //public string? Name { get; set; }
-    
     [CascadingParameter] 
     MudDialogInstance MudDialog { get; set; } = default!;
 
@@ -51,8 +49,15 @@
     {
         try
         {
-            var col = Column;
-            string url = col.TypeName == "Edm.Int32" ? GetUriOptionsForInt32() : $"EntityDefinitions(LogicalName='{Table.OriginalName}')/Attributes(LogicalName='{col.OriginalName}')/Microsoft.Dynamics.CRM.MultiSelectPicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)";
+            var url = Attribute.DerivedType switch
+            {
+                AttributeMetadataDerivedTypes.PicklistAttributeMetadata => $"EntityDefinitions(LogicalName='{EntityLogicalName}')/Attributes(LogicalName='{Attribute.LogicalName}')/Microsoft.Dynamics.CRM.PicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)",
+                AttributeMetadataDerivedTypes.StateAttributeMetadata => $"EntityDefinitions(LogicalName='{EntityLogicalName}')/Attributes/Microsoft.Dynamics.CRM.StateAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)",
+                AttributeMetadataDerivedTypes.StatusAttributeMetadata => $"EntityDefinitions(LogicalName='{EntityLogicalName}')/Attributes/Microsoft.Dynamics.CRM.StatusAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)",
+                AttributeMetadataDerivedTypes.MultiSelectPicklistAttributeMetadata => $"EntityDefinitions(LogicalName='{EntityLogicalName}')/Attributes(LogicalName='{Attribute.LogicalName}')/Microsoft.Dynamics.CRM.MultiSelectPicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)",
+                _ => throw new NotImplementedException()
+            };
+
             var options = await HttpClient.GetFromJsonAsync<JsonObject>(url);
             if (options!.ContainsKey("value"))
             {
@@ -79,12 +84,4 @@
             _loading = false;
         }
     }
-
-    string GetUriOptionsForInt32() => Column.OriginalName switch
-    {
-        "statecode" =>  $"EntityDefinitions(LogicalName='{Table.OriginalName}')/Attributes/Microsoft.Dynamics.CRM.StateAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)",
-        "statuscode" => $"EntityDefinitions(LogicalName='{Table.OriginalName}')/Attributes/Microsoft.Dynamics.CRM.StatusAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)",
-        _ =>            $"EntityDefinitions(LogicalName='{Table.OriginalName}')/Attributes(LogicalName='{Column.OriginalName}')/Microsoft.Dynamics.CRM.PicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)"
-    };
-
 }

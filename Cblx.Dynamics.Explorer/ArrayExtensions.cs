@@ -7,3 +7,4 @@ public static class ArrayExtensions
         return Array.Find(array, predicate);
     }
 }
+    
