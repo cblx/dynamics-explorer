@@ -35,6 +35,7 @@ public class GetEntityForTableHandler(ExplorerHttpClient client, DynamicsExplore
 
         var entity = new EntityDto
         {
+            EntitySetName = jsonObject!["EntitySetName"]!.ToString()!,
             LogicalName = jsonObject!["LogicalName"]!.ToString()!,
             DisplayName = jsonObject["DisplayName"]?["LocalizedLabels"]?
                               .AsArray().FirstOrDefault()?["Label"]?

@@ -119,22 +119,6 @@
     private MudTable<JsonObject> _table = default!;
     private EntityDto? _entity = null;
     private bool _loading = false;
-    //private readonly string[] _hiddenColumns = new string[]
-    //    {
-    //  "@odata.etag",
-    //  "_owningbusinessunit_value",
-    //  "_ownerid_value",
-    //  "_owninguser_value",
-    //  "versionnumber",
-    //  "overriddencreatedon",
-    //  "importsequencenumber",
-    //  "_modifiedonbehalfby_value",
-    //  "utcconversiontimezonecode",
-    //  "_createdonbehalfby_value",
-    //  "_owningteam_value",
-    //  "timezoneruleversionnumber"
-    //    };
-
     private async Task<TableData<JsonObject>> ServerReloadJson(TableState state)
     {
         Error = null;
@@ -142,7 +126,7 @@
         StateHasChanged();
         try
         {
-            string query = $"{Table.Endpoint}?$top={state.PageSize}&$skiptoken=<cookie pagenumber='{state.Page + 1}' />&$count=true";
+            string query = $"{_entity!.EntitySetName}?$top={state.PageSize}&$skiptoken=<cookie pagenumber='{state.Page + 1}' />&$count=true";
             HttpClient.DefaultRequestHeaders.Add("Prefer", "odata.include-annotations=OData.Community.Display.V1.FormattedValue");
 
             if (state.SortLabel != null)
@@ -207,10 +191,10 @@
 
     private void ShowOptions(AttributeDto attr)
     {
-        DialogService.Show<OptionsDialog>($"{Table.OriginalName}.{attr.LogicalName} options", new DialogParameters()
+        DialogService.Show<OptionsDialog>($"{_entity!.LogicalName}.{attr.LogicalName} options", new DialogParameters()
         {
             { "Attribute", attr },
-            { "EntityLogicalName", Table.OriginalName }
+            { "EntityLogicalName", _entity.LogicalName }
         });
     }
 
@@ -231,7 +215,7 @@
     {
         var dialogRef = DialogService.Show<EditDialog>("", new DialogParameters
         {
-            { "Id", item[Table.PrimparyKeyName!]!.GetValue<Guid>() },
+            { "Id", item[_entity!.PrimaryId]!.GetValue<Guid>() },
             { "Table", Table }
         });
         var result = await dialogRef.Result;
@@ -246,7 +230,7 @@
         var confirmed = await DialogService
             .ShowMessageBox(
                 "Delete",
-                $"Are you sure you want to delete this {Table.DisplayName} item?",
+                $"Are you sure you want to delete this {_entity!.CustomName ?? _entity.LogicalName} item?",
                 yesText: "Sim",
                 noText: "Não"
             );
@@ -256,7 +240,7 @@
             {
                 _loading = true;
                 StateHasChanged();
-                string query = $"{Table.Endpoint}({item[Table.PrimparyKeyName!]!.GetValue<Guid>()})";
+                string query = $"{_entity.EntitySetName}({item[_entity.PrimaryId]!.GetValue<Guid>()})";
                 await HttpClient.DeleteAsync(query);
                 await _table.ReloadServerData();
             }
