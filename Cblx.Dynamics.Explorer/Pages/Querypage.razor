@@ -5,6 +5,7 @@
 @using System.Text.RegularExpressions;
 @using System.Web;
 @inject HttpClient HttpClient
+@inject AppBarService AppBarService
 <MudStack Class="px-4">
     <MudTextField Label="GET" Lines="10" @bind-Value="_query" />
     <MudStack AlignItems="AlignItems.Start">
@@ -37,6 +38,10 @@
     private string[] _json = Array.Empty<string>();
     private bool _searching = false;
     private string? _error = null;
+    protected override void OnInitialized()
+    {
+        AppBarService.SetContent(@<div>Queries</div>);
+    }
     public async Task RunAsync()
     {
         _searching = true;

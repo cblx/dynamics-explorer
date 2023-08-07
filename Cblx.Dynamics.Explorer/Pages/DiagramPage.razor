@@ -11,7 +11,7 @@
 
     protected override void OnInitialized()
     {
-        AppBarService.Content =@<div>Diagram</div>;
+        AppBarService.SetContent(@<div>Diagram</div>);
 
         if (_mermaidJsDefinition != string.Empty) { return; }
         var sb = new StringBuilder("erDiagram");
