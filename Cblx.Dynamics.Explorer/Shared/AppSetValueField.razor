@@ -1,49 +1,55 @@
 ﻿@using Cblx.Dynamics.Explorer.Models;
 @using System.Linq.Expressions;
+@using Cblx.Dynamics.Explorer.Services.DynamicsServices.ListEntityAttributes;
 @using Cblx.Dynamics.Explorer.Shared.Converters;
-@if (Set.Column is null)
+@if (Set.Attribute is null)
 {
     <MudText Align="Align.Center">Choose column</MudText>
 }
 else
 {
-    switch (Set.Column!.TypeName)
+    var attribute = Set.Attribute;
+
+    switch (attribute)
     {
-        case "Edm.Guid":
-            @if (Set.Column.IsForeignKey)
-            {
-                <AppNavigationField @bind-Value="Set.ValueAsString"
-                                    Column="Set.Column" />
-            }
-            else
-            {
-                <MudTextField @bind-Value="Set.ValueAsString"
-                              Variant="Variant.Outlined"
-                              Placeholder="NULL"
-                              Mask="@(new PatternMask("********-****-****-****-************"){
-                                                     CleanDelimiters = true
-                                                  })"
-                              HelperText="@Set.ValueHelperText"
-                              Label="Value" />
-            }
+        case { AttributeType: "Uniqueidentifier" }:
+            <MudTextField @bind-Value="Set.ValueAsString"
+                          Variant="Variant.Outlined"
+                          Placeholder="NULL"
+                          Mask="@(new PatternMask("********-****-****-****-************"){ CleanDelimiters = true })"
+                          HelperText="@Set.ValueHelperText"
+            Label="Value" />
             break;
-        case "Edm.String":
-            <AppSetStringField Set="Set"/>
+        case { DerivedType: AttributeMetadataDerivedTypes.LookupAttributeMetadata }:
+            <AppNavigationField @bind-Value="Set.ValueAsString" Attribute="Set.Attribute" />
             break;
-        case "Edm.Int32":
-            <AppSetInt32Field Set="Set"/>
+        case { DerivedType: AttributeMetadataDerivedTypes.PicklistAttributeMetadata
+                or AttributeMetadataDerivedTypes.StateAttributeMetadata
+                or AttributeMetadataDerivedTypes.StatusAttributeMetadata }:
+           <AppPicklistField Set="Set" />
             break;
-        case "Edm.Int64":
-            <MudNumericField @bind-Value="Set.ValueAsInt64"
+        case { DerivedType: AttributeMetadataDerivedTypes.MultiSelectPicklistAttributeMetadata }:
+            <AppMultiSelectPicklistField Set="Set" />
+            break;
+        case { DerivedType: AttributeMetadataDerivedTypes.StringAttributeMetadata }:
+            <AppSetStringField Set="Set" />
+            break;
+        case { DerivedType: AttributeMetadataDerivedTypes.IntegerAttributeMetadata }:
+            <MudNumericField @bind-Value="Set.ValueAsInt32"
                              Variant="Variant.Outlined"
                              Placeholder="NULL"
                              HelperText="@Set.ValueHelperText"
                              Label="Value" />
             break;
-        case "Edm.Boolean":
-            <MudCheckBox @bind-Checked="Set.ValueAsBoolean"
-                          TriState
-                         Label="Value" />
+        case { DerivedType: AttributeMetadataDerivedTypes.BigIntAttributeMetadata }:
+            <MudNumericField @bind-Value="Set.ValueAsInt64"
+                             Variant="Variant.Outlined"
+                             Placeholder="NULL"
+                             HelperText="@Set.ValueHelperText"
+            Label="Value" />
+            break;
+        case { DerivedType: AttributeMetadataDerivedTypes.BooleanAttributeMetadata }:
+            <MudCheckBox @bind-Checked="Set.ValueAsBoolean" TriState Label="Value" />
             <div class="mud-input-control-helper-container px-2">
                 <p class="mud-input-helper-text">
                     <div class="d-flex">
@@ -52,7 +58,7 @@ else
                 </p>
             </div>
             break;
-        case "Edm.DateTimeOffset":
+        case { DerivedType: AttributeMetadataDerivedTypes.DateTimeAttributeMetadata, DateTimeFormat: DateTimeFormat.DateAndTime }:
             <MudTextField @bind-Value="Set.ValueAsDateTime"
                           InputType="InputType.DateTimeLocal"
                           Variant="Variant.Outlined"
@@ -61,7 +67,7 @@ else
                           Converter="new AppDateTimeIsoConverter()"
                           Label="Value" />
             break;
-        case "Edm.Date":
+        case { DerivedType: AttributeMetadataDerivedTypes.DateTimeAttributeMetadata, DateTimeFormat: DateTimeFormat.DateOnly }:
             <MudTextField @bind-Value="Set.ValueAsDateOnly"
                           InputType="InputType.Date"
                           Variant="Variant.Outlined"
@@ -70,20 +76,20 @@ else
                           Converter="new AppDateOnlyIsoConverter()"
                           Label="Value" />
             break;
-        case "Edm.Decimal":
+        case { DerivedType: AttributeMetadataDerivedTypes.DecimalAttributeMetadata }:
             <MudNumericField @bind-Value="Set.ValueAsDecimal"
                              Variant="Variant.Outlined"
                              Placeholder="NULL"
                              HelperText="@Set.ValueHelperText"
                              Label="Value" />
             break;
-        case "Edm.Double":
+        case { DerivedType: AttributeMetadataDerivedTypes.DoubleAttributeMetadata }:
             <MudNumericField @bind-Value="Set.ValueAsDouble"
                              Variant="Variant.Outlined"
                              Placeholder="NULL"
                              HelperText="@Set.ValueHelperText"
                              Label="Value" />
-            break;
+            break; 
         default:
             <MudText Color="Color.Error">Unsupported</MudText>
             break;

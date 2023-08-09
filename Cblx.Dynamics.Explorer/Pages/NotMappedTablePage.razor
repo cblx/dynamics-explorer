@@ -1,20 +1,9 @@
 ﻿@inject SchemaService SchemaService
-@page "/tbl/{TableName}"
+@page "/tbl/{EntityLogicalName}"
 @using Cblx.Dynamics.Explorer.Models;
-@if (_table != null)
-{
-    <TablePageComponent Table="_table"></TablePageComponent>
-}
+<TablePageComponent EntityLogicalName="@EntityLogicalName"></TablePageComponent>
 @code {
     [Parameter]
     [EditorRequired]
-    public required string TableName { get; set; }
-
-    private TableInfo? _table = null;
-
-    protected override async Task OnParametersSetAsync()
-    {
-        var tables = await SchemaService.GetTablesAsync();
-        _table = tables.First(t => t.OriginalName == TableName);
-    }
+    public required string EntityLogicalName { get; set; }
 }

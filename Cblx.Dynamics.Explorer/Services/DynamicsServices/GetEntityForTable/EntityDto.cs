@@ -8,5 +8,5 @@ public class EntityDto
     public required string? CustomName { get; set; }
     public required AttributeDto[] Attributes { get; set; }
 
-    public string PrimaryId => Attributes.Single(x => x.IsPrimaryId).LogicalName;
+    public string? PrimaryId => Attributes.Find(x => x.IsPrimaryId)?.LogicalName;
 }

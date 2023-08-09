@@ -14,7 +14,7 @@
 @inject HttpClient HttpClient
 @inject AppBarService AppBarService
 @inject IGetEntityForTableHandler GetEntityHandler
-<PageTitle>@Table.DisplayName</PageTitle>
+<PageTitle>@EntityLogicalName</PageTitle>
 <div scoped-css>
     <MudTable @ref="_table" ServerData="@(new Func<TableState, Task<TableData<JsonObject>>>(ServerReloadJson))"
                 FixedHeader
@@ -40,14 +40,14 @@
                                 <MudText Typo="Typo.caption" Color="Color.Warning">@attr.AttributeType</MudText>
                                 <MudText Typo="Typo.caption" Style="color: gray">@((attr.DerivedType ?? "-").Split('.').Last())</MudText>
                             </MudStack>
-                            </MudStack>
+                        </MudStack>
                             @if (attr.AttributeType is "Picklist")
                         {
                             <MudMenu Icon="@Icons.Material.Filled.Menu" AnchorOrigin="Origin.BottomLeft">
                                 <MudMenuItem OnClick="() => ShowOptions(attr)">Show options list</MudMenuItem>
                             </MudMenu>
                         }
-                        <MudTableSortLabel SortLabel="@attr.LogicalName" T="JsonObject">
+                        <MudTableSortLabel SortLabel="@attr.LookupPropertyNameOrLogicalName" T="JsonObject">
                             <MudIcon Icon="@Icons.Material.Filled.Sort"></MudIcon>
                         </MudTableSortLabel>
                     </MudStack>
@@ -68,8 +68,13 @@
             {
                 <MudTd DataLabel="@(attr.LogicalName)">
                     @{
-                        var value = context[attr.LogicalName];
-                        string formattedValueName = $"{attr.LogicalName}@OData.Community.Display.V1.FormattedValue";
+                        string logicalName = attr.LogicalName;
+                        if(attr.DerivedType == AttributeMetadataDerivedTypes.LookupAttributeMetadata)
+                        {
+                            logicalName = $"_{logicalName}_value";
+                        }
+                        var value = context[logicalName];
+                        string formattedValueName = $"{logicalName}@OData.Community.Display.V1.FormattedValue";
                         string? formattedValue = context.ContainsKey(formattedValueName) ? context[formattedValueName]?.GetValue<string>() : null;
                         if (value is null)
                         {
@@ -111,7 +116,10 @@
 @code {
     [Parameter]
     [EditorRequired]
-    public required TableInfo Table { get; set; }
+    public required string EntityLogicalName { get; set; }
+    //[Parameter]
+    //[EditorRequired]
+    //public required TableInfo Table { get; set; }
     private string? Error = null;
     private Dictionary<string, PropertyInfo> _properties = new();
     private Dictionary<string, int> _columnOrders = new();
@@ -163,8 +171,8 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        AppBarService.SetContent(GetAppBarContent(Table.OriginalName));
-        _entity = await GetEntityHandler.GetAsync(Table.OriginalName);
+        AppBarService.SetContent(GetAppBarContent(EntityLogicalName));
+        _entity = await GetEntityHandler.GetAsync(EntityLogicalName);
         AppBarService.SetContent(GetAppBarContent(_entity.LogicalName, _entity.DisplayName, _entity.CustomName));
         _applicationUsersIds = await ApplicationService.GetApplicationIdsAsync();
 
@@ -202,7 +210,7 @@
     {
         var dialogRef = DialogService.Show<EditDialog>("", new DialogParameters
         {
-            { "Table", Table }
+            { nameof(EditDialog.EntityLogicalName), EntityLogicalName }
         });
         var result = await dialogRef.Result;
         if (result.Data is true)
@@ -215,8 +223,8 @@
     {
         var dialogRef = DialogService.Show<EditDialog>("", new DialogParameters
         {
-            { "Id", item[_entity!.PrimaryId]!.GetValue<Guid>() },
-            { "Table", Table }
+            { nameof(EditDialog.Id), item[_entity!.PrimaryId!]!.GetValue<Guid>() },
+            { nameof(EditDialog.EntityLogicalName), EntityLogicalName }
         });
         var result = await dialogRef.Result;
         if (result.Data is true)

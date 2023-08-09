@@ -1,10 +1,12 @@
 ﻿using Cblx.Dynamics.Explorer.Models;
+using Cblx.Dynamics.Explorer.Services.DynamicsServices.ListEntityAttributes;
 using System.Text.Json;
 namespace Cblx.Dynamics.Explorer.Shared;
 
 public class EditDialogSet
 {
-    public ColumnInfo? Column { get; set; }
+    //public ColumnInfo? Column { get; set; }
+    public AttributeDto? Attribute { get; set; }
     public object? Value { get; set; }
     public object? AcceptedValue { get; set; }
     public bool? ValueAsBoolean

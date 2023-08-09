@@ -16,13 +16,6 @@
         }
     </MudSelect>
 }
-else{
-    <MudNumericField @bind-Value="Set.ValueAsInt32"
-                     Variant="Variant.Outlined"
-                     Placeholder="NULL"
-                     HelperText="@Set.ValueHelperText"
-                     Label="Value" />
-}
 @code {
     [Parameter]
     [EditorRequired]
@@ -33,17 +26,18 @@ else{
         try
         {
             JsonObject? json = null;
-            if (Set.Column!.OriginalName == "statuscode")
+            var attribute = Set.Attribute;
+            if (attribute!.LogicalName == "statuscode")
             {
-                json = await HttpClient.GetFromJsonAsync<JsonObject>($"EntityDefinitions(LogicalName='{Set.Column.Table.OriginalName}')/Attributes(LogicalName='statuscode')/Microsoft.Dynamics.CRM.StatusAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)");
+                json = await HttpClient.GetFromJsonAsync<JsonObject>($"EntityDefinitions(LogicalName='{attribute.EntityLogicalName}')/Attributes(LogicalName='statuscode')/Microsoft.Dynamics.CRM.StatusAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)");
             }
-            else if (Set.Column.OriginalName == "statecode")
+            else if (attribute.LogicalName == "statecode")
             {
-                json = await HttpClient.GetFromJsonAsync<JsonObject>($"EntityDefinitions(LogicalName='{Set.Column.Table.OriginalName}')/Attributes(LogicalName='statecode')/Microsoft.Dynamics.CRM.StateAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)");
+                json = await HttpClient.GetFromJsonAsync<JsonObject>($"EntityDefinitions(LogicalName='{attribute.EntityLogicalName}')/Attributes(LogicalName='statecode')/Microsoft.Dynamics.CRM.StateAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)");
             }
             else
             {
-                json = await HttpClient.GetFromJsonAsync<JsonObject>($"EntityDefinitions(LogicalName='{Set.Column.Table.OriginalName}')/Attributes(LogicalName='{Set.Column.OriginalName}')/Microsoft.Dynamics.CRM.PicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)");
+                json = await HttpClient.GetFromJsonAsync<JsonObject>($"EntityDefinitions(LogicalName='{attribute.EntityLogicalName}')/Attributes(LogicalName='{attribute.LogicalName}')/Microsoft.Dynamics.CRM.PicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)");
             }
             Options = json!["OptionSet"]!["Options"]!
                 .AsArray()

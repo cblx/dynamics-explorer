@@ -16,6 +16,7 @@ public class GetEntityForTableHandler(ExplorerHttpClient client, DynamicsExplore
         var jsonAttributes = jsonObject!["Attributes"]!.AsArray();
         var attributes = jsonAttributes.Select(item => new AttributeDto
         {
+            EntityLogicalName = entityLogicalName,
             IsPrimaryId = item!["IsPrimaryId"]!.GetValue<bool>(),
             IsPrimaryName = item!["IsPrimaryName"]!.GetValue<bool>(),
             LogicalName = item!["LogicalName"]!.ToString()!,
@@ -28,10 +29,13 @@ public class GetEntityForTableHandler(ExplorerHttpClient client, DynamicsExplore
                                 .FriendlyName,
             AttributeType = item["AttributeType"]!.GetValue<string>()!,
             DerivedType = item["@odata.type"]?.GetValue<string>()
-        })
-            .OrderBy(e => !e.IsPrimaryId)
-            .ThenBy(e => e.CustomName == null)
-            .ToArray();
+        }).OrderBy(e => !e.IsPrimaryId)
+          .ThenBy(e => e.CustomName == null)
+          .ToArray();
+
+        FillEditable(attributes);
+        await FillDateTimeAttributeMetadataAsync(attributes, entityLogicalName);
+        await FillRelationshipsMetadataAsync(attributes, entityLogicalName);
 
         var entity = new EntityDto
         {
@@ -45,5 +49,62 @@ public class GetEntityForTableHandler(ExplorerHttpClient client, DynamicsExplore
         };
 
         return entity;
+    }
+
+    private static void FillEditable(AttributeDto[] attributes)
+    {
+        foreach (var attribute in attributes)
+        {
+            attribute.IsEditable = !new string[]
+          {
+                "createdon",
+                "importsequencenumber",
+                "modifiedon",
+                "overriddencreatedon",
+                "timezoneruleversionnumber",
+                "utcconversiontimezonecode",
+                "versionnumber",
+                "createdby",
+                "createdonbehalfby",
+                "modifiedby",
+                "modifiedonbehalfby",
+                "ownerid",
+                "owningbusinessunit",
+                "owninguser",
+                "owningteam"
+          }.Contains(attribute.LogicalName);
+        }
+    }
+
+    private async Task FillRelationshipsMetadataAsync(AttributeDto[] attributes, string entityLogicalName)
+    {
+        if (!attributes.Exists(a => a.DerivedType == AttributeMetadataDerivedTypes.LookupAttributeMetadata)) { return; }
+        var manyToOneRelationships = await client.HttpClient.GetFromJsonAsync<JsonObject>($"""
+                EntityDefinitions(LogicalName='{entityLogicalName}')/ManyToOneRelationships?
+                    $select=ReferencingAttribute,ReferencedEntity
+                """);
+
+        foreach(var relationship in manyToOneRelationships!["value"]!.AsArray())
+        {
+            var attribute = attributes.Find(a => a.LogicalName == relationship!["ReferencingAttribute"]!.ToString());
+            if (attribute is null) { continue; }
+            attribute.ReferencedEntity = relationship!["ReferencedEntity"]!.ToString();
+        }
+    }
+
+    private async Task FillDateTimeAttributeMetadataAsync(AttributeDto[] attributes, string entityLogicalName)
+    {
+        if (!attributes.Exists(a => a.DerivedType == AttributeMetadataDerivedTypes.DateTimeAttributeMetadata)) { return; }
+        var dateTimeAttributes = await client.HttpClient.GetFromJsonAsync<JsonObject>($"""
+                EntityDefinitions(LogicalName='{entityLogicalName}')/Attributes/Microsoft.Dynamics.CRM.DateTimeAttributeMetadata?
+                    $select=LogicalName,Format
+                """);
+
+        foreach (var dateTimeAttribute in dateTimeAttributes!["value"]!.AsArray())
+        {
+            var attribute = attributes.Find(a => a.LogicalName == dateTimeAttribute!["LogicalName"]!.ToString());
+            if (attribute is null) { continue; }
+            attribute.DateTimeFormat = Enum.Parse<DateTimeFormat>(dateTimeAttribute!["Format"]!.GetValue<string>());
+        }
     }
 }

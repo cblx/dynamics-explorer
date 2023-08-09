@@ -1,44 +1,28 @@
 ﻿using Cblx.Dynamics.Explorer.Models;
-using MudBlazor;
+using Cblx.Dynamics.Explorer.Services.DynamicsServices.ListEntityAttributes;
 using System.Net.Http.Json;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Text.Json.Nodes;
-using System.Diagnostics.Eventing.Reader;
 
 namespace Cblx.Dynamics.Explorer.Shared;
 
-internal class EditDialogService
-{
-    private readonly HttpClient _httpClient;
-
-    public EditDialogService(HttpClient httpClient)
+internal class EditDialogService(HttpClient httpClient, IGetEntityForTableHandler getEntityHandler)
+{ 
+    public async Task PatchAsync(Guid id, string entitySetName, EditDialogSet[] sets)
     {
-        _httpClient = httpClient;
+        var body = await PrepareBodyAsync(sets.Where(s => s.IsDirty()).ToArray());
+        if (!body.Any()) { return; }
+        await ManageResponseAsync(await httpClient.PatchAsJsonAsync($"{entitySetName}({id})", body));
     }
 
-    public async Task PatchAsync(Guid id, TableInfo table, EditDialogSet[] sets)
+    public async Task PostAsync(string entitySetName, EditDialogSet[] sets)
     {
-        var fields = new Dictionary<string, object?>();
-        foreach (var set in sets.Where(s => s.IsDirty()))
-        {
-            if (set.Column!.IsForeignKey)
-            {
-                if (set.Value is null)
-                {
-                    fields[$"{set.Column!.NavigationName}@odata.bind"] = null;
-                }
-                else
-                {
-                    fields[$"{set.Column!.NavigationName}@odata.bind"] = $"{set.Column.ForeignTable!.Endpoint}({set.Value})";
-                }
-            }
-            else
-            {
-                fields[set.Column!.OriginalName] = set.Value;
-            }
-        }
-        if (!fields.Any()) { return; }
-        var response = await _httpClient.PatchAsJsonAsync($"{table.Endpoint}({id})", fields);
+        var body = await PrepareBodyAsync(sets);
+        if (!body.Any()) { return; }
+        await ManageResponseAsync(await httpClient.PostAsJsonAsync(entitySetName, body));
+    }
+
+    private static async Task ManageResponseAsync(HttpResponseMessage response)
+    {
         if (!response.IsSuccessStatusCode)
         {
             var errorJson = await response.Content.ReadFromJsonAsync<JsonObject>();
@@ -46,33 +30,28 @@ internal class EditDialogService
         }
     }
 
-    public async Task PostAsync(TableInfo table, EditDialogSet[] sets)
+    private async Task<Dictionary<string, object?>> PrepareBodyAsync(EditDialogSet[] sets)
     {
         var fields = new Dictionary<string, object?>();
-        foreach(var set in sets)
+        foreach (var set in sets)
         {
-            if (set.Column!.IsForeignKey)
+            if (set.Attribute!.DerivedType == AttributeMetadataDerivedTypes.LookupAttributeMetadata)
             {
                 if (set.Value is null)
                 {
-                    fields[$"{set.Column!.NavigationName}@odata.bind"] = null;
+                    fields[$"{set.Attribute!.LogicalName}@odata.bind"] = null;
                 }
                 else
                 {
-                    fields[$"{set.Column!.NavigationName}@odata.bind"] = $"{set.Column.ForeignTable!.Endpoint}({set.Value})";
+                    var referencedEntity = await getEntityHandler.GetAsync(set.Attribute.ReferencedEntity!);
+                    fields[$"{set.Attribute!.LogicalName}@odata.bind"] = $"{referencedEntity.EntitySetName}({set.Value})";
                 }
             }
             else
             {
-                fields[set.Column!.OriginalName] = set.Value;
+                fields[set.Attribute!.LogicalName] = set.Value;
             }
         }
-        if (!fields.Any()) { return; }
-        var response = await _httpClient.PostAsJsonAsync(table.Endpoint, fields);
-        if (!response.IsSuccessStatusCode)
-        {
-            var errorJson = await response.Content.ReadFromJsonAsync<JsonObject>();
-            throw new InvalidOperationException(errorJson!["error"]!["message"]!.ToString());
-        }
+        return fields;
     }
 }

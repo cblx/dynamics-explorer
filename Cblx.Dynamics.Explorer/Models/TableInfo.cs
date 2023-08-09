@@ -30,7 +30,6 @@ public class DynamicsComponentFactory
         _endpoints ??= tableElement.Document!
                    .Descendants()
                    .Where(el => el.Name.LocalName == "EntitySet")
-                   //.Where(el => el.Attribute("EntityType")!.Value.EndsWith($".{tbl.TableName}"))
                    .Select(el => new
                    {
                        EndpointName = el.Attribute("Name")!.Value,
@@ -73,7 +72,6 @@ public class TableInfo
                     this,
                     propertyElement, 
                     factory
-                    //options?.Columns.FirstOrDefault(c => c.Name == propertyElement.Attribute("Name")!.Value)
                 )
             )
             .ToList();
