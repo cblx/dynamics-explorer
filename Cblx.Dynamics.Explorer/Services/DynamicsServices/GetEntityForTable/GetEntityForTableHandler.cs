@@ -11,7 +11,7 @@ public class GetEntityForTableHandler(ExplorerHttpClient client, DynamicsExplore
                    .GetFromJsonAsync<JsonObject>($"""
                      EntityDefinitions(LogicalName='{entityLogicalName}')?
                         $select=LogicalName,DisplayName,EntitySetName
-                        &$expand=Attributes($select=LogicalName,DisplayName,IsPrimaryId,IsPrimaryName,AttributeType)
+                        &$expand=Attributes($select=LogicalName,DisplayName,IsPrimaryId,IsPrimaryName,AttributeType,IsValidForUpdate,IsValidForCreate)
                      """.RemoveLineEndingsForODataQuery());
         var jsonAttributes = jsonObject!["Attributes"]!.AsArray();
         var attributes = jsonAttributes.Select(item => new AttributeDto
@@ -28,7 +28,9 @@ public class GetEntityForTableHandler(ExplorerHttpClient client, DynamicsExplore
                                 .Columns?.Find(c => c.Name == item["LogicalName"]!.ToString())?
                                 .FriendlyName,
             AttributeType = item["AttributeType"]!.GetValue<string>()!,
-            DerivedType = item["@odata.type"]?.GetValue<string>()
+            DerivedType = item["@odata.type"]?.GetValue<string>(),
+            IsValidForCreate = item["IsValidForCreate"]!.GetValue<bool>(),
+            IsValidForUpdate = item["IsValidForUpdate"]!.GetValue<bool>()
         }).OrderBy(e => !e.IsPrimaryId)
           .ThenBy(e => e.CustomName == null)
           .ToArray();
@@ -55,24 +57,29 @@ public class GetEntityForTableHandler(ExplorerHttpClient client, DynamicsExplore
     {
         foreach (var attribute in attributes)
         {
-            attribute.IsEditable = !new string[]
-          {
-                "createdon",
-                "importsequencenumber",
-                "modifiedon",
-                "overriddencreatedon",
-                "timezoneruleversionnumber",
-                "utcconversiontimezonecode",
-                "versionnumber",
-                "createdby",
-                "createdonbehalfby",
-                "modifiedby",
-                "modifiedonbehalfby",
-                "ownerid",
-                "owningbusinessunit",
-                "owninguser",
-                "owningteam"
-          }.Contains(attribute.LogicalName);
+            attribute.IsEditable = 
+                (attribute.IsValidForCreate || attribute.IsValidForUpdate) 
+                // Currently unsupported
+                && attribute.DerivedType != AttributeMetadataDerivedTypes.ImageAttributeMetadata
+                && !new string[]
+                {
+                    "createdon",
+                    "importsequencenumber",
+                    "modifiedon",
+                    "overriddencreatedon",
+                    "timezoneruleversionnumber",
+                    "utcconversiontimezonecode",
+                    "versionnumber",
+                    "createdby",
+                    "createdonbehalfby",
+                    "modifiedby",
+                    "modifiedonbehalfby",
+                    "ownerid",
+                    "owneridtype",
+                    "owningbusinessunit",
+                    "owninguser",
+                    "owningteam"
+                }.Contains(attribute.LogicalName);
         }
     }
 

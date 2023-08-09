@@ -3,12 +3,11 @@
 <div>
     <MudSelect Variant="Variant.Outlined"
                Label="Field" @bind-Value="Set.Attribute" @bind-Value:after="AfterChange">
-        @foreach (var column in Entity.Attributes
+        @foreach (var attr in Entity.Attributes
         .Where(c => c.IsEditable)
         .Where(c => c == Set.Attribute || !Sets.Any(s => s.Attribute == c)))
         {
-            var attr = Set.Attribute!;
-            <MudSelectItem Value="column">
+            <MudSelectItem Value="attr">
                 <MudStack Spacing="0" Style="margin-top: -4px">
                     <MudStack Class="flex-grow-1" Spacing="0">
                         <MudText Typo="Typo.caption" Color="Color.Primary">@attr.LogicalName</MudText>

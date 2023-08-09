@@ -12,6 +12,8 @@ public class AttributeDto
     public DateTimeFormat? DateTimeFormat { get; set; }
     public bool IsEditable { get; set; }
     public required string EntityLogicalName { get; set; }
+    public required bool IsValidForCreate { get; set; }
+    public required bool IsValidForUpdate { get; set; }
     public string? ReferencedEntity { get; set; }
     public string LookupPropertyNameOrLogicalName => ReferencedEntity != null ? 
         $"_{LogicalName}_value" : LogicalName;
