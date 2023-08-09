@@ -1,8 +1,5 @@
 ﻿@using Cblx.Dynamics.Explorer.Models;
 @using Cblx.Dynamics.Explorer.Services.DynamicsServices.ListEntityAttributes;
-@*<MudSelect Variant="Variant.Outlined"
-           HelperText="@(Set.Column?.HasFriendlyName is true ? Set.Column.OriginalName : "")"
-           Label="Field" @bind-Value="Set.Column" @bind-Value:after="AfterChange">*@
 <div>
     <MudSelect Variant="Variant.Outlined"
                Label="Field" @bind-Value="Set.Attribute" @bind-Value:after="AfterChange">
@@ -21,25 +18,14 @@
                         <MudText Typo="Typo.caption" Color="Color.Warning">@attr.AttributeType</MudText>
                         <MudText Typo="Typo.caption" Style="color: gray;">@((attr.DerivedType ?? "-").Split('.').Last())</MudText>
                             </MudStack>
-                            @*<MudText Typo="Typo.caption" Style="line-height: 1" Color="Color.Secondary">@column.DisplayName</MudText>*@
-                            @*@if (column.HasFriendlyName)
-                    {
-                    <MudText Typo="Typo.caption" Style="line-height: 1">@column.OriginalName</MudText>
-                    }*@
+
                         </MudStack>
-                        @*  <MudStack AlignItems="AlignItems.Start" Class="flex-grow-0">
-                <MudText Typo="Typo.caption" Style="color: gray !important; line-height: 1">@column.TypeName</MudText>
-                </MudStack>*@
                     </MudStack>
                 </MudSelectItem>
         }
     </MudSelect>
 </div>
 @code {
-    //[Parameter]
-    //[EditorRequired]
-    //public TableInfo Table { get; set; } = default!;
-
     [Parameter]
     [EditorRequired]
     public EntityDto Entity { get; set; } = default!;

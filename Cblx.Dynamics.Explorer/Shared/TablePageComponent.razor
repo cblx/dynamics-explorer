@@ -116,9 +116,6 @@
     [Parameter]
     [EditorRequired]
     public required string EntityLogicalName { get; set; }
-    //[Parameter]
-    //[EditorRequired]
-    //public required TableInfo Table { get; set; }
     private string? Error = null;
     private Dictionary<string, PropertyInfo> _properties = new();
     private Dictionary<string, int> _columnOrders = new();
@@ -247,7 +244,7 @@
             {
                 _loading = true;
                 StateHasChanged();
-                string query = $"{_entity.EntitySetName}({item[_entity.PrimaryId]!.GetValue<Guid>()})";
+                string query = $"{_entity.EntitySetName}({item[_entity.PrimaryId!]!.GetValue<Guid>()})";
                 await HttpClient.DeleteAsync(query);
                 await _table.ReloadServerData();
             }

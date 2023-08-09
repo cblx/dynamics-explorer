@@ -5,7 +5,6 @@ namespace Cblx.Dynamics.Explorer.Shared;
 
 public class EditDialogSet
 {
-    //public ColumnInfo? Column { get; set; }
     public AttributeDto? Attribute { get; set; }
     public object? Value { get; set; }
     public object? AcceptedValue { get; set; }

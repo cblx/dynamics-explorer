@@ -14,11 +14,6 @@
                 <MudText Typo="Typo.caption" Style="line-height: 1.2" Color="Color.Primary">@EntityLogicalName</MudText>
                 <MudText Typo="Typo.caption" Style="line-height: 1.2" Color="Color.Secondary">@(_entity?.DisplayName ?? "-")</MudText>
                 <MudText Typo="Typo.caption" Style="line-height: 1.2" Color="Color.Tertiary">@(_entity?.CustomName ?? "-")</MudText>
-               @* <MudText>@Table.DisplayName</MudText>
-                @if (Table.HasFriendlyName)
-                {
-                    <MudText Typo="Typo.caption">@Table.OriginalName</MudText>
-                }*@
                 <MudDivider />
             </MudStack>
         </TitleContent>
@@ -66,9 +61,6 @@
     private EntityDto? _entity;
 
     private List<EditDialogSet> _sets = new();
-
-    //[Parameter]
-    //public TableInfo Table { get; set; } = default!;
     [Parameter]
     public required string EntityLogicalName { get; set; }
 
