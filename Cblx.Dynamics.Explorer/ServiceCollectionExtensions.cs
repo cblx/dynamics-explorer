@@ -7,7 +7,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MudBlazor.Services;
-using System.Reflection;
 
 namespace Cblx.Dynamics.Explorer;
 public static class ServiceCollectionExtensions
@@ -42,8 +41,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ExplorerHttpClient>();
         services.AddSingleton<ApplicationService>();
         services.AddSingleton<AppBarService>();
-        services.AddSingleton<DynamicsComponentFactory>();
-        services.AddSingleton<SchemaService>();
         services.AddScoped<EditDialogService>();
         return services;
     }
