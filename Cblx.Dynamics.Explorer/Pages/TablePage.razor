@@ -12,6 +12,7 @@
     <MudTable @ref="_table" ServerData="@(new Func<TableState, Task<TableData<JsonObject>>>(ServerReloadJson))"
                 FixedHeader
                 FixedFooter
+                RowsPerPage="50"
                 Bordered
     @bind-Loading="_loading"
               Height="calc(100vh - 100px)"
@@ -26,15 +27,15 @@
                 <MudTh Style="padding: 2px;">
                     <MudStack Row AlignItems="AlignItems.Center">
                         <MudStack Spacing="0">
-                            <MudText Typo="Typo.caption" Color="Color.Primary">@attr.LogicalName</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Primary" Style="line-height: 1">@attr.LogicalName</MudText>
                             <MudText Typo="Typo.caption" Color="Color.Secondary" Style="line-height: 1; white-space: nowrap">@(attr.DisplayName ?? "-")</MudText>
-                                <MudText Typo="Typo.caption" Color="Color.Tertiary">@(attr.CustomName ?? "-")</MudText>
-                                <MudStack Row>
-                            <MudText Typo="Typo.caption" Color="Color.Warning">@attr.AttributeType</MudText>
-                            <MudText Typo="Typo.caption" Style="color: gray">@((attr.DerivedType ?? "-").Split('.').Last())</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Tertiary" Style="line-height: 1">@(attr.CustomName ?? "-")</MudText>
+                            <MudStack Row>
+                                <MudText Typo="Typo.caption" Color="Color.Warning" Style="line-height: 1">@attr.AttributeType</MudText>
+                                <MudText Typo="Typo.caption" Style="color: gray; line-height: 1">@((attr.DerivedType ?? "-").Split('.').Last())</MudText>
                                 </MudStack>
                             </MudStack>
-                            @if (attr.AttributeType is "Picklist")
+                        @if (attr.AttributeType is "Picklist")
                         {
                             <MudMenu Icon="@Icons.Material.Filled.Menu" AnchorOrigin="Origin.BottomLeft">
                                 <MudMenuItem OnClick="() => ShowOptions(attr)">Show options list</MudMenuItem>
@@ -49,7 +50,7 @@
         </HeaderContent>
         <RowTemplate>
             <MudTd>
-                <MudStack Row>
+                <MudStack Row Spacing="1">
                     @{
                         var canChange = true;
                     }
@@ -77,10 +78,10 @@
                         {
                             <MudStack Spacing="0">
                                 <MudTooltip Text="@value.ToString()">
-                                    <MudText Typo="Typo.overline">@value.ToString()</MudText>
+                                    <MudText Typo="Typo.caption" Style="line-height: 1">@value.ToString()</MudText>
                                 </MudTooltip>
                                 <MudTooltip Text="@formattedValue">
-                                    <MudText Color="Color.Tertiary" Typo="Typo.caption">@formattedValue</MudText>
+                                    <MudText Color="Color.Tertiary" Typo="Typo.caption" Style="line-height: 1">@formattedValue</MudText>
                                 </MudTooltip>
                             </MudStack>
                         }
@@ -171,7 +172,7 @@
 
     private RenderFragment GetAppBarContent(string logicalName, string? displayName = null, string? customName = null) =>
     @<MudStack Row
-                       Class="flex-grow-1">
+                   Class="flex-grow-1">
         <MudStack Spacing="0">
             <MudText Typo="Typo.caption" Style="line-height: 1.2" Color="Color.Primary">@logicalName</MudText>
             <MudText Typo="Typo.caption" Style="line-height: 1.2" Color="Color.Secondary">@(displayName ?? "-")</MudText>

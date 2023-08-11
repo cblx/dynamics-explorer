@@ -9,3 +9,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+::deep .mud-table-cell{
+    padding: 4px 8px !important;
+}
