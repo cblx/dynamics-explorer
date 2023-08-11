@@ -4,7 +4,8 @@
 @using System.Text.Json;
 @using System.Text.RegularExpressions;
 @using System.Web;
-@inject HttpClient HttpClient
+@using Cblx.Dynamics.Explorer.Services.DynamicsServices.ExecuteQuery;
+@inject IExecuteQueryHandler Handler
 @inject AppBarService AppBarService
 <MudStack Class="px-4">
     <MudTextField Label="GET" Lines="10" @bind-Value="_query" />
@@ -48,8 +49,7 @@
         _error = null;
         try
         {
-            var response = await HttpClient.GetAsync(_query.RemoveLineEndingsForODataQuery());
-            var json = await response.Content.ReadFromJsonAsync<JsonObject>();
+            var json = await Handler.GetAsync(_query);
             var strJson = JsonSerializer.Serialize(json, new JsonSerializerOptions { WriteIndented = true });
             _json = strJson.ToString().Split(Environment.NewLine);
         }
