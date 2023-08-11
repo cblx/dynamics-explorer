@@ -1,5 +1,4 @@
-﻿using Cblx.Dynamics.Explorer.Models;
-using Cblx.Dynamics.Explorer.Services.DynamicsServices.ListEntityAttributes;
+﻿using Cblx.Dynamics.Explorer.Services.DynamicsServices.ListEntityAttributes;
 using System.Text.Json;
 namespace Cblx.Dynamics.Explorer.Shared;
 

@@ -1,4 +1,5 @@
 ﻿@page "/tbl/{EntityLogicalName}"
+@using Cblx.Dynamics.Explorer.Services.DynamicsServices.Data.Delete;
 @using Cblx.Dynamics.Explorer.Services.DynamicsServices.ExecuteQuery;
 @using Cblx.Dynamics.Explorer.Services.DynamicsServices.ListEntityAttributes;
 @using System.Text.Json.Nodes;
@@ -8,6 +9,7 @@
 @inject AppBarService AppBarService
 @inject IGetEntityHandler GetEntityHandler
 @inject IExecuteQueryHandler ExecuteQueryHandler
+@inject IDeleteHandler DeleteHandler
 <PageTitle>@EntityLogicalName</PageTitle>
 <div scoped-css>
     <MudTable @ref="_table" ServerData="@(new Func<TableState, Task<TableData<JsonObject>>>(ServerReloadJson))"
@@ -234,8 +236,7 @@
             {
                 _loading = true;
                 StateHasChanged();
-                string query = $"{_entity.EntitySetName}({item[_entity.PrimaryId!]!.GetValue<Guid>()})";
-                await HttpClient.DeleteAsync(query);
+                await DeleteHandler.DeleteAsync(_entity.EntitySetName, item[_entity.PrimaryId!]!.GetValue<Guid>());
                 await _table.ReloadServerData();
             }
             catch (Exception ex)

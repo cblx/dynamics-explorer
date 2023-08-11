@@ -1,7 +1,8 @@
 ﻿@using System.Text.Json.Nodes;
 @using System.Net.Http.Json;
 @using Cblx.Dynamics.Explorer.Models;
-@inject HttpClient HttpClient
+@using Cblx.Dynamics.Explorer.Services.DynamicsServices.ListMultiSelectPicklistOptions;
+@inject IListMultiSelectPicklistOptionsHandler Handler
 @if (Options != null)
 {
     <MudSelect T="string"
@@ -41,15 +42,8 @@
     {
         try
         {
-            var attribute = Set.Attribute;
-            var json = await HttpClient.GetFromJsonAsync<JsonObject>($"EntityDefinitions(LogicalName='{attribute!.EntityLogicalName}')/Attributes(LogicalName='{attribute.LogicalName}')/Microsoft.Dynamics.CRM.MultiSelectPicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)"); ;
-            Options = json!["OptionSet"]!["Options"]!
-                .AsArray()
-                .Select(j => new PicklistOption
-                    {
-                        Text = j!["Label"]!["LocalizedLabels"]![0]!["Label"]!.GetValue<string>(),
-                        Value = j["Value"]!.GetValue<int>()
-                    }).ToArray();
+            var attribute = Set.Attribute!;
+            Options = await Handler.GetAsync(attribute.EntityLogicalName, attribute.LogicalName);
         }
         catch { }
     }
