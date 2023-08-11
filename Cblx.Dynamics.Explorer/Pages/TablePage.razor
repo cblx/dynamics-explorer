@@ -6,7 +6,7 @@
 @inject ApplicationService ApplicationService
 @inject HttpClient HttpClient
 @inject AppBarService AppBarService
-@inject IGetEntityForTableHandler GetEntityHandler
+@inject IGetEntityHandler GetEntityHandler
 <PageTitle>@EntityLogicalName</PageTitle>
 <div scoped-css>
     <MudTable @ref="_table" ServerData="@(new Func<TableState, Task<TableData<JsonObject>>>(ServerReloadJson))"

@@ -5,7 +5,7 @@ using System.Text.Json.Nodes;
 
 namespace Cblx.Dynamics.Explorer.Shared;
 
-internal class EditDialogService(HttpClient httpClient, IGetEntityForTableHandler getEntityHandler)
+internal class EditDialogService(HttpClient httpClient, IGetEntityHandler getEntityHandler)
 { 
     public async Task PatchAsync(Guid id, string entitySetName, EditDialogSet[] sets)
     {

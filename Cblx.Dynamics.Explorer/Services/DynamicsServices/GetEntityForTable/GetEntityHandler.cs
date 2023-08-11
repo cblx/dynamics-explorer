@@ -3,7 +3,7 @@ using System.Text.Json.Nodes;
 
 namespace Cblx.Dynamics.Explorer.Services.DynamicsServices.ListEntityAttributes;
 
-public class GetEntityForTableHandler(ExplorerHttpClient client, DynamicsExplorerOptions options) : IGetEntityForTableHandler
+public class GetEntityHandler(ExplorerHttpClient client, DynamicsExplorerOptions options) : IGetEntityHandler
 {
     public async Task<EntityDto> GetAsync(string entityLogicalName)
     {

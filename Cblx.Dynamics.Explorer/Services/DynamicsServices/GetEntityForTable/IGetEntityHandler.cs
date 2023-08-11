@@ -1,6 +1,6 @@
 ﻿namespace Cblx.Dynamics.Explorer.Services.DynamicsServices.ListEntityAttributes;
 
-public interface IGetEntityForTableHandler
+public interface IGetEntityHandler
 {
     Task<EntityDto> GetAsync(string entityLogicalName);
 }

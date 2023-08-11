@@ -9,7 +9,7 @@ public static class DynamicsServicesExtensions
     public static IServiceCollection AddDynamicsServices(this IServiceCollection services)
     {
         services.AddScoped<IListEntitiesForMenuHandler, ListEntitiesForMenuHandler>();
-        services.AddScoped<IGetEntityForTableHandler, GetEntityForTableHandler>();
+        services.AddScoped<IGetEntityHandler, GetEntityHandler>();
         return services;
     }
 }
