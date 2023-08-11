@@ -16,4 +16,3 @@ public static partial class StringExtensions
     [GeneratedRegex("&\\s+")]
     private static partial Regex RemoveAfterAmpersand();
 }
-    

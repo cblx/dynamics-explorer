@@ -30,6 +30,7 @@ public static class ServiceCollectionExtensions
             .ConfigureHttpClient((sp, httpClient) =>
             {
                 var dynamicsConfig = sp.GetRequiredService<IOptions<DynamicsConfig>>().Value;
+                httpClient.DefaultRequestHeaders.Add("Prefer", "odata.include-annotations=OData.Community.Display.V1.FormattedValue");
                 httpClient.BaseAddress = DynamicsBaseAddress.FromResourceUrl(dynamicsConfig.ResourceUrl);
             });
         services.AddTransient<DynamicsAuthorizationMessageHandler>();

@@ -1,12 +1,13 @@
 ﻿@page "/tbl/{EntityLogicalName}"
+@using Cblx.Dynamics.Explorer.Services.DynamicsServices.ExecuteQuery;
 @using Cblx.Dynamics.Explorer.Services.DynamicsServices.ListEntityAttributes;
 @using System.Text.Json.Nodes;
 @using System.Net.Http.Json;
 @inject IDialogService DialogService
 @inject ApplicationService ApplicationService
-@inject HttpClient HttpClient
 @inject AppBarService AppBarService
 @inject IGetEntityHandler GetEntityHandler
+@inject IExecuteQueryHandler ExecuteQueryHandler
 <PageTitle>@EntityLogicalName</PageTitle>
 <div scoped-css>
     <MudTable @ref="_table" ServerData="@(new Func<TableState, Task<TableData<JsonObject>>>(ServerReloadJson))"
@@ -125,24 +126,20 @@
         try
         {
             string query = $"{_entity!.EntitySetName}?$top={state.PageSize}&$skiptoken=<cookie pagenumber='{state.Page + 1}' />&$count=true";
-            HttpClient.DefaultRequestHeaders.Add("Prefer", "odata.include-annotations=OData.Community.Display.V1.FormattedValue");
-
             if (state.SortLabel != null)
             {
                 query += $"&$orderby={state.SortLabel} {(state.SortDirection == SortDirection.Ascending ? "asc" : "desc")}";
             }
-            var response = await HttpClient.GetAsync(query);
-            if (!response.IsSuccessStatusCode)
+            var json = await ExecuteQueryHandler.GetAsync(query);
+            if (json.HasError())
             {
-                var errorJson = await response.Content.ReadFromJsonAsync<JsonObject>();
-                Console.WriteLine(errorJson);
-                Error = errorJson!["error"]!["message"]!.ToString();
+                Console.WriteLine(json);
+                Error = json.GetErrorMessage();
                 return new TableData<JsonObject>() { TotalItems = 0, Items = Array.Empty<JsonObject>() };
 
             }
-            var result = await response.Content.ReadFromJsonAsync<JsonObject>(); //await HttpClient.GetFromJsonAsync<JsonObject>(query);
-            var value = result!["value"]?.AsArray().Select(n => n!.AsObject());
-            var count = result["@odata.count"]!.GetValue<int>();
+            var value = json!["value"]?.AsArray().Select(n => n!.AsObject());
+            var count = json["@odata.count"]!.GetValue<int>();
 
             return new TableData<JsonObject>() { TotalItems = count, Items = value };
         }
