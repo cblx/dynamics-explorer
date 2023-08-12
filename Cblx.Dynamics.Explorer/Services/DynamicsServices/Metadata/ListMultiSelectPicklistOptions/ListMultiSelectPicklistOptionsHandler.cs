@@ -5,11 +5,11 @@ using Cblx.Dynamics.Explorer.Services.DynamicsServices.ListMultiSelectPicklistOp
 
 namespace Cblx.Dynamics.Explorer.Services.DynamicsServices.Metadata.ListMultiSelectPicklistOptions;
 
-internal class ListMultiSelectPicklistOptionsHandler(HttpClient httpClient) : IListMultiSelectPicklistOptionsHandler
+internal class ListMultiSelectPicklistOptionsHandler(ExplorerHttpClient client) : IListMultiSelectPicklistOptionsHandler
 {
     public async Task<PicklistOption[]> GetAsync(string entityLogicalName, string attributeLogicalName)
     {
-        var json = await httpClient.GetFromJsonAsync<JsonObject>($"EntityDefinitions(LogicalName='{entityLogicalName}')/Attributes(LogicalName='{attributeLogicalName}')/Microsoft.Dynamics.CRM.MultiSelectPicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)");
+        var json = await client.HttpClient.GetFromJsonAsync<JsonObject>($"EntityDefinitions(LogicalName='{entityLogicalName}')/Attributes(LogicalName='{attributeLogicalName}')/Microsoft.Dynamics.CRM.MultiSelectPicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)");
         return json.ToPicklistOptions();
     }
 }

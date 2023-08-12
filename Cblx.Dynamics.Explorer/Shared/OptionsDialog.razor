@@ -3,7 +3,8 @@
 @using System.Net.Http.Json
 @using Cblx.Dynamics.Explorer.Models;
 @using Cblx.Dynamics.Explorer.Services.DynamicsServices.ListEntityAttributes;
-@inject HttpClient HttpClient
+@using Cblx.Dynamics.Explorer.Services.DynamicsServices.Metadata.ListOptionsHandler;
+@inject IListOptionsHandler ListOptionsHandler
 <MudDialog>
     <DialogContent>
         @if (_loading)
@@ -34,7 +35,7 @@
 
 @code {
     private bool _loading = true;
-    private List<PicklistOption> _options = new();
+    private PicklistOption[] _options = Array.Empty<PicklistOption>();
 
     [Parameter]
     public required AttributeDto Attribute { get; set; }
@@ -49,36 +50,12 @@
     {
         try
         {
-            var url = Attribute.DerivedType switch
-            {
-                AttributeMetadataDerivedTypes.PicklistAttributeMetadata => $"EntityDefinitions(LogicalName='{EntityLogicalName}')/Attributes(LogicalName='{Attribute.LogicalName}')/Microsoft.Dynamics.CRM.PicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)",
-                AttributeMetadataDerivedTypes.StateAttributeMetadata => $"EntityDefinitions(LogicalName='{EntityLogicalName}')/Attributes/Microsoft.Dynamics.CRM.StateAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)",
-                AttributeMetadataDerivedTypes.StatusAttributeMetadata => $"EntityDefinitions(LogicalName='{EntityLogicalName}')/Attributes/Microsoft.Dynamics.CRM.StatusAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)",
-                AttributeMetadataDerivedTypes.MultiSelectPicklistAttributeMetadata => $"EntityDefinitions(LogicalName='{EntityLogicalName}')/Attributes(LogicalName='{Attribute.LogicalName}')/Microsoft.Dynamics.CRM.MultiSelectPicklistAttributeMetadata?$select=LogicalName&$expand=OptionSet($select=Options)",
-                _ => throw new NotImplementedException()
-            };
-
-            var options = await HttpClient.GetFromJsonAsync<JsonObject>(url);
-            if (options!.ContainsKey("value"))
-            {
-                options = options["value"]!.AsArray()!.First()!.AsObject();
-            }
-            var jsonArray = options!["OptionSet"]!["Options"] as JsonArray;
-            var picklistOptions = new List<PicklistOption>();
-            foreach (var item in jsonArray!)
-            {
-                picklistOptions.Add(new PicklistOption
-                {
-                    Text = item!["Label"]!["LocalizedLabels"]![0]!["Label"]!.GetValue<string>(),
-                    Value = item["Value"]!.GetValue<int>()
-                });
-            }
-            _options = picklistOptions;
+            _options = await ListOptionsHandler.GetAsync(EntityLogicalName, Attribute.LogicalName, Attribute.DerivedType!);
         }
-        catch
-        {
-            // Do nothing
-        }
+        //catch
+        //{
+        //    // Do nothing
+        //}
         finally
         {
             _loading = false;

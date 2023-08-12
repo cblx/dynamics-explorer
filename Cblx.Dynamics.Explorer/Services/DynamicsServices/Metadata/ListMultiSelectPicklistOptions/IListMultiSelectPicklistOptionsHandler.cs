@@ -1,9 +1,8 @@
 ﻿using Cblx.Dynamics.Explorer.Models;
 
-namespace Cblx.Dynamics.Explorer.Services.DynamicsServices.ListMultiSelectPicklistOptions
+namespace Cblx.Dynamics.Explorer.Services.DynamicsServices.ListMultiSelectPicklistOptions;
+
+internal interface IListMultiSelectPicklistOptionsHandler
 {
-    internal interface IListMultiSelectPicklistOptionsHandler
-    {
-        Task<PicklistOption[]> GetAsync(string entityLogicalName, string attributeLogicalName);
-    }
+    Task<PicklistOption[]> GetAsync(string entityLogicalName, string attributeLogicalName);
 }
