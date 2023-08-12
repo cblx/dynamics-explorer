@@ -38,7 +38,10 @@
                                 <MudText Typo="Typo.caption" Style="color: gray; line-height: 1">@((attr.DerivedType ?? "-").Split('.').Last())</MudText>
                                 </MudStack>
                             </MudStack>
-                        @if (attr.AttributeType is "Picklist")
+                            @if (attr.DerivedType is AttributeMetadataDerivedTypes.MultiSelectPicklistAttributeMetadata
+                                                  or AttributeMetadataDerivedTypes.StatusAttributeMetadata
+                                                  or AttributeMetadataDerivedTypes.StateAttributeMetadata
+                                                  or AttributeMetadataDerivedTypes.PicklistAttributeMetadata)
                         {
                             <MudMenu Icon="@Icons.Material.Filled.Menu" AnchorOrigin="Origin.BottomLeft">
                                 <MudMenuItem OnClick="() => ShowOptions(attr)">Show options list</MudMenuItem>
