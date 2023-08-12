@@ -4,9 +4,10 @@
 @using System.Text.Json.Nodes;
 @using System.Text.Json;
 @using System.Net.Http.Headers;
+@using Cblx.Dynamics.Explorer.Services.DynamicsServices.ExecuteQuery;
 @using Cblx.Dynamics.Explorer.Services.DynamicsServices.ListEntityAttributes;
-@inject HttpClient HttpClient
 @inject IGetEntityHandler GetEntityHandler
+@inject IExecuteQueryHandler ExecuteQueryHandler
 <MudAutocomplete Value="Value"
                  T="string"
                  Variant="Variant.Outlined"
@@ -85,8 +86,8 @@
             }
         }
         string select = $"&$select={foreignPimaryIdAttribute!.LogicalName},{foreignPrimaryNameAttribute!.LogicalName}";
-        var response = await HttpClient.GetFromJsonAsync<JsonObject>($"{_foreignEntity.EntitySetName}?$top=100{select}{filters}");
-        var jsonItems = response!["value"]!.AsArray();
+        var json = await ExecuteQueryHandler.GetAsync($"{_foreignEntity.EntitySetName}?$top=100{select}{filters}");
+        var jsonItems = json!["value"]!.AsArray();
         var foundIds = new List<string?>(){ null };
         foreach (var item in jsonItems)
         {
