@@ -178,7 +178,7 @@
             }
             else
             {
-                await EditDialogService.PostAsync(_entity.EntitySetName, _sets.ToArray());
+                await EditDialogService.PostAsync(_entity!.EntitySetName, _sets.ToArray());
             }
             MudDialog.Close(DialogResult.Ok(true));
         }
