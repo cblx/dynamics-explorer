@@ -31,7 +31,8 @@ public class GetEntityHandler(ExplorerHttpClient client, DynamicsExplorerOptions
             DerivedType = item["@odata.type"]?.GetValue<string>(),
             IsValidForCreate = item["IsValidForCreate"]!.GetValue<bool>(),
             IsValidForUpdate = item["IsValidForUpdate"]!.GetValue<bool>()
-        }).OrderBy(e => !e.IsPrimaryId)
+        }).Where(e => e.DisplayName != null)
+          .OrderBy(e => !e.IsPrimaryId)
           .ThenBy(e => e.CustomName == null)
           .ToArray();
 
