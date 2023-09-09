@@ -2,11 +2,13 @@
 @using Cblx.Dynamics.Explorer.Models;
 @using System.Net.Http.Json;
 @using System.Text.Json.Nodes;
+@using Cblx.Dynamics.Explorer.Services.DynamicsServices.ExecuteQuery;
 @using Cblx.Dynamics.Explorer.Services.DynamicsServices.ListEntityAttributes;
 @inject IDialogService DialogService
 @inject EditDialogService EditDialogService
 @inject HttpClient HttpClient
 @inject IGetEntityHandler GetEntityHandler
+@inject IExecuteQueryHandler ExecuteQueryHandler
 <div style="display: contents">
     <MudDialog Style="width: 800px; max-width: 800px" Class="fix">
         <TitleContent>
@@ -86,7 +88,7 @@
             }
             else
             {
-                var current = await HttpClient.GetFromJsonAsync<JsonObject>($"{_entity.EntitySetName}({Id})");
+                var current = await ExecuteQueryHandler.GetAsync($"{_entity.EntitySetName}({Id})");
                 foreach (var attribute in _entity.Attributes.Where(c => c.IsEditable))
                 {
                     var jsonVal = current![attribute.LookupPropertyNameOrLogicalName];
