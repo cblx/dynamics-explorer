@@ -1,0 +1,81 @@
+﻿@using Cblx.Dynamics.Explorer.Services.DynamicsServices.ListTablesForMenu;
+@inject IListEntitiesForMenuHandler Handler
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">MyBlazorWeb</a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="counter">
+                <span class="bi bi-plus-square-fill" aria-hidden="true"></span> Counter
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="weather">
+                <span class="bi bi-list-nested" aria-hidden="true"></span> Weather
+            </NavLink>
+        </div>
+    </nav>
+</div>
+<div>
+    <MudNavMenu Dense Class="pb-16 relative">
+         <MudNavLink Href="/" Match="NavLinkMatch.All">Queries</MudNavLink>
+         <MudDivider Light />
+         <MudNavLink Href="/diagram" Match="NavLinkMatch.All">Diagram (Under construction)</MudNavLink>
+         <MudDivider />
+         <MudStack Row>
+            <MudTextField Placeholder="Filter tables" @bind-Value="_filter" Immediate />
+             <MudIconButton Size="Size.Small" OnClick="LoadAsync" Icon="@Icons.Material.Filled.Refresh" />
+         </MudStack>
+         <MudStack Class="relative" Spacing="1">
+             @foreach (var tbl in _displayedEntities)
+            {
+                <MudNavLink Href="@($"tbl/{tbl.LogicalName}")" Match="NavLinkMatch.All">
+                    <MudStack Spacing="0">
+                        <MudText Typo="Typo.caption" Class="truncate" Color="Color.Primary">@tbl.LogicalName</MudText>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">@(tbl.DisplayName ?? "-")</MudText>
+                        <MudText Typo="Typo.caption" Color="Color.Tertiary">@(tbl.CustomName ?? "-")</MudText>
+                    </MudStack>
+                </MudNavLink>
+                <MudDivider Light />
+            }
+            <MudOverlay Visible="_loading" Absolute DarkBackground />
+         </MudStack>
+     </MudNavMenu>
+ </div>
+ @code {
+    private bool _loading = true;
+    private EntityDto[] _entities = Array.Empty<EntityDto>();
+    private string _filter = string.Empty;
+    private EntityDto[] _displayedEntities
+           => _entities.Where(
+               t => t.DisplayName?.Contains(_filter, StringComparison.OrdinalIgnoreCase) is true
+                   || t.LogicalName?.Contains(_filter, StringComparison.OrdinalIgnoreCase) is true).ToArray();
+
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+    private async Task LoadAsync()
+    {
+        try
+        {
+            _loading = true;
+            _entities = await Handler.GetAsync();
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}
