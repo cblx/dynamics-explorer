@@ -9,9 +9,11 @@
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 	</ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Cblx.Dynamics.Explorer.Client\Cblx.Dynamics.Explorer.Client.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.0-rc.1.23421.29" />
 	<PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="5.3.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Cblx.Dynamics.Explorer.Client.Boot\Cblx.Dynamics.Explorer.Client.Boot.csproj" />
   </ItemGroup>
 
 </Project>

@@ -45,3 +45,21 @@ a, .btn-link {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+
+/* Fix scrollabilidade do MudDialog, acompanhar se eles arrumar nas próximas versões */
+/* TODO: https://github.com/MudBlazor/MudBlazor/issues/6704 */
+.fix.mud-dialog {
+    overflow: hidden;
+}
+
+    .fix.mud-dialog > form, .fix.mud-dialog .dialog-outer, .fix.mud-dialog .outline-none, .fix.mud-dialog .outline-none > div[tabindex] {
+        display: flex;
+        flex-flow: column;
+        flex: 1 1 0%;
+        overflow: hidden;
+    }
+
+    .fix.mud-dialog .mud-dialog-content {
+        flex: 1 1 0%;
+        overflow: auto;
+    }
