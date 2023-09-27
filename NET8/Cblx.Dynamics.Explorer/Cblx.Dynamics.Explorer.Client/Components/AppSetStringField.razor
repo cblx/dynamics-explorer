@@ -1,0 +1,29 @@
+﻿@using System.Text.Json.Nodes;
+@using System.Net.Http.Json;
+@using Cblx.Dynamics.Explorer.Models;
+@using Cblx.Dynamics.Explorer.Shared;
+<MudTextField @bind-Value="Set.ValueAsString"
+              Variant="Variant.Outlined"
+              OnKeyDown="(args) => AlternateEmptyNull(args, Set)"
+              Placeholder="@(Set.Value is null ? "NULL" : " ")"
+              HelperText="@Set.ValueHelperText"
+              Label="Value" />
+@code {
+    [Parameter]
+    [EditorRequired]
+    public required EditDialogSet Set { get; set; }
+    private void AlternateEmptyNull(KeyboardEventArgs args, EditDialogSet set)
+    {
+        if (args.Key == "Backspace")
+        {
+            if (set.Value == null)
+            {
+                set.Value = "";
+            }
+            else if ((set.Value as string) == "")
+            {
+                set.Value = null;
+            }
+        }
+    }
+}

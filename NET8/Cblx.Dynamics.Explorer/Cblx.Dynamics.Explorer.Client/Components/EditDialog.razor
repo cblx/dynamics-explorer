@@ -1,0 +1,203 @@
+﻿@using System.Reflection;
+@using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
+@using Cblx.Dynamics.Explorer.Models;
+@using System.Net.Http.Json;
+@using System.Text.Json.Nodes;
+@using Cblx.Dynamics.Explorer.Services.DynamicsServices.ExecuteQuery;
+@using Cblx.Dynamics.Explorer.Shared;
+@inject IDialogService DialogService
+@inject EditDialogService EditDialogService
+@inject IGetEntityHandler GetEntityHandler
+@inject IExecuteQueryHandler ExecuteQueryHandler
+<div style="display: contents">
+    <MudDialog Style="width: 800px; max-width: 800px" Class="fix">
+        <TitleContent>
+            <MudStack Spacing="0">
+                <MudText Typo="Typo.caption" Style="line-height: 1.2" Color="Color.Primary">@EntityLogicalName</MudText>
+                <MudText Typo="Typo.caption" Style="line-height: 1.2" Color="Color.Secondary">@(_entity?.DisplayName ?? "-")</MudText>
+                <MudText Typo="Typo.caption" Style="line-height: 1.2" Color="Color.Tertiary">@(_entity?.CustomName ?? "-")</MudText>
+                <MudDivider />
+            </MudStack>
+        </TitleContent>
+        <DialogContent>
+            <MudStack>
+                @foreach (var set in _sets)
+                {
+                    <MudStack Row>
+                    <MudStack Class="flex-1 overflow-hidden">
+                        <AppSetFieldField Set="set" Sets="_sets" Entity="_entity" OnChange="() => StateHasChanged()" />
+                    </MudStack>
+                    <MudStack Class="flex-1" AlignItems="AlignItems.Stretch" Justify="Justify.Center">
+                        <AppSetValueField Set="set" />
+                    </MudStack>
+                    <MudStack Justify="Justify.Center">
+                        <MudIconButton OnClick="() => _sets.Remove(set)"
+                                       Color="Color.Error"
+                                       Size="Size.Small"
+                                       Icon="@Icons.Material.Filled.Remove"
+                                       Class="flex-grow-0"></MudIconButton>
+                    </MudStack>
+                </MudStack>
+                <MudDivider Light/>
+                }
+                <MudStack Row Reverse>
+                    <MudButton OnClick="AddFieldSet" StartIcon="@Icons.Material.Filled.Add">Add field</MudButton>
+                </MudStack>
+                <MudDivider />
+            </MudStack>
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="Cancel">Cancel</MudButton>
+            <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+        </DialogActions>
+    </MudDialog>
+    <MudOverlay @bind-Visible="_saving" DarkBackground>
+        <MudProgressCircular Indeterminate Color="Color.Secondary"></MudProgressCircular>
+    </MudOverlay>
+</div>
+@code {
+    private bool _loading = true;
+    private bool _saving = false;
+    private PropertyInfo[] _fields = Array.Empty<PropertyInfo>();
+    private Dictionary<PropertyInfo, PicklistOption[]> _options = new();
+    private EntityDto? _entity;
+
+    private List<EditDialogSet> _sets = new();
+    [Parameter]
+    public required string EntityLogicalName { get; set; }
+
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter]
+    public Guid? Id { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _entity = await GetEntityHandler.GetAsync(EntityLogicalName);
+            if (!Id.HasValue)
+            {
+                _sets.Add(new EditDialogSet()
+                    {
+                        Attribute = _entity.Attributes.First(a => a.LogicalName == _entity.PrimaryId),
+                        Value = Guid.NewGuid().ToString()
+                    });
+            }
+            else
+            {
+                var current = await ExecuteQueryHandler.GetAsync($"{_entity.EntitySetName}({Id})");
+                foreach (var attribute in _entity.Attributes.Where(c => c.IsEditable))
+                {
+                    var jsonVal = current![attribute.LookupPropertyNameOrLogicalName];
+                    if (jsonVal is null) { continue; }
+                    var set = new EditDialogSet { Attribute = attribute, };
+
+                    set.Value = attribute switch
+                    {
+                        {
+                            AttributeType: "Uniqueidentifier"  
+                        } => jsonVal.GetValue<string>(),
+                        {
+                            DerivedType: AttributeMetadataDerivedTypes.PicklistAttributeMetadata
+                        } => jsonVal.GetValue<int>(),
+                        {
+                            DerivedType: AttributeMetadataDerivedTypes.MultiSelectPicklistAttributeMetadata
+                        } => jsonVal.GetValue<string>(),
+                        {
+                            DerivedType: AttributeMetadataDerivedTypes.LookupAttributeMetadata
+                        } => jsonVal.GetValue<string>(),
+                        {
+                            DerivedType: AttributeMetadataDerivedTypes.DateTimeAttributeMetadata,
+                            DateTimeFormat: DateTimeFormat.DateAndTime
+                        } => jsonVal.GetValue<DateTime>(),
+                        {
+                            DerivedType: AttributeMetadataDerivedTypes.DateTimeAttributeMetadata,
+                            DateTimeFormat: DateTimeFormat.DateOnly
+                        } => DateOnly.FromDateTime(jsonVal.GetValue<DateTime>()),
+                        {
+                            DerivedType: AttributeMetadataDerivedTypes.BooleanAttributeMetadata
+                        } => jsonVal.GetValue<bool>(),
+                        {
+                            DerivedType: AttributeMetadataDerivedTypes.DecimalAttributeMetadata
+                        } => jsonVal.GetValue<decimal>(),
+                        {
+                            DerivedType: AttributeMetadataDerivedTypes.DoubleAttributeMetadata
+                        } => jsonVal.GetValue<double>(),
+                        {
+                            DerivedType: AttributeMetadataDerivedTypes.IntegerAttributeMetadata
+                        } => jsonVal.GetValue<int>(),
+                        {
+                            DerivedType: AttributeMetadataDerivedTypes.MoneyAttributeMetadata
+                        } => jsonVal.GetValue<decimal>(),
+                        {
+                            DerivedType: AttributeMetadataDerivedTypes.StringAttributeMetadata
+                        } => jsonVal.GetValue<string>(),
+                        {
+                            DerivedType: AttributeMetadataDerivedTypes.MemoAttributeMetadata
+                        } => jsonVal.GetValue<string>(),
+                        {
+                            DerivedType: AttributeMetadataDerivedTypes.StateAttributeMetadata
+                        } => jsonVal.GetValue<int>(),
+                        {
+                            DerivedType: AttributeMetadataDerivedTypes.StatusAttributeMetadata
+                        } => jsonVal.GetValue<int>(),
+                        {
+                            DerivedType: AttributeMetadataDerivedTypes.BigIntAttributeMetadata
+                        } => jsonVal.GetValue<long>(),
+                        _ => null
+                    };
+
+                    set.AcceptValue();
+                    _sets.Add(set);
+                }
+            }
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    void AddFieldSet()
+    {
+        var firstMissingAttribute = _entity!.Attributes.Where(c => c.IsEditable)
+            .Where(c => !_sets.Any(s => s.Attribute == c)).FirstOrDefault();
+        if (firstMissingAttribute is null) { return; }
+        _sets.Add(new EditDialogSet { Attribute = firstMissingAttribute, });
+    }
+
+    async Task Submit()
+    {
+        _saving = true;
+        try
+        {
+            if (Id.HasValue)
+            {
+                await EditDialogService.PatchAsync(Id.Value, _entity!.EntitySetName, _sets.ToArray());
+            }
+            else
+            {
+                await EditDialogService.PostAsync(_entity!.EntitySetName, _sets.ToArray());
+            }
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            await DialogService.ShowMessageBox(new MessageBoxOptions
+                {
+                    Title = "Error",
+                    Message = ex.Message
+                });
+            Console.WriteLine(ex);
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+    void Cancel() => MudDialog.Cancel();
+
+}

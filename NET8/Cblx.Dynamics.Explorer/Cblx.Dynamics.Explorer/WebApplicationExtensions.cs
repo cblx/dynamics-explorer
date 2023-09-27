@@ -1,4 +1,7 @@
 ﻿using Cblx.Dynamics.Explorer.Components;
+using Cblx.Dynamics.Explorer.Services.DynamicsServices;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Hosting;
 
 namespace Cblx.Dynamics.Explorer;
 
@@ -27,6 +30,8 @@ public static class WebApplicationExtensions
             .AddServerRenderMode()
             .AddWebAssemblyRenderMode()
             .AddAdditionalAssemblies(typeof(Client.Pages.Counter).Assembly);
+        app.MapDynamicsExplorerApis();
+        
 
         return app;
     }

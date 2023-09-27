@@ -1,7 +1,8 @@
-﻿using System.Net.Http.Json;
+﻿using Cblx.Dynamics.Explorer.Services.DynamicsServices.ListTablesForMenu;
+using System.Net.Http.Json;
 using System.Text.Json.Nodes;
 
-namespace Cblx.Dynamics.Explorer.Services.DynamicsServices.ListTablesForMenu;
+namespace Cblx.Dynamics.Explorer.Services.DynamicsServices.Metadata.ListEntitiesForMenu;
 
 public class ListEntitiesForMenuHandler(ExplorerHttpClient client, DynamicsExplorerOptions options) : IListEntitiesForMenuHandler
 {
@@ -21,7 +22,7 @@ public class ListEntitiesForMenuHandler(ExplorerHttpClient client, DynamicsExplo
             CustomName = options.Tables?.Find(t => t.Name == item["LogicalName"]!.ToString())?.FriendlyName
         })
             .Where(e => options.IgnoreTables == null
-                        || 
+                        ||
                         !options.IgnoreTables(new IgnoreTableContext { LogicalName = e.LogicalName })
             )
             .OrderBy(e => e.CustomName == null)

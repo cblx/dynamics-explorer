@@ -1,0 +1,49 @@
+﻿@using System.Net.Http.Json;
+@using System.Text.Json.Nodes;
+@using Cblx.Dynamics.Explorer.Models;
+@using Cblx.Dynamics.Explorer.Services.DynamicsServices.Metadata.ListPicklistOptions;
+@using Cblx.Dynamics.Explorer.Services.DynamicsServices.Metadata.ListStateCodeOptions;
+@using Cblx.Dynamics.Explorer.Services.DynamicsServices.Metadata.ListStatusCodeOptions;
+@using Cblx.Dynamics.Explorer.Shared;
+@inject IListPicklistOptionsHandler ListPicklistOptionsHandler
+@inject IListStateCodeOptionsHandler ListStateCodeOptionsHandler
+@inject IListStatusCodeOptionsHandler ListStatusCodeOptionsHandler
+@if(Options != null)
+{
+    <MudSelect @bind-Value="Set.ValueAsInt32"
+               Variant="Variant.Outlined"
+               Placeholder="NULL"
+               HelperText="@Set.ValueHelperText"
+               Label="Value">
+        <MudSelectItem Value="(int?)null">null</MudSelectItem>
+        @foreach (var option in Options)
+        {
+            <MudSelectItem Value="@((int?)option.Value)">@option.Text</MudSelectItem>
+        }
+    </MudSelect>
+}
+@code {
+    [Parameter]
+    [EditorRequired]
+    public required EditDialogSet Set { get; set; }
+    private PicklistOption[]? Options = null;
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var attribute = Set.Attribute;
+            if (attribute!.LogicalName == "statuscode")
+            {
+                Options = await ListStatusCodeOptionsHandler.GetAsync(attribute.EntityLogicalName);
+            }
+            else if (attribute.LogicalName == "statecode")
+            {
+                Options = await ListStateCodeOptionsHandler.GetAsync(attribute.EntityLogicalName);
+            }
+            else
+            {
+                Options = await ListPicklistOptionsHandler.GetAsync(attribute.EntityLogicalName, attribute.LogicalName);
+            }
+        }catch{}
+    }
+}

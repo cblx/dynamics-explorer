@@ -1,0 +1,111 @@
+﻿@using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
+@using Cblx.Dynamics.Explorer.Models;
+@using System.Linq.Expressions;
+@using System.Net.Http.Json;
+@using System.Text.Json.Nodes;
+@using System.Text.Json;
+@using System.Net.Http.Headers;
+@using Cblx.Dynamics.Explorer.Services.DynamicsServices.ExecuteQuery;
+@inject IGetEntityHandler GetEntityHandler
+@inject IExecuteQueryHandler ExecuteQueryHandler
+<MudAutocomplete Value="Value"
+                 T="string"
+                 Variant="Variant.Outlined"
+                 ValueChanged="ValueChanged"
+                 ResetValueOnEmptyText
+                 ToStringFunc="@(str => (str != null && _foundItems.ContainsKey(str)) ? _foundItems[str].Text : str)"
+                 For="ValueExpression"
+                 HelperText="@(Value is null ? "null" : JsonSerializer.Serialize(Value))"
+                 SearchFunc="SearchAsync"
+                      ShowProgressIndicator>
+    <ItemTemplate>
+        <MudStack>
+            <MudText>
+                @if (context == null)
+                {
+                    <text>null</text>
+                }
+                else
+                {
+                    @_foundItems[context].Text
+                }
+            </MudText>
+            <MudText Typo="Typo.caption">
+                @context
+            </MudText>
+        </MudStack>
+    </ItemTemplate>
+</MudAutocomplete>
+@code {
+    [Parameter]
+    [EditorRequired]
+    public required AttributeDto Attribute { get; set; }
+
+    [Parameter]
+    public string? Value { get; set; }
+
+    [Parameter]
+    public EventCallback<string?> ValueChanged { get; set; }
+
+    [Parameter]
+    public Expression<Func<string?>> ValueExpression { get; set; } = default!;
+
+    private EntityDto? _foreignEntity;
+
+    private Dictionary<string, SearchItem> _foundItems = new()
+    {
+        {"", new SearchItem { Text = "", Value = null }}
+    };
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _foreignEntity = await GetEntityHandler.GetAsync(Attribute.ReferencedEntity!);
+        if (!string.IsNullOrEmpty(Value))
+        {
+            if (!_foundItems.ContainsKey(Value))
+            {
+                await SearchAsync(Value);
+            }
+        }
+    }
+
+    private async Task<IEnumerable<string?>> SearchAsync(string text)
+    {
+        var foreignPimaryIdAttribute = _foreignEntity!.Attributes.Find(a => a.IsPrimaryId);
+        var foreignPrimaryNameAttribute = _foreignEntity!.Attributes.Find(a => a.IsPrimaryName);
+        string filters = "";
+        if (!string.IsNullOrEmpty(text))
+        {
+            if (Guid.TryParse(text, out var guid))
+            {
+                filters = $"&$filter={foreignPimaryIdAttribute!.LogicalName} eq '{guid:D}'";
+            }
+            else
+            {
+                filters = $"&$filter=contains({foreignPrimaryNameAttribute!.LogicalName},'{text}')";
+            }
+        }
+        string select = $"&$select={foreignPimaryIdAttribute!.LogicalName},{foreignPrimaryNameAttribute!.LogicalName}";
+        var json = await ExecuteQueryHandler.GetAsync($"{_foreignEntity.EntitySetName}?$top=100{select}{filters}");
+        var jsonItems = json!["value"]!.AsArray();
+        var foundIds = new List<string?>(){ null };
+        foreach (var item in jsonItems)
+        {
+            string id = item![foreignPimaryIdAttribute.LogicalName]!.GetValue<string>();
+            foundIds.Add(id);
+            string name = item![foreignPrimaryNameAttribute.LogicalName]?.GetValue<string>() ?? "NAME NOT FOUND";
+            _foundItems[id] = new SearchItem
+                {
+                    Text = name,
+                    Value = id
+                };
+        }
+        return foundIds.ToArray();
+    }
+
+    class SearchItem
+    {
+        public required string? Value { get; set; }
+        public required string Text { get; set; }
+    }
+}

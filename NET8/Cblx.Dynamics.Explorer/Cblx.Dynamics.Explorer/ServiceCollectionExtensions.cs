@@ -2,6 +2,8 @@
 using Cblx.Dynamics.Explorer.Services;
 using Cblx.Dynamics.Explorer.Services.Authenticator;
 using Cblx.Dynamics.Explorer.Services.DynamicsServices;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MudBlazor.Services;
 
@@ -40,7 +42,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ExplorerHttpClient>();
 
        
-        //services.AddSingleton<ApplicationService>();
+        services.AddSingleton<ApplicationService>();
         //services.AddSingleton<AppBarService>();
         //services.AddScoped<EditDialogService>();
         return services;
