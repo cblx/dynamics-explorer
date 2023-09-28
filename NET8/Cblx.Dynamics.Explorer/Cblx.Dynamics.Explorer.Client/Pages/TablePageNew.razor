@@ -101,12 +101,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        
         _entity = await GetEntityHandler.GetAsync(EntityLogicalName);
-        //_applicationUsersIds = await ApplicationService.GetApplicationIdsAsync();
-
-        StateHasChanged();
-        _table?.RefreshDataAsync();
     }
 
     private RenderFragment GetAppBarContent(string logicalName, string? displayName = null, string? customName = null) =>
