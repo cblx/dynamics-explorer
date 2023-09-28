@@ -29,38 +29,7 @@
                 <span title="@context[attr.LogicalName]">@context[attr.LogicalName]</span>
                 <br />
                 <span style="color: green">@(context[$"{attr.LogicalName}@OData.Community.Display.V1.FormattedValue"]?.GetValue<string>())</span>
-                @* @{
-                    string logicalName = attr.LogicalName;
-                    if (attr.DerivedType == AttributeMetadataDerivedTypes.LookupAttributeMetadata)
-                    {
-                        logicalName = $"_{logicalName}_value";
-                    }
-                    var value = context[logicalName];
-                    string formattedValueName = $"{logicalName}@OData.Community.Display.V1.FormattedValue";
-                    string? formattedValue = context.ContainsKey(formattedValueName) ? context[formattedValueName]?.GetValue<string>() : null;
-                    if (value is null)
-                    {
-                        <MudText Typo="Typo.caption" Style="font-style: italic; color: gray">NULL</MudText>
-                    }
-                    else
-                    {
-                        <MudStack Spacing="0">
-                            <MudTooltip Text="@value.ToString()">
-                                <MudText Typo="Typo.caption" Style="line-height: 1">@value.ToString()</MudText>
-                            </MudTooltip>
-                            <MudTooltip Text="@formattedValue">
-                                <MudText Color="Color.Tertiary" Typo="Typo.caption" Style="line-height: 1">@formattedValue</MudText>
-                            </MudTooltip>
-                        </MudStack>
-                    }
-                } *@
             </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
-          @*   <TemplateColumn T="JsonObject">
-                <div>
-                    @context["a"].
-                </div>
-            </TemplateColumn> *@
-            @* <PropertyColumn Title="@attr.LogicalName" Property="@(c => c[attr.LogicalName])" />             *@
         }
     </QuickGrid>
 </div>
