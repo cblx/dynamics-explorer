@@ -22,5 +22,5 @@ jobs:
         with:
           app-name: Dynamics-Explorer
           publish-profile: ${{secrets.PUBLISH_PROFILE}}
-          package: demo-package
+          package: './demo-package'
           
