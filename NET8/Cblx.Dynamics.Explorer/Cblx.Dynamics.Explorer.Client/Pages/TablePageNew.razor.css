@@ -1,0 +1,51 @@
+﻿/* Fix height and enable scrolling */
+.grid {
+    height: calc(100vh - 100px);
+    overflow-y: auto;
+}
+
+    .grid ::deep table {
+        min-width: 100%;
+    }
+
+/* Sticky header while scrolling */
+::deep thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: black;
+}
+
+/* For virtualized grids, it's essential that all rows have the same known height */
+/*::deep tr {
+    height: 30px;
+}*/
+/*
+::deep tbody td {
+    max-width: 0;
+}
+*/
+    ::deep tbody td, ::deep thead th {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        --size: 240px;
+        min-width: var(--size);
+        max-width: var(--size);
+        width: var(--size);
+        overflow: hidden;
+    }
+    ::deep tbody td:first-child, ::deep thead th:first-child {
+        background-color: black;
+        position: sticky;
+        left:0;
+        --size: 88px;
+        min-width: var(--size);
+        max-width: var(--size);
+        width: var(--size);
+    }
+
+    ::deep tbody td{
+        border-bottom: 1px dotted gray;
+        border-right: 1px dotted gray;
+        line-height: 1;
+    }

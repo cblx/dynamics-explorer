@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cblx.Dynamics.Explorer.Demo
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Old", "Old", "{A8723704-C845-4BFA-B48C-06B75A9898C7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cblx.Dynamics.Explorer.Client.Boot", "NET8\Cblx.Dynamics.Explorer\Cblx.Dynamics.Explorer.Client.Boot\Cblx.Dynamics.Explorer.Client.Boot.csproj", "{6DE8A984-DF62-4252-8863-FE31C50F5986}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cblx.Dynamics.Explorer.Client.Boot", "NET8\Cblx.Dynamics.Explorer\Cblx.Dynamics.Explorer.Client.Boot\Cblx.Dynamics.Explorer.Client.Boot.csproj", "{6DE8A984-DF62-4252-8863-FE31C50F5986}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

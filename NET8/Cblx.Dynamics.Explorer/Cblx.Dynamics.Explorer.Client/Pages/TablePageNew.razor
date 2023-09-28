@@ -1,0 +1,228 @@
+﻿@page "/tbl/{EntityLogicalName}"
+@using System.Text.Json.Nodes;
+@using Cblx.Dynamics.Explorer.Client.Components;
+@using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
+@using Cblx.Dynamics.Explorer.Services.DynamicsServices.Data.Delete;
+@using Cblx.Dynamics.Explorer.Services.DynamicsServices.ExecuteQuery;
+@using System.Web;
+@using Microsoft.AspNetCore.Components.QuickGrid
+@attribute [RenderModeWebAssembly(false)]
+@inject IDialogService DialogService
+@inject IGetEntityHandler GetEntityHandler
+@inject IExecuteQueryHandler ExecuteQueryHandler
+@inject IDeleteHandler DeleteHandler
+<PageTitle>@EntityLogicalName</PageTitle>
+<div class="grid" scoped-css>
+    <QuickGrid @ref="_table" TGridItem="JsonObject" ItemsProvider="ServerReloadJson" Pagination="_pagination">
+        <!-- se um dia não tiver mais o mud no projeto, poderíamos ajustar aqui -->
+        <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
+            @{
+                var canChange = true;
+            }
+            <MudIconButton OnClick="() => OpenEdit(context)" Disabled="!canChange" Color="Color.Primary" Icon="@Icons.Material.Outlined.Edit" Size="Size.Small"></MudIconButton>
+            <MudIconButton OnClick="() => DeleteAsync(context)" Disabled="!canChange" Color="Color.Error" Icon="@Icons.Material.Outlined.Delete" Size="Size.Small"></MudIconButton>
+        </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
+        
+        @foreach (var attr in _entity?.Attributes ?? Array.Empty<AttributeDto>())
+        {
+            <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn Class="mud-typography-caption" Title="@attr.LogicalName">
+                <span title="@context[attr.LogicalName]">@context[attr.LogicalName]</span>
+                <br />
+                <span style="color: green">@(context[$"{attr.LogicalName}@OData.Community.Display.V1.FormattedValue"]?.GetValue<string>())</span>
+                @* @{
+                    string logicalName = attr.LogicalName;
+                    if (attr.DerivedType == AttributeMetadataDerivedTypes.LookupAttributeMetadata)
+                    {
+                        logicalName = $"_{logicalName}_value";
+                    }
+                    var value = context[logicalName];
+                    string formattedValueName = $"{logicalName}@OData.Community.Display.V1.FormattedValue";
+                    string? formattedValue = context.ContainsKey(formattedValueName) ? context[formattedValueName]?.GetValue<string>() : null;
+                    if (value is null)
+                    {
+                        <MudText Typo="Typo.caption" Style="font-style: italic; color: gray">NULL</MudText>
+                    }
+                    else
+                    {
+                        <MudStack Spacing="0">
+                            <MudTooltip Text="@value.ToString()">
+                                <MudText Typo="Typo.caption" Style="line-height: 1">@value.ToString()</MudText>
+                            </MudTooltip>
+                            <MudTooltip Text="@formattedValue">
+                                <MudText Color="Color.Tertiary" Typo="Typo.caption" Style="line-height: 1">@formattedValue</MudText>
+                            </MudTooltip>
+                        </MudStack>
+                    }
+                } *@
+            </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
+          @*   <TemplateColumn T="JsonObject">
+                <div>
+                    @context["a"].
+                </div>
+            </TemplateColumn> *@
+            @* <PropertyColumn Title="@attr.LogicalName" Property="@(c => c[attr.LogicalName])" />             *@
+        }
+    </QuickGrid>
+</div>
+<Paginator State="_pagination"/>
+@code {
+    [Parameter]
+    [EditorRequired]
+    public required string EntityLogicalName { get; set; }
+    private string? Error = null;
+    private Dictionary<string, int> _columnOrders = new();
+    //private Guid[] _applicationUsersIds = default!;
+    private QuickGrid<JsonObject> _table = default!;
+    private EntityDto? _entity = null;
+    private bool _loading = false;
+    private PaginationState _pagination = new PaginationState
+    {
+        ItemsPerPage = 50
+    };
+
+    private async ValueTask<GridItemsProviderResult<JsonObject>> ServerReloadJson(GridItemsProviderRequest<JsonObject> state)
+    {
+        if (_entity is null)
+        {
+            return GridItemsProviderResult.From(items: Array.Empty<JsonObject>(),totalItemCount: 0);
+            //return new TableData<JsonObject>() { TotalItems = 0, Items = Array.Empty<JsonObject>() };
+        }
+        Error = null;
+        _loading = true;
+        //StateHasChanged();
+        try
+        {
+            var pageSize = state.Count ?? 50;
+            var top = state.Count ?? 50;
+            var pageIndex = (state.StartIndex / pageSize);
+            string query = $"{_entity!.EntitySetName}?$top={top}&$skiptoken=<cookie pagenumber='{pageIndex + 1}' />&$count=true";
+            if (state.SortByColumn != null)
+            {
+                query += $"&$orderby={state.SortByColumn.Title} {(state.SortByAscending ? "asc" : "desc")}";
+            }
+            query = HttpUtility.UrlEncode(query);
+            var json = await ExecuteQueryHandler.GetAsync(query);
+            if (json.HasError())
+            {
+                Console.WriteLine(json);
+                Error = json.GetErrorMessage();
+                return GridItemsProviderResult.From(items: Array.Empty<JsonObject>(), totalItemCount: 0);
+
+            }
+            var value = json!["value"]?.AsArray().Select(n => n!.AsObject());
+            var count = json["@odata.count"]?.GetValue<int>();
+            if(count is null){
+                return GridItemsProviderResult.From(items: Array.Empty<JsonObject>(), totalItemCount: 0);
+            }
+
+            return GridItemsProviderResult.From<JsonObject>(items: value!.ToArray(), totalItemCount: count.Value);
+        }
+        catch (Exception ex)
+        {
+            Error = ex.Message;
+            Console.WriteLine(ex);
+            return GridItemsProviderResult.From(items: Array.Empty<JsonObject>(), totalItemCount: 0);
+        }
+        finally
+        {
+            _loading = false;
+            //StateHasChanged();
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        
+        _entity = await GetEntityHandler.GetAsync(EntityLogicalName);
+        //_applicationUsersIds = await ApplicationService.GetApplicationIdsAsync();
+
+        StateHasChanged();
+        _table?.RefreshDataAsync();
+    }
+
+    private RenderFragment GetAppBarContent(string logicalName, string? displayName = null, string? customName = null) =>
+    @<MudStack Row
+                    Class="flex-grow-1">
+         <MudStack Spacing="0">
+             <MudText Typo="Typo.caption" Style="line-height: 1.2" Color="Color.Primary">@logicalName</MudText>
+             <MudText Typo="Typo.caption" Style="line-height: 1.2" Color="Color.Secondary">@(displayName ?? "-")</MudText>
+             <MudText Typo="Typo.caption" Style="line-height: 1.2" Color="Color.Tertiary">@(customName ?? "-")</MudText>
+         </MudStack>
+         <MudSpacer></MudSpacer>
+         <MudStack Justify="Justify.Center">
+             <MudButton Size="Size.Small" OnClick="OpenCreate" Variant="Variant.Filled" Color="Color.Primary">New...</MudButton>
+         </MudStack>
+
+     </MudStack>;
+
+
+    private void ShowOptions(AttributeDto attr)
+    {
+        DialogService.Show<OptionsDialog>($"{_entity!.LogicalName}.{attr.LogicalName} options", new DialogParameters()
+        {
+            { "Attribute", attr },
+            { "EntityLogicalName", _entity.LogicalName }
+        });
+    }
+
+    private async Task OpenCreate()
+    {
+        var dialogRef = DialogService.Show<EditDialog>("", new DialogParameters
+        {
+            { nameof(EditDialog.EntityLogicalName), EntityLogicalName }
+        });
+        var result = await dialogRef.Result;
+        if (result.Data is true)
+        {
+            await _table.RefreshDataAsync();
+        }
+    }
+
+    private async Task OpenEdit(JsonObject item)
+    {
+        var dialogRef = DialogService.Show<EditDialog>("", new DialogParameters
+        {
+            { nameof(EditDialog.Id), item[_entity!.PrimaryId!]!.GetValue<Guid>() },
+            { nameof(EditDialog.EntityLogicalName), EntityLogicalName }
+        });
+        var result = await dialogRef.Result;
+        if (result.Data is true)
+        {
+            await _table.RefreshDataAsync();
+        }
+    }
+
+    private async Task DeleteAsync(JsonObject item)
+    {
+        var confirmed = await DialogService
+            .ShowMessageBox(
+                "Delete",
+                $"Are you sure you want to delete this {_entity!.CustomName ?? _entity.LogicalName} item?",
+                yesText: "Sim",
+                noText: "Não"
+            );
+        if (confirmed is true)
+        {
+            try
+            {
+                _loading = true;
+                StateHasChanged();
+                await DeleteHandler.DeleteAsync(_entity.EntitySetName, item[_entity.PrimaryId!]!.GetValue<Guid>());
+                await _table.RefreshDataAsync();
+            }
+            catch (Exception ex)
+            {
+                await DialogService.ShowMessageBox(new MessageBoxOptions
+                    {
+                        Title = "Error",
+                        Message = ex.Message
+                    });
+                Console.WriteLine(ex);
+            }
+            finally
+            {
+                _loading = false;
+            }
+        }
+    }
+}

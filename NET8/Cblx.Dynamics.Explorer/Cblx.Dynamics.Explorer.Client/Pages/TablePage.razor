@@ -1,11 +1,11 @@
-﻿@page "/tbl/{EntityLogicalName}"
+﻿@page "/tbl-old/{EntityLogicalName}"
 @using System.Text.Json.Nodes;
 @using Cblx.Dynamics.Explorer.Client.Components;
 @using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
 @using Cblx.Dynamics.Explorer.Services.DynamicsServices.Data.Delete;
 @using Cblx.Dynamics.Explorer.Services.DynamicsServices.ExecuteQuery;
 @using System.Web;
-@attribute [RenderModeWebAssembly]
+@attribute [RenderModeWebAssembly(false)]
 @inject IDialogService DialogService
 @inject IGetEntityHandler GetEntityHandler
 @inject IExecuteQueryHandler ExecuteQueryHandler
@@ -16,6 +16,7 @@
                 FixedHeader
                 FixedFooter
                 RowsPerPage="50"
+                Virtualize
                 Bordered
     @bind-Loading="_loading"
               Height="calc(100vh - 100px)"
@@ -125,6 +126,10 @@
     private bool _loading = false;
     private async Task<TableData<JsonObject>> ServerReloadJson(TableState state)
     {
+        if(_entity is null)
+        {
+            return new TableData<JsonObject>() { TotalItems = 0, Items = Array.Empty<JsonObject>() };
+        }
         Error = null;
         _loading = true;
         StateHasChanged();

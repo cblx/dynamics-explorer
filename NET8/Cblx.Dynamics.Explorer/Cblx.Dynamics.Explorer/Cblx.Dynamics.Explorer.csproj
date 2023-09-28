@@ -11,6 +11,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.0-rc.1.23421.29" />
 	<PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="5.3.0" />
+	  <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="8.0.0-rc.1.23421.29" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cblx.Dynamics.Explorer.Client.Boot\Cblx.Dynamics.Explorer.Client.Boot.csproj" />
