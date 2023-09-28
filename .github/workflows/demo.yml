@@ -1,1 +1,26 @@
+name: PUBLISH DEMO
+on:
+  push:
+    branches: demo/*
+  workflow_dispatch:
 
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    environment: DEMO
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v1.8.1
+        with:
+          dotnet-version: 8.0.x
+      - run: dotnet publish -c Release --property:PublishDir='./demo-package' 
+        working-directory: NET8/Cblx.Dynamics.Explorer/Cblx.Dynamics.Explorer.Demo
+      
+      - name: Azure WebApp
+        uses: Azure/webapps-deploy@v2.2.11
+        with:
+          app-name: Dynamics-Explorer
+          publish-profile: ${{secrets.PUBLISH_PROFILE}}
+          package: demo-package
+          
