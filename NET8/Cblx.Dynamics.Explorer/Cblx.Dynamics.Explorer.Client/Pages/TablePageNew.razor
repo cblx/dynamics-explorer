@@ -12,6 +12,16 @@
 @inject IExecuteQueryHandler ExecuteQueryHandler
 @inject IDeleteHandler DeleteHandler
 <PageTitle>@EntityLogicalName</PageTitle>
+<SectionContent SectionName="app-bar-content">
+    <MudStack Row
+               Class="flex-grow-1">
+         <AppDynamicsElementName LogicalName="@_entity?.LogicalName" DisplayName="@_entity?.DisplayName" CustomName="@_entity?.CustomName"/>
+         <MudSpacer></MudSpacer>
+         <MudStack Justify="Justify.Center">
+             <MudButton Size="Size.Small" OnClick="OpenCreate" Variant="Variant.Filled" Color="Color.Primary">New...</MudButton>
+         </MudStack>
+     </MudStack>
+</SectionContent>
 <div scoped-css>
     <div class="grid">
         <QuickGrid @ref="_table" TGridItem="JsonObject" ItemsProvider="ServerReloadJson" Pagination="_pagination">
@@ -52,6 +62,7 @@
                 ItemsPerPage = 50
             };
 
+    private bool _shouldRefresh = false;
     private string? _lastQuery;
     private GridItemsProviderResult<JsonObject>? _lastProviderResult;
     private async ValueTask<GridItemsProviderResult<JsonObject>> ServerReloadJson(GridItemsProviderRequest<JsonObject> state)
@@ -70,10 +81,11 @@
             var top = state.Count ?? 50;
             var pageIndex = (state.StartIndex / pageSize);
             string query = $"{_entity!.EntitySetName}?$top={top}&$skiptoken=<cookie pagenumber='{pageIndex + 1}' />&$count=true";
-            if(query == _lastQuery && _lastProviderResult.HasValue)
+            if(!_shouldRefresh && query == _lastQuery && _lastProviderResult.HasValue)
             {
                 return _lastProviderResult.Value;
             }
+            _shouldRefresh = false;
             _lastQuery = query;
             if (state.SortByColumn != null)
             {
@@ -117,23 +129,6 @@
         _entity = await GetEntityHandler.GetAsync(EntityLogicalName);
     }
 
-    private RenderFragment GetAppBarContent(string logicalName, string? displayName = null, string? customName = null) =>
-    @<MudStack Row
-                    Class="flex-grow-1">
-         <MudStack Spacing="0">
-             <MudText Typo="Typo.caption" Style="line-height: 1.2" Color="Color.Primary">@logicalName</MudText>
-             <MudText Typo="Typo.caption" Style="line-height: 1.2" Color="Color.Secondary">@(displayName ?? "-")</MudText>
-             <MudText Typo="Typo.caption" Style="line-height: 1.2" Color="Color.Tertiary">@(customName ?? "-")</MudText>
-         </MudStack>
-         <MudSpacer></MudSpacer>
-         <MudStack Justify="Justify.Center">
-             <MudButton Size="Size.Small" OnClick="OpenCreate" Variant="Variant.Filled" Color="Color.Primary">New...</MudButton>
-         </MudStack>
-
-             </MudStack>
-    ;
-
-
     private void ShowOptions(AttributeDto attr)
     {
         DialogService.Show<OptionsDialog>($"{_entity!.LogicalName}.{attr.LogicalName} options", new DialogParameters()
@@ -150,10 +145,7 @@
             { nameof(EditDialog.EntityLogicalName), EntityLogicalName }
         });
         var result = await dialogRef.Result;
-        if (result.Data is true)
-        {
-            await _table.RefreshDataAsync();
-        }
+        _shouldRefresh = result.Data is true;
     }
 
     private async Task OpenEdit(JsonObject item)
@@ -164,10 +156,7 @@
             { nameof(EditDialog.EntityLogicalName), EntityLogicalName }
         });
         var result = await dialogRef.Result;
-        if (result.Data is true)
-        {
-            await _table.RefreshDataAsync();
-        }
+        _shouldRefresh = result.Data is true;
     }
 
     private async Task DeleteAsync(JsonObject item)
@@ -186,7 +175,7 @@
                 _loading = true;
                 StateHasChanged();
                 await DeleteHandler.DeleteAsync(_entity.EntitySetName, item[_entity.PrimaryId!]!.GetValue<Guid>());
-                await _table.RefreshDataAsync();
+                _shouldRefresh = true;
             }
             catch (Exception ex)
             {
