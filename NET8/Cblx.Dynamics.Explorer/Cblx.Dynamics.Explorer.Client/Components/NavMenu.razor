@@ -1,12 +1,12 @@
-﻿@attribute [RenderModeAuto]
+﻿@attribute [RenderModeWebAssembly]
 @using Cblx.Dynamics.Explorer.Services.DynamicsServices.ListTablesForMenu;
 @inject IListEntitiesForMenuHandler Handler
 <div>
     <MudNavMenu Dense Class="pb-16 relative">
          <MudNavLink Href="/" Match="NavLinkMatch.All">Queries</MudNavLink>
          <MudDivider Light />
-         <MudNavLink Href="/diagram" Match="NavLinkMatch.All">Diagram (Under construction)</MudNavLink>
-         <MudDivider />
+     @*     <MudNavLink Href="/diagram" Match="NavLinkMatch.All">Diagram (Under construction)</MudNavLink>
+         <MudDivider /> *@
          <MudStack Row>
             <MudTextField Placeholder="Filter tables" @bind-Value="_filter" Immediate />
              <MudIconButton Size="Size.Small" OnClick="LoadAsync" Icon="@Icons.Material.Filled.Refresh" />
