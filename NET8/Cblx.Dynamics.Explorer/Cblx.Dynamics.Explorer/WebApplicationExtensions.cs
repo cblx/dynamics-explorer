@@ -29,7 +29,7 @@ public static class WebApplicationExtensions
         app.MapRazorComponents<App>()
             .AddServerRenderMode()
             .AddWebAssemblyRenderMode()
-            .AddAdditionalAssemblies(typeof(Client.Pages.Counter).Assembly);
+            .AddAdditionalAssemblies(typeof(Client._Imports).Assembly);
         app.MapDynamicsExplorerApis();
         
 
