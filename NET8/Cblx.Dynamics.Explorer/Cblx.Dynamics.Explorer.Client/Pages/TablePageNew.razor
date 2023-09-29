@@ -34,12 +34,15 @@
                 <MudIconButton OnClick="() => DeleteAsync(context)" Disabled="!canChange" Color="Color.Error" Icon="@Icons.Material.Outlined.Delete" Size="Size.Small"></MudIconButton>
             </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
 
-            @foreach (var attr in _entity?.Attributes ?? Array.Empty<AttributeDto>())
+            @foreach (var attribute in _entity?.Attributes ?? Array.Empty<AttributeDto>())
             {
-                <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn Class="mud-typography-caption" Title="@attr.LogicalName">
-                    <span title="@context[attr.LogicalName]">@context[attr.LogicalName]</span>
+                <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn 
+                    Class="mud-typography mud-typography-caption" 
+                    Sortable="true"
+                    Title="@(attribute.LogicalName)">
+                    <span title="@context[attribute.LogicalName]">@context[attribute.LogicalName]</span>
                     <br />
-                    <span style="color: green">@(context[$"{attr.LogicalName}@OData.Community.Display.V1.FormattedValue"]?.GetValue<string>())</span>
+                    <span class="mud-tertiary-text mud-typography-caption">@(context[$"{attribute.LogicalName}@OData.Community.Display.V1.FormattedValue"]?.GetValue<string>())</span>
                 </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
             }
         </QuickGrid>
@@ -81,16 +84,18 @@
             var top = state.Count ?? 50;
             var pageIndex = (state.StartIndex / pageSize);
             string query = $"{_entity!.EntitySetName}?$top={top}&$skiptoken=<cookie pagenumber='{pageIndex + 1}' />&$count=true";
+            if (state.SortByColumn != null)
+            {
+                query += $"&$orderby={state.SortByColumn.Title} {(state.SortByAscending ? "asc" : "desc")}";
+                Console.WriteLine(query);
+            }
             if(!_shouldRefresh && query == _lastQuery && _lastProviderResult.HasValue)
             {
                 return _lastProviderResult.Value;
             }
             _shouldRefresh = false;
             _lastQuery = query;
-            if (state.SortByColumn != null)
-            {
-                query += $"&$orderby={state.SortByColumn.Title} {(state.SortByAscending ? "asc" : "desc")}";
-            }
+            
             query = HttpUtility.UrlEncode(query);
             var json = await ExecuteQueryHandler.GetAsync(query);
             if (json.HasError())

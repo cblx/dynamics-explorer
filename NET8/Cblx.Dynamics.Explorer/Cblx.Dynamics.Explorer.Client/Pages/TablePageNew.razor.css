@@ -13,7 +13,7 @@
     position: sticky;
     top: 0;
     z-index: 1;
-    background-color: black;
+    background-color: dimgray;
 }
 
     ::deep tbody td, ::deep thead th {
@@ -29,6 +29,7 @@
         background-color: black;
         position: sticky;
         left:0;
+        z-index:1;
         --size: 88px;
         min-width: var(--size);
         max-width: var(--size);
