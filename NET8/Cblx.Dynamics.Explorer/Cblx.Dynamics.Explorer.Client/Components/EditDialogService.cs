@@ -1,23 +1,35 @@
-﻿using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
+﻿using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Data.PatchItem;
+using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Data.PostItem;
+using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
 using System.Net.Http.Json;
 using System.Text.Json.Nodes;
 
 namespace Cblx.Dynamics.Explorer.Shared;
 
-internal class EditDialogService(HttpClient httpClient, IGetEntityHandler getEntityHandler)
+internal class EditDialogService(IGetEntityHandler getEntityHandler, IPostItem postItem, IPatchItem patchItem)
 { 
     public async Task PatchAsync(Guid id, string entitySetName, EditDialogSet[] sets)
     {
         var body = await PrepareBodyAsync(sets.Where(s => s.IsDirty()).ToArray());
         if (!body.Any()) { return; }
-        await ManageResponseAsync(await httpClient.PatchAsJsonAsync($"{entitySetName}({id})", body));
+        await patchItem.ExecuteAsync(new PatchItemRequest
+        {
+            Data = body,
+            EntitySetName = entitySetName,
+            Id = id
+        });
     }
 
     public async Task PostAsync(string entitySetName, EditDialogSet[] sets)
     {
         var body = await PrepareBodyAsync(sets);
         if (!body.Any()) { return; }
-        await ManageResponseAsync(await httpClient.PostAsJsonAsync(entitySetName, body));
+        await postItem.ExecuteAsync(new PostItemRequest
+        {
+            Data = body,
+            EntitySetName = entitySetName,
+        });
+        //await ManageResponseAsync(await httpClient.PostAsJsonAsync(entitySetName, body));
     }
 
     private static async Task ManageResponseAsync(HttpResponseMessage response)

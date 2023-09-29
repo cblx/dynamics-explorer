@@ -12,32 +12,35 @@
 @inject IExecuteQueryHandler ExecuteQueryHandler
 @inject IDeleteHandler DeleteHandler
 <PageTitle>@EntityLogicalName</PageTitle>
-<div class="grid" scoped-css>
-    <QuickGrid @ref="_table" TGridItem="JsonObject" ItemsProvider="ServerReloadJson" Pagination="_pagination">
-        <!-- se um dia não tiver mais o mud no projeto, poderíamos ajustar aqui -->
-        <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
-            @{
-                var canChange = true;
-            }
-            <MudIconButton OnClick="() => OpenEdit(context)" Disabled="!canChange" Color="Color.Primary" Icon="@Icons.Material.Outlined.Edit" Size="Size.Small"></MudIconButton>
-            <MudIconButton OnClick="() => DeleteAsync(context)" Disabled="!canChange" Color="Color.Error" Icon="@Icons.Material.Outlined.Delete" Size="Size.Small"></MudIconButton>
-        </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
-        
-        @foreach (var attr in _entity?.Attributes ?? Array.Empty<AttributeDto>())
-        {
-            <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn Class="mud-typography-caption" Title="@attr.LogicalName">
-                <span title="@context[attr.LogicalName]">@context[attr.LogicalName]</span>
-                <br />
-                <span style="color: green">@(context[$"{attr.LogicalName}@OData.Community.Display.V1.FormattedValue"]?.GetValue<string>())</span>
+<div scoped-css>
+    <div class="grid">
+        <QuickGrid @ref="_table" TGridItem="JsonObject" ItemsProvider="ServerReloadJson" Pagination="_pagination">
+            <!-- se um dia não tiver mais o mud no projeto, poderíamos ajustar aqui -->
+            <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
+                @{
+                    var canChange = true;
+                }
+                <MudIconButton OnClick="() => OpenEdit(context)" Disabled="!canChange" Color="Color.Primary" Icon="@Icons.Material.Outlined.Edit" Size="Size.Small"></MudIconButton>
+                <MudIconButton OnClick="() => DeleteAsync(context)" Disabled="!canChange" Color="Color.Error" Icon="@Icons.Material.Outlined.Delete" Size="Size.Small"></MudIconButton>
             </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
-        }
-    </QuickGrid>
+
+            @foreach (var attr in _entity?.Attributes ?? Array.Empty<AttributeDto>())
+            {
+                <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn Class="mud-typography-caption" Title="@attr.LogicalName">
+                    <span title="@context[attr.LogicalName]">@context[attr.LogicalName]</span>
+                    <br />
+                    <span style="color: green">@(context[$"{attr.LogicalName}@OData.Community.Display.V1.FormattedValue"]?.GetValue<string>())</span>
+                </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
+            }
+        </QuickGrid>
+    </div>
+    <Paginator State="_pagination" />
 </div>
-<Paginator State="_pagination"/>
 @code {
     [Parameter]
     [EditorRequired]
     public required string EntityLogicalName { get; set; }
+    private string? _previousEntityLogicalName;
     private string? Error = null;
     private Dictionary<string, int> _columnOrders = new();
     //private Guid[] _applicationUsersIds = default!;
@@ -45,15 +48,17 @@
     private EntityDto? _entity = null;
     private bool _loading = false;
     private PaginationState _pagination = new PaginationState
-    {
-        ItemsPerPage = 50
-    };
+            {
+                ItemsPerPage = 50
+            };
 
+    private string? _lastQuery;
+    private GridItemsProviderResult<JsonObject>? _lastProviderResult;
     private async ValueTask<GridItemsProviderResult<JsonObject>> ServerReloadJson(GridItemsProviderRequest<JsonObject> state)
     {
         if (_entity is null)
         {
-            return GridItemsProviderResult.From(items: Array.Empty<JsonObject>(),totalItemCount: 0);
+            return GridItemsProviderResult.From(items: Array.Empty<JsonObject>(), totalItemCount: 0);
             //return new TableData<JsonObject>() { TotalItems = 0, Items = Array.Empty<JsonObject>() };
         }
         Error = null;
@@ -65,6 +70,11 @@
             var top = state.Count ?? 50;
             var pageIndex = (state.StartIndex / pageSize);
             string query = $"{_entity!.EntitySetName}?$top={top}&$skiptoken=<cookie pagenumber='{pageIndex + 1}' />&$count=true";
+            if(query == _lastQuery && _lastProviderResult.HasValue)
+            {
+                return _lastProviderResult.Value;
+            }
+            _lastQuery = query;
             if (state.SortByColumn != null)
             {
                 query += $"&$orderby={state.SortByColumn.Title} {(state.SortByAscending ? "asc" : "desc")}";
@@ -80,11 +90,12 @@
             }
             var value = json!["value"]?.AsArray().Select(n => n!.AsObject());
             var count = json["@odata.count"]?.GetValue<int>();
-            if(count is null){
+            if (count is null)
+            {
                 return GridItemsProviderResult.From(items: Array.Empty<JsonObject>(), totalItemCount: 0);
             }
-
-            return GridItemsProviderResult.From<JsonObject>(items: value!.ToArray(), totalItemCount: count.Value);
+            _lastProviderResult = GridItemsProviderResult.From<JsonObject>(items: value!.ToArray(), totalItemCount: count.Value);
+            return _lastProviderResult.Value;
         }
         catch (Exception ex)
         {
@@ -101,6 +112,8 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        if(EntityLogicalName == _previousEntityLogicalName){ return; }
+        _previousEntityLogicalName = EntityLogicalName;
         _entity = await GetEntityHandler.GetAsync(EntityLogicalName);
     }
 
@@ -117,7 +130,8 @@
              <MudButton Size="Size.Small" OnClick="OpenCreate" Variant="Variant.Filled" Color="Color.Primary">New...</MudButton>
          </MudStack>
 
-     </MudStack>;
+             </MudStack>
+    ;
 
 
     private void ShowOptions(AttributeDto attr)

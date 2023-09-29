@@ -1,4 +1,6 @@
 ﻿using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Data.ListItems;
+using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Data.PatchItem;
+using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Data.PostItem;
 using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
 using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.ListEntitiesForMenu;
 using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.ListMultiSelectPicklistOptions;
@@ -14,6 +16,7 @@ using Cblx.Dynamics.Explorer.Services.DynamicsServices.Metadata.ListOptionsHandl
 using Cblx.Dynamics.Explorer.Services.DynamicsServices.Metadata.ListPicklistOptions;
 using Cblx.Dynamics.Explorer.Services.DynamicsServices.Metadata.ListStateCodeOptions;
 using Cblx.Dynamics.Explorer.Services.DynamicsServices.Metadata.ListStatusCodeOptions;
+using Cblx.Dynamics.Explorer.Shared;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Cblx.Dynamics.Explorer.Client.Services.DynamicsServices;
@@ -22,6 +25,7 @@ public static class DynamicsServicesExtensions
 {
     public static IServiceCollection AddDynamicsServices(this IServiceCollection services)
     {
+        services.AddScoped<EditDialogService>();
         services.AddScoped<IExecuteQueryHandler, ExecuteQueryClientHandler>();
         services.AddScoped<IGetEntityHandler, GetEntityClientHandler>();
         services.AddScoped<IListEntitiesForMenuHandler, ListEntitiesForMenuClientHandler>();
@@ -32,6 +36,8 @@ public static class DynamicsServicesExtensions
         services.AddScoped<IListStatusCodeOptionsHandler, ListStatusCodeOptionsClientHandler>();
         services.AddScoped<IDeleteHandler, DeleteClientHandler>();
         services.AddScoped<IListItems, ListItemsClient>();
+        services.AddScoped<IPatchItem, PatchItemClient>();
+        services.AddScoped<IPostItem, PostItemClient>();
         return services;
     }
 }
