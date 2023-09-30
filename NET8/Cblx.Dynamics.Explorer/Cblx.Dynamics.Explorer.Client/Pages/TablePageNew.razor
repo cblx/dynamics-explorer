@@ -36,13 +36,18 @@
 
             @foreach (var attribute in _entity?.Attributes ?? Array.Empty<AttributeDto>())
             {
+                string logicalName = attribute.LogicalName;
+                if (attribute.DerivedType == AttributeMetadataDerivedTypes.LookupAttributeMetadata)
+                {
+                    logicalName = $"_{logicalName}_value";
+                }
                 <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn 
                     Class="mud-typography mud-typography-caption" 
                     Sortable="true"
                     Title="@(attribute.LogicalName)">
-                    <span title="@context[attribute.LogicalName]">@context[attribute.LogicalName]</span>
+                    <span title="@context[attribute.LogicalName]">@context[logicalName]</span>
                     <br />
-                    <span class="mud-tertiary-text mud-typography-caption">@(context[$"{attribute.LogicalName}@OData.Community.Display.V1.FormattedValue"]?.GetValue<string>())</span>
+                    <span class="mud-tertiary-text mud-typography-caption">@(context[$"{logicalName}@OData.Community.Display.V1.FormattedValue"]?.GetValue<string>())</span>
                 </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
             }
         </QuickGrid>

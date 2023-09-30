@@ -19,7 +19,7 @@
     ::deep tbody td, ::deep thead th {
         white-space: nowrap;
         text-overflow: ellipsis;
-        --size: 240px;
+        --size: 250px;
         min-width: var(--size);
         max-width: var(--size);
         width: var(--size);
@@ -30,13 +30,15 @@
         position: sticky;
         left:0;
         z-index:1;
-        --size: 88px;
+        --size: 64px;
         min-width: var(--size);
         max-width: var(--size);
         width: var(--size);
     }
 
     ::deep tbody td{
+        padding-left: 2px !important;
+        padding-right: 4px !important;
         border-bottom: 1px dotted gray;
         border-right: 1px dotted gray;
         line-height: 1;
