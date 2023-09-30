@@ -15,8 +15,26 @@
     z-index: 1;
     background-color: dimgray;
 }
+  /*  ::deep .loading tbody tr td{
+        display: none !important;
+    }
 
-    ::deep tbody td, ::deep thead th {
+    ::deep .loading tbody tr:empty:first-child:before {
+        content: 'Loading rows';
+        position: absolute;
+    }*/
+
+    ::deep table.loading tbody tr:empty:first-child:before {
+        content: 'Loading...';
+        position: absolute;
+    }
+    
+    ::deep table:not(.loading) tbody tr:empty:first-child:before{
+        content: 'No items found';
+        position: absolute;
+    }
+
+    ::deep table tbody td, ::deep thead th {
         white-space: nowrap;
         text-overflow: ellipsis;
         --size: 250px;

@@ -6,7 +6,7 @@ namespace Cblx.Dynamics.Explorer;
 internal static class JsonObjectExtensions
 {
     public static bool HasError(this JsonObject? jsonObject)
-        => jsonObject?.ContainsKey("erro") is true;
+        => jsonObject?.ContainsKey("error") is true;
 
     public static string? GetErrorMessage(this JsonObject? jsonObject)
         => jsonObject?["error"]?["message"]?.GetValue<string>();
