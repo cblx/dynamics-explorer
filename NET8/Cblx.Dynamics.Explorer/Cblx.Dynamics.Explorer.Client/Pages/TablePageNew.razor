@@ -62,12 +62,25 @@
                                                                               Sortable="!isLookup"
                                                                               Title="@(attribute.LogicalName)">
                         <ColumnOptions>
-                            <div>
-                                @if (attribute.DerivedType is AttributeMetadataDerivedTypes.MultiSelectPicklistAttributeMetadata
-                                    or AttributeMetadataDerivedTypes.StatusAttributeMetadata
-                                    or AttributeMetadataDerivedTypes.StateAttributeMetadata
-                                    or AttributeMetadataDerivedTypes.PicklistAttributeMetadata
-                                )
+                            <MudStack Row AlignItems="AlignItems.Center" Style="text-align: left">
+                                 <MudStack>
+                                     <MudText Typo="Typo.caption" Color="Color.Primary" Style="line-height: 1">@(attribute.LogicalName)</MudText>
+                                     <MudText Typo="Typo.caption" Color="Color.Secondary" Style="line-height: 1; white-space: nowrap">@(attribute.DisplayName ?? "-")</MudText>
+                                     <MudText Typo="Typo.caption" Color="Color.Tertiary" Style="line-height: 1">@(attribute.CustomName ?? "-")</MudText>
+                                     <MudDivider />
+                                     <MudStack Row>
+                                     <MudText Typo="Typo.caption" Color="Color.Warning" Style="line-height: 1">@(attribute.AttributeType)</MudText>
+                                     <MudText Typo="Typo.caption" Style="color: gray; line-height: 1">@((attribute.DerivedType ?? "-").Split('.').Last())</MudText>
+                                 </MudStack>
+                                 <MudDivider />
+                             </MudStack>
+                         </MudStack>
+                         <div>
+                             @if (attribute.DerivedType is AttributeMetadataDerivedTypes.MultiSelectPicklistAttributeMetadata
+                        or AttributeMetadataDerivedTypes.StatusAttributeMetadata
+                        or AttributeMetadataDerivedTypes.StateAttributeMetadata
+                        or AttributeMetadataDerivedTypes.PicklistAttributeMetadata
+                        )
                                 {
                                     <button @onclick="() => ShowOptions(attribute)">Show options list</button>
                                 }
