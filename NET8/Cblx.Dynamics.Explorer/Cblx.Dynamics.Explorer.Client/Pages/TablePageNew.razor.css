@@ -15,7 +15,7 @@
     z-index: 1;
     background-color: dimgray;
 }
-  /*  ::deep .loading tbody tr td{
+/*  ::deep .loading tbody tr td{
         display: none !important;
     }
 
@@ -24,43 +24,52 @@
         position: absolute;
     }*/
 
-    ::deep table.loading tbody tr:empty:first-child:before {
-        content: 'Loading...';
-        position: absolute;
-    }
-    
-    ::deep table:not(.loading) tbody tr:empty:first-child:before{
-        content: 'No items found';
-        position: absolute;
-    }
+::deep table.loading tbody tr:empty:first-child:before {
+    content: 'Loading...';
+    position: absolute;
+}
 
-    ::deep table tbody td, ::deep thead th {
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        --size: 250px;
-        min-width: var(--size);
-        max-width: var(--size);
-        width: var(--size);
-        overflow: hidden;
-    }
+::deep table:not(.loading) tbody tr:empty:first-child:before {
+    content: 'No items found';
+    position: absolute;
+}
+
+::deep table tbody td, ::deep thead th {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    --size: 250px;
+    min-width: var(--size);
+    max-width: var(--size);
+    width: var(--size);
+    overflow: hidden;
+}
+
+::deep thead th {
+    overflow: initial;
+}
+
+::deep thead th div.col-options{
+    background-color: black !important;
+}
+
     ::deep tbody td:first-child, ::deep thead th:first-child {
         background-color: black;
         position: sticky;
-        left:0;
-        z-index:1;
+        left: 0;
+        z-index: 1;
         --size: 64px;
         min-width: var(--size);
         max-width: var(--size);
         width: var(--size);
     }
 
-    ::deep tbody td{
-        padding-left: 2px !important;
-        padding-right: 4px !important;
-        border-bottom: 1px dotted gray;
-        border-right: 1px dotted gray;
-        line-height: 1;
-    }
+::deep tbody td {
+    padding-left: 2px !important;
+    padding-right: 4px !important;
+    border-bottom: 1px dotted gray;
+    border-right: 1px dotted gray;
+    line-height: 1;
+}
 
 ::deep .paginator {
     margin-top: 0;

@@ -38,10 +38,9 @@
     else if (_error is null)
     {
         <div class="grid">
-            <QuickGrid 
-                @ref="_table" TGridItem="JsonObject" 
-                ItemsProvider="ServerReloadJson" 
-                Pagination="_pagination">
+            <QuickGrid @ref="_table" TGridItem="JsonObject"
+                       ItemsProvider="ServerReloadJson"
+                       Pagination="_pagination">
                 <!-- se um dia não tiver mais o mud no projeto, poderíamos ajustar aqui -->
                 <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
                     @{
@@ -62,9 +61,23 @@
                     <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn Class="mud-typography mud-typography-caption"
                                                                               Sortable="!isLookup"
                                                                               Title="@(attribute.LogicalName)">
-                        <span title="@context[attribute.LogicalName]">@context[logicalName]</span>
-                        <br />
-                        <span class="mud-tertiary-text mud-typography-caption">@(context[$"{logicalName}@OData.Community.Display.V1.FormattedValue"]?.GetValue<string>())</span>
+                        <ColumnOptions>
+                            <div>
+                                @if (attribute.DerivedType is AttributeMetadataDerivedTypes.MultiSelectPicklistAttributeMetadata
+                                    or AttributeMetadataDerivedTypes.StatusAttributeMetadata
+                                    or AttributeMetadataDerivedTypes.StateAttributeMetadata
+                                    or AttributeMetadataDerivedTypes.PicklistAttributeMetadata
+                                )
+                                {
+                                    <button @onclick="() => ShowOptions(attribute)">Show options list</button>
+                                }
+                            </div>
+                        </ColumnOptions>
+                        <ChildContent>
+                            <span title="@context[attribute.LogicalName]">@context[logicalName]</span>
+                            <br />
+                            <span class="mud-tertiary-text mud-typography-caption">@(context[$"{logicalName}@OData.Community.Display.V1.FormattedValue"]?.GetValue<string>())</span>
+                        </ChildContent>
                     </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
                 }
             </QuickGrid>

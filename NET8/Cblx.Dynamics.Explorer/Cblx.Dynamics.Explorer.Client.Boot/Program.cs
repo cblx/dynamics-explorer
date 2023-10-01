@@ -1,11 +1,5 @@
-﻿using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices;
+﻿using Cblx.Dynamics.Explorer.Client;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.Fast.Components.FluentUI;
-using MudBlazor.Services;
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
-var services = builder.Services;
-services.AddMudServices();
-services.AddFluentUIComponents();
-services.AddScoped(_ => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-services.AddDynamicsServices();
+builder.Services.AddClientServices(builder.HostEnvironment.BaseAddress);
 await builder.Build().RunAsync();

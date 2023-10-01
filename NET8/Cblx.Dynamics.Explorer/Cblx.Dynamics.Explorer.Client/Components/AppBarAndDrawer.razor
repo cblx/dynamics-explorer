@@ -1,14 +1,6 @@
 ﻿<MudAppBar Dense>
-    <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
     <SectionOutlet SectionName="app-bar-content"></SectionOutlet>
 </MudAppBar>
-<MudDrawer @bind-Open="@_drawerOpen">
+<MudDrawer Open>
     <NavMenu />
 </MudDrawer>
-@code {
-    bool _drawerOpen = true;
-    void DrawerToggle()
-    {
-        _drawerOpen = !_drawerOpen;
-    }
-}
