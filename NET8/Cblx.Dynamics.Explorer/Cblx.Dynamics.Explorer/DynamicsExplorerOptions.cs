@@ -6,7 +6,7 @@ namespace Cblx.Dynamics.Explorer;
 public class DynamicsExplorerOptions
 {
     public Func<IgnoreTableContext, bool>? IgnoreTables { get; init; }
-    public required TableOptions[] Tables { get; init; }
+    public TableOptions[] Tables { get; init; } = new TableOptions[0];
 }
 
 public class IgnoreTableContext
