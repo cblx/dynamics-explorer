@@ -1,4 +1,5 @@
-﻿<Router AppAssembly="@typeof(Client._Imports).Assembly">
+﻿@attribute [RenderModeWebAssembly(false)]
+<Router AppAssembly="@typeof(Client._Imports).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainClientLayout)" />
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
