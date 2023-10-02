@@ -1,29 +1,37 @@
-﻿@attribute [RenderModeWebAssembly]
+﻿@attribute [RenderModeWebAssembly(false)]
 @using Cblx.Dynamics.Explorer.Services.DynamicsServices.ListTablesForMenu;
 @inject IListEntitiesForMenuHandler Handler
 <div>
-    <MudNavMenu Dense Class="pb-16 relative">
-         <MudNavLink Href="/" Match="NavLinkMatch.All">Queries</MudNavLink>
-         <MudDivider Light />
-     @*     <MudNavLink Href="/diagram" Match="NavLinkMatch.All">Diagram (Under construction)</MudNavLink>
-         <MudDivider /> *@
-         <MudStack Row>
-            <MudTextField Placeholder="Filter tables" @bind-Value="_filter" Immediate />
-             <MudIconButton Size="Size.Small" OnClick="LoadAsync" Icon="@Icons.Material.Filled.Refresh" />
-         </MudStack>
-         <MudStack Class="relative" Spacing="1">
-             @foreach (var tbl in _displayedEntities)
-            {
-                <MudNavLink Href="@($"tbl/{tbl.LogicalName}")" Match="NavLinkMatch.All">
-                    <MudStack Spacing="0">
-                        <MudText Typo="Typo.caption" Class="truncate" Color="Color.Primary">@tbl.LogicalName</MudText>
-                        <MudText Typo="Typo.caption" Color="Color.Secondary">@(tbl.DisplayName ?? "-")</MudText>
-                        <MudText Typo="Typo.caption" Color="Color.Tertiary">@(tbl.CustomName ?? "-")</MudText>
-                    </MudStack>
-                </MudNavLink>
-                <MudDivider Light />
-            }
-            <MudOverlay Visible="_loading" Absolute DarkBackground />
+    <MudNavMenu Dense Style="overflow: hidden !important">
+         <MudStack  Class="menu-content" Spacing="0">
+             <MudStack Spacing="0">
+                 <MudNavLink Href="/" Match="NavLinkMatch.All">Queries</MudNavLink>
+                 <MudDivider Light />
+                 @*     <MudNavLink Href="/diagram" Match="NavLinkMatch.All">Diagram (Under construction)</MudNavLink>
+                <MudDivider /> *@
+                 <MudStack Row>
+                    <MudTextField Placeholder="Filter tables" @bind-Value="_filter" Immediate />
+                    <MudIconButton Size="Size.Small" OnClick="LoadAsync" Icon="@Icons.Material.Filled.Refresh" />
+                 </MudStack>
+                 <div class="pa-1 mud-typography-caption">
+                     showing @(_displayedEntities.Count()) entities
+                 </div>
+                <MudDivider />
+             </MudStack>
+             <div class="tables pb-16">
+                 @foreach (var tbl in _displayedEntities)
+                {
+                    <MudNavLink Href="@($"tbl/{tbl.LogicalName}")" Match="NavLinkMatch.All">
+                        <MudStack Spacing="0">
+                            <MudText Typo="Typo.caption" Class="truncate">@tbl.LogicalName</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Tertiary">@(tbl.DisplayName ?? "-")</MudText>
+                            @* <MudText Typo="Typo.caption" Color="Color.Tertiary">@(tbl.CustomName ?? "-")</MudText> *@
+                        </MudStack>
+                    </MudNavLink>
+                    <MudDivider Light />
+                }
+                <MudOverlay Visible="_loading" Absolute DarkBackground />
+             </div>
          </MudStack>
      </MudNavMenu>
  </div>
