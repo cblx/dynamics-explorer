@@ -38,6 +38,8 @@ var options = new DynamicsExplorerOptions
 {
     IgnoreTables = table => string.IsNullOrWhiteSpace(table.DisplayName)
                             || ignored.Contains(table.LogicalName)
+                            || table.LogicalName.StartsWith("adx")
+                            || table.LogicalName.StartsWith("adx")
                             || table.LogicalName.StartsWith("app")
                             || table.LogicalName.StartsWith("book")
                             || table.LogicalName.StartsWith("bot")
@@ -45,6 +47,7 @@ var options = new DynamicsExplorerOptions
                             || table.LogicalName.StartsWith("subscription")
                             || table.LogicalName.StartsWith("synap")
                             || table.LogicalName.StartsWith("system")
+                            || table.LogicalName.Contains("plugin")
                             
 };
 builder.Services.AddSingleton(options);
