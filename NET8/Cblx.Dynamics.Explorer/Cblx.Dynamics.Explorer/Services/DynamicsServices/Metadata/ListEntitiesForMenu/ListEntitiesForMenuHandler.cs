@@ -23,7 +23,7 @@ public class ListEntitiesForMenuHandler(ExplorerHttpClient client, DynamicsExplo
         })
             .Where(e => options.IgnoreTables == null
                         ||
-                        !options.IgnoreTables(new IgnoreTableContext { LogicalName = e.LogicalName })
+                        !options.IgnoreTables(new IgnoreTableContext { LogicalName = e.LogicalName, DisplayName = e.DisplayName })
             )
             .OrderBy(e => e.CustomName == null)
             .ToArray();

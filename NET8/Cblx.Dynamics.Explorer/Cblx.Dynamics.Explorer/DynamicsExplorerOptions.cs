@@ -12,4 +12,5 @@ public class DynamicsExplorerOptions
 public class IgnoreTableContext
 {
     public required string LogicalName { get; init; }
+    public required string? DisplayName { get; init; }
 }

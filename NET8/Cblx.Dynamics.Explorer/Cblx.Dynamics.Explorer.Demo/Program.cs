@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using static MudBlazor.CategoryTypes;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
@@ -15,12 +16,36 @@ builder.Services
 builder.Services.AddAuthorization(options => options.FallbackPolicy = options.DefaultPolicy);
 #endif
 builder.Services.AddDynamicsExplorer();
+string[] ignored = [
+    "aaduser",
+    "suggestioncardtemplate",
+    "supportusertable",
+    "teammembership",
+    "teamprofiles",
+    "teamroles",
+    "teamsyncattributemappingprofiles",
+    "timestampdatemapping",
+    "traceassociation",
+    "traceregarding",
+    "unresolvedaddress",
+    "untrackedemail",
+    "userapplicationmetadata",
+    "usersearchfacet",
+    "virtualresourcegroupresource",
+    "workflowwaitsubscription"
+];
 var options = new DynamicsExplorerOptions
 {
-    IgnoreTables = table => table.LogicalName.StartsWith("ms") 
+    IgnoreTables = table => string.IsNullOrWhiteSpace(table.DisplayName)
+                            || ignored.Contains(table.LogicalName)
                             || table.LogicalName.StartsWith("app")
                             || table.LogicalName.StartsWith("book")
                             || table.LogicalName.StartsWith("bot")
+                            || table.LogicalName.StartsWith("ms")
+                            || table.LogicalName.StartsWith("subscription")
+                            || table.LogicalName.StartsWith("synap")
+                            || table.LogicalName.StartsWith("system")
+                            
 };
 builder.Services.AddSingleton(options);
 #if !DEBUG
