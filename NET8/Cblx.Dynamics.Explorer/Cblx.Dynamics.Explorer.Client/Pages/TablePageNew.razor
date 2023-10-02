@@ -6,6 +6,7 @@
 @using Cblx.Dynamics.Explorer.Services.DynamicsServices.ExecuteQuery;
 @using System.Web;
 @using Microsoft.AspNetCore.Components.QuickGrid
+@using System.Globalization;
 @attribute [RenderModeWebAssembly(false)]
 @inject IDialogService DialogService
 @inject IGetEntityHandler GetEntityHandler
@@ -62,29 +63,9 @@
                                                                               Sortable="!isLookup"
                                                                               Title="@(attribute.LogicalName)">
                         <ColumnOptions>
-                            <MudStack Row AlignItems="AlignItems.Center" Style="text-align: left">
-                                 <MudStack>
-                                     <MudText Typo="Typo.caption" Color="Color.Primary" Style="line-height: 1">@(attribute.LogicalName)</MudText>
-                                     <MudText Typo="Typo.caption" Color="Color.Secondary" Style="line-height: 1; white-space: nowrap">@(attribute.DisplayName ?? "-")</MudText>
-                                     <MudText Typo="Typo.caption" Color="Color.Tertiary" Style="line-height: 1">@(attribute.CustomName ?? "-")</MudText>
-                                     <MudDivider />
-                                     <MudStack Row>
-                                     <MudText Typo="Typo.caption" Color="Color.Warning" Style="line-height: 1">@(attribute.AttributeType)</MudText>
-                                     <MudText Typo="Typo.caption" Style="color: gray; line-height: 1">@((attribute.DerivedType ?? "-").Split('.').Last())</MudText>
-                                 </MudStack>
-                                 <MudDivider />
-                             </MudStack>
-                         </MudStack>
-                         <div>
-                             @if (attribute.DerivedType is AttributeMetadataDerivedTypes.MultiSelectPicklistAttributeMetadata
-                        or AttributeMetadataDerivedTypes.StatusAttributeMetadata
-                        or AttributeMetadataDerivedTypes.StateAttributeMetadata
-                        or AttributeMetadataDerivedTypes.PicklistAttributeMetadata
-                        )
-                                {
-                                    <button @onclick="() => ShowOptions(attribute)">Show options list</button>
-                                }
-                            </div>
+                            <TablePageColumnOptions Attribute="attribute" 
+                                CurrentFilter="@_filters.GetValueOrDefault(attribute.LogicalName, "")"
+                                OnFilterApplied="(filter) => ApplyFilter(attribute.LogicalName, filter)"/>
                         </ColumnOptions>
                         <ChildContent>
                             <span title="@context[attribute.LogicalName]">@context[logicalName]</span>
@@ -112,6 +93,9 @@
         {
             ItemsPerPage = 50
         };
+    //private Dictionary<string, string> _inputFilters = new();
+    private Dictionary<string, string> _filters = new();
+    private CultureInfo _cultureInfo = new CultureInfo("en-US");
 
     private bool _shouldRefresh = false;
     private string? _lastQuery;
@@ -125,6 +109,53 @@
             var top = state.Count ?? 50;
             var pageIndex = (state.StartIndex / pageSize);
             string query = $"{_entity!.EntitySetName}?$top={top}&$skiptoken=<cookie pagenumber='{pageIndex + 1}' />&$count=true";
+            if (_filters.Any())
+            {
+                var oDataFilters = new List<string>();
+                foreach(var kvp in _filters)
+                {
+                    var attribute = _entity.Attributes.First(a => a.LogicalName == kvp.Key);
+                    switch (attribute.DerivedType)
+                    {
+                        case AttributeMetadataDerivedTypes.DecimalAttributeMetadata:
+                        case AttributeMetadataDerivedTypes.DoubleAttributeMetadata:
+                            if(decimal.TryParse(kvp.Value, _cultureInfo, out var dcm))
+                            {
+                                oDataFilters.Add($"{attribute.LogicalName} eq {dcm}");
+                            }
+                            break;
+                        case AttributeMetadataDerivedTypes.BigIntAttributeMetadata:
+                        case AttributeMetadataDerivedTypes.IntegerAttributeMetadata:
+                        case AttributeMetadataDerivedTypes.PicklistAttributeMetadata:
+                        case AttributeMetadataDerivedTypes.StateAttributeMetadata:
+                        case AttributeMetadataDerivedTypes.StatusAttributeMetadata:
+                            if (int.TryParse(kvp.Value, _cultureInfo, out var nmb))
+                            {
+                                oDataFilters.Add($"{attribute.LogicalName} eq {nmb}");
+                            }
+                            break;
+                        case AttributeMetadataDerivedTypes.LookupAttributeMetadata:
+                            oDataFilters.Add($"{attribute.LogicalName} eq '{kvp.Value}'");
+                            break;
+                        case AttributeMetadataDerivedTypes.StringAttributeMetadata:
+                        case AttributeMetadataDerivedTypes.MultiSelectPicklistAttributeMetadata:
+                        case AttributeMetadataDerivedTypes.MemoAttributeMetadata:
+                            oDataFilters.Add($"contains({attribute.LogicalName},'{kvp.Value}')");
+                            break;
+                        default:
+                            if (attribute.AttributeType is "Uniqueidentifier" && Guid.TryParse(kvp.Value, out var _))
+                            {
+                                oDataFilters.Add($"{attribute.LogicalName} eq '{kvp.Value}'");
+                            }
+                            break;
+                    }
+                }
+                if (oDataFilters.Any())
+                {
+                    query += $"&$filter=";
+                    query += string.Join(" and ", oDataFilters);
+                }
+            }
             if (state.SortByColumn != null)
             {
                 query += $"&$orderby={state.SortByColumn.Title} {(state.SortByAscending ? "asc" : "desc")}";
@@ -164,23 +195,25 @@
         }
     }
 
+    private void ApplyFilter(string logicalName, string filter)
+    {
+        _filters[logicalName] = filter;
+        _shouldRefresh = true;
+        //await _table.RefreshDataAsync();
+        //Console.WriteLine("ué");
+    }
+
     protected override async Task OnParametersSetAsync()
     {
         if (EntityLogicalName == _previousEntityLogicalName) { return; }
+        _filters.Clear();
         _error = null;
         _entity = null;
         _previousEntityLogicalName = EntityLogicalName;
         _entity = await GetEntityHandler.GetAsync(EntityLogicalName);
     }
 
-    private void ShowOptions(AttributeDto attr)
-    {
-        DialogService.Show<OptionsDialog>($"{_entity!.LogicalName}.{attr.LogicalName} options", new DialogParameters()
-        {
-            { "Attribute", attr },
-            { "EntityLogicalName", _entity.LogicalName }
-        });
-    }
+
 
     private async Task OpenCreate()
     {

@@ -1,0 +1,53 @@
+﻿@using Cblx.Dynamics.Explorer.Client.Components;
+@using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
+@inject IDialogService DialogService
+<MudStack>
+    <div>
+        <input type="search" @bind="_filtering" autofocus placeholder="Filter" />
+        <br />
+        <button @onclick="ApplyFilter">Apply</button>
+    </div>
+    <MudDivider />
+    <MudText Typo="Typo.caption" Color="Color.Primary" Style="line-height: 1">@(Attribute.LogicalName)</MudText>
+    <MudText Typo="Typo.caption" Color="Color.Secondary" Style="line-height: 1; white-space: nowrap">@(Attribute.DisplayName ?? "-")</MudText>
+    <MudText Typo="Typo.caption" Color="Color.Tertiary" Style="line-height: 1">@(Attribute.CustomName ?? "-")</MudText>
+    <MudDivider />
+    <MudStack Row>
+        <MudText Typo="Typo.caption" Color="Color.Warning" Style="line-height: 1">@(Attribute.AttributeType)</MudText>
+        <MudText Typo="Typo.caption" Style="color: gray; line-height: 1">@((Attribute.DerivedType ?? "-").Split('.').Last())</MudText>
+    </MudStack>
+    <MudDivider />
+    @if (Attribute.DerivedType is AttributeMetadataDerivedTypes.MultiSelectPicklistAttributeMetadata
+    or AttributeMetadataDerivedTypes.StatusAttributeMetadata
+    or AttributeMetadataDerivedTypes.StateAttributeMetadata
+    or AttributeMetadataDerivedTypes.PicklistAttributeMetadata
+    )
+    {
+        <button @onclick="ShowOptions">Show options list</button>
+    }
+</MudStack>
+@code {
+    private string _filtering = "";
+    [Parameter]public required AttributeDto Attribute { get; set; }
+    [Parameter]public required string CurrentFilter { get; set; }
+    [Parameter]public EventCallback<string> OnFilterApplied { get; set; }
+    protected override void OnInitialized()
+    {
+        _filtering = CurrentFilter;
+    }
+
+    private void ApplyFilter()
+    {
+        OnFilterApplied.InvokeAsync(_filtering);
+    }
+
+    private void ShowOptions()
+    {
+        DialogService.Show<OptionsDialog>($"{Attribute.EntityLogicalName}.{Attribute.LogicalName} options", new DialogParameters()
+        {
+            { "Attribute", Attribute },
+            { "EntityLogicalName", Attribute.EntityLogicalName }
+        });
+    }
+
+}
