@@ -14,17 +14,27 @@
 @inject IDeleteHandler DeleteHandler
 <PageTitle>@EntityLogicalName</PageTitle>
 <SectionContent SectionName="app-bar-content">
-    <MudStack Row
-               Class="flex-grow-1">
-         <AppDynamicsElementName LogicalName="@_entity?.LogicalName" DisplayName="@_entity?.DisplayName" CustomName="@_entity?.CustomName" />
-         <MudSpacer></MudSpacer>
-         <MudStack Justify="Justify.Center">
-             <MudButton Size="Size.Small" Disabled="_error is not null" OnClick="OpenCreate" Variant="Variant.Filled" Color="Color.Primary">New...</MudButton>
+    @if (_entity != null)
+    {
+        <MudStack Row Class="flex-grow-1" AlignItems="AlignItems.Stretch">
+             <MudStack Spacing="0">
+                 <MudText Typo="Typo.caption">@_entity.LogicalName</MudText>
+                 <MudText Typo="Typo.caption" Color="Color.Tertiary">@(_entity.DisplayName ?? "-")</MudText>
+             </MudStack>
+             <MudDivider Vertical Style="height: initial"/>
+             <div class="mud-typography-caption">
+                 Showing @_entity.Attributes.Length columns
+             </div>
+             @* <AppDynamicsElementName LogicalName="@_entity?.LogicalName" DisplayName="@_entity?.DisplayName" CustomName="@_entity?.CustomName" /> *@
+             <MudSpacer></MudSpacer>
+             <MudStack Justify="Justify.Center">
+                 <MudButton Size="Size.Small" Disabled="_error is not null" OnClick="OpenCreate" Variant="Variant.Filled" Color="Color.Primary">New...</MudButton>
+             </MudStack>
          </MudStack>
-     </MudStack>
- </SectionContent>
- <div scoped-css>
-     @if (_error != null)
+    }
+</SectionContent>
+<div scoped-css>
+    @if (_error != null)
     {
         <div class="grid">
             <div style="background-color: red">@_error</div>
@@ -63,9 +73,9 @@
                                                                               Sortable="!isLookup"
                                                                               Title="@(attribute.LogicalName)">
                         <ColumnOptions>
-                            <TablePageColumnOptions Attribute="attribute" 
-                                CurrentFilter="@_filters.GetValueOrDefault(attribute.LogicalName, "")"
-                                OnFilterApplied="(filter) => ApplyFilter(attribute.LogicalName, filter)"/>
+                            <TablePageColumnOptions Attribute="attribute"
+                                                    CurrentFilter="@_filters.GetValueOrDefault(attribute.LogicalName, "")"
+                                                    OnFilterApplied="(filter) => ApplyFilter(attribute.LogicalName, filter)" />
                         </ColumnOptions>
                         <ChildContent>
                             <span title="@context[attribute.LogicalName]">@context[logicalName]</span>
@@ -112,14 +122,14 @@
             if (_filters.Any())
             {
                 var oDataFilters = new List<string>();
-                foreach(var kvp in _filters)
+                foreach (var kvp in _filters)
                 {
                     var attribute = _entity.Attributes.First(a => a.LogicalName == kvp.Key);
                     switch (attribute.DerivedType)
                     {
                         case AttributeMetadataDerivedTypes.DecimalAttributeMetadata:
                         case AttributeMetadataDerivedTypes.DoubleAttributeMetadata:
-                            if(decimal.TryParse(kvp.Value, _cultureInfo, out var dcm))
+                            if (decimal.TryParse(kvp.Value, _cultureInfo, out var dcm))
                             {
                                 oDataFilters.Add($"{attribute.LogicalName} eq {dcm}");
                             }
