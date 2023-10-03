@@ -4,6 +4,7 @@
 <MudThemeProvider IsDarkMode="true" />
 <MudDialogProvider />
 <MudSnackbarProvider />
+<FluentDialogProvider />
 <FluentDesignSystemProvider BaseLayerLuminance="0">
     <MudLayout>
         <AppBarAndDrawer />
@@ -12,4 +13,15 @@
         </MudMainContent>
     </MudLayout>
 </FluentDesignSystemProvider>
-
+@* <FluentDesignSystemProvider BaseLayerLuminance="0">
+    <FluentMainLayout NavMenuTitle="Navigation menu" HeaderHeight="0">
+        <Body>
+            @Body
+        </Body>
+        <NavMenuContent>
+            <FluentNavMenuLink Href="/" Text="Home" />
+            <NavMenu />
+        </NavMenuContent>
+    </FluentMainLayout>
+</FluentDesignSystemProvider>
+ *@
