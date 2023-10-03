@@ -13,7 +13,6 @@
                     <MudStack Class="flex-grow-1" Spacing="0">
                         <MudText Typo="Typo.caption" Color="Color.Primary">@attr.LogicalName</MudText>
                         <MudText Typo="Typo.caption" Color="Color.Secondary" Style="white-space: nowrap">@(attr.DisplayName ?? "-")</MudText>
-                            <MudText Typo="Typo.caption" Color="Color.Tertiary">@(attr.CustomName ?? "-")</MudText>
                             <MudStack Row>
                         <MudText Typo="Typo.caption" Color="Color.Warning">@attr.AttributeType</MudText>
                         <MudText Typo="Typo.caption" Style="color: gray;">@((attr.DerivedType ?? "-").Split('.').Last())</MudText>
