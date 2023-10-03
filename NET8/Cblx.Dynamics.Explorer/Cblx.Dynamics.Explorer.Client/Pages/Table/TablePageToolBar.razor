@@ -69,15 +69,15 @@
         await OnChanges.InvokeAsync();
     }
 
-    private async Task ToggleShowingColumn(AttributeDto attr, bool isChecked)
+    private async Task ToggleShowingColumn(AttributeDto attribute, bool isChecked)
     {
-        if (isChecked && !ShowingColumns.Contains(attr))
+        if (isChecked && !ShowingColumns.Contains(attribute))
         {
-            ShowingColumns.Add(attr);
+            ShowingColumns.Add(attribute);
         }
-        if (!isChecked && ShowingColumns.Contains(attr))
+        if (!isChecked && ShowingColumns.Contains(attribute))
         {
-            ShowingColumns.Remove(attr);
+            ShowingColumns.Remove(attribute);
         }
         await OnChanges.InvokeAsync();
     }

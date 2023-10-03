@@ -12,7 +12,7 @@ public class GetEntityHandler(ExplorerHttpClient client, DynamicsExplorerOptions
                    .GetFromJsonAsync<JsonObject>($"""
                      EntityDefinitions(LogicalName='{entityLogicalName}')?
                         $select=LogicalName,DisplayName,EntitySetName
-                        &$expand=Attributes($select=LogicalName,DisplayName,IsPrimaryId,IsPrimaryName,AttributeType,IsValidForUpdate,IsValidForCreate)
+                        &$expand=Attributes($select=LogicalName,DisplayName,IsPrimaryId,IsPrimaryName,AttributeType,IsValidForUpdate,IsValidForCreate,IsValidForRead)
                      """.RemoveLineEndingsForODataQuery());
         var jsonAttributes = jsonObject!["Attributes"]!.AsArray();
         var attributes = jsonAttributes.Select(item => new AttributeDto
@@ -31,8 +31,10 @@ public class GetEntityHandler(ExplorerHttpClient client, DynamicsExplorerOptions
             AttributeType = item["AttributeType"]!.GetValue<string>()!,
             DerivedType = item["@odata.type"]?.GetValue<string>(),
             IsValidForCreate = item["IsValidForCreate"]!.GetValue<bool>(),
-            IsValidForUpdate = item["IsValidForUpdate"]!.GetValue<bool>()
+            IsValidForUpdate = item["IsValidForUpdate"]!.GetValue<bool>(),
+            IsValidForRead = item["IsValidForRead"]!.GetValue<bool>()
         }).Where(e => e.DisplayName != null)
+          .Where(e => e.IsValidForRead)
           .OrderBy(e => !e.IsPrimaryId)
           .ThenBy(e => e.CustomName == null)
           .ToArray();

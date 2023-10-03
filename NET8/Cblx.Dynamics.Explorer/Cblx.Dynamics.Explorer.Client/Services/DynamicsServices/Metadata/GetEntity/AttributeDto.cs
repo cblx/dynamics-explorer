@@ -1,4 +1,6 @@
-﻿namespace Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
+﻿using System;
+
+namespace Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
 
 public class AttributeDto
 {
@@ -15,6 +17,8 @@ public class AttributeDto
     public required bool IsValidForCreate { get; set; }
     public required bool IsValidForUpdate { get; set; }
     public string? ReferencedEntity { get; set; }
-    public string LookupPropertyNameOrLogicalName => ReferencedEntity != null ?
+    public string LookupPropertyNameOrLogicalName => DerivedType == AttributeMetadataDerivedTypes.LookupAttributeMetadata ?
         $"_{LogicalName}_value" : LogicalName;
+
+    public bool IsValidForRead { get; set; }
 }
