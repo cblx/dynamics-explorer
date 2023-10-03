@@ -1,0 +1,84 @@
+﻿@using Cblx.Dynamics.Explorer.Client.Components;
+@using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
+@using Microsoft.Fast.Components.FluentUI
+@using Microsoft.Fast.Components.FluentUI.DesignTokens
+@inject MudBlazor.IDialogService DialogService
+@if (Entity != null)
+{
+    <MudStack Row Class="flex-grow-1" AlignItems="AlignItems.Stretch">
+         <MudStack Spacing="0">
+             <MudText Typo="Typo.caption">@Entity.LogicalName</MudText>
+             <MudText Typo="Typo.caption" Color="MudBlazor.Color.Tertiary">@(Entity.DisplayName ?? "-")</MudText>
+         </MudStack>
+         <MudDivider Vertical Style="height: initial" />
+         <MudStack Spacing="0">
+             <div class="mud-typography-caption">
+                 Showing @ShowingColumns.Count() of @Entity.Attributes.Length columns
+             </div>
+             <button id="@_guid"
+                     @onclick="() => _showColumnSelection = !_showColumnSelection"
+                     class="mud-typography-caption mud-primary-text">
+                 Select columns...
+             </button>
+             <FluentPopover Style="width: 300px; height: 480px; overflow-y: auto" AnchorId="@_guid.ToString()" @bind-Open="_showColumnSelection">
+                 <Body>
+                     <FluentStack Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
+                         @foreach (var attr in Entity.Attributes)
+                        {
+                                <FluentCheckbox Disabled="attr.IsPrimaryId"
+                                                Value="@ShowingColumns.Contains(attr)"
+                                                ValueChanged="isChecked => ToggleShowingColumn(attr, isChecked)">
+                                    @attr.LogicalName
+                                    <br />
+                                    @attr.DisplayName
+                                </FluentCheckbox>
+                            <FluentDivider />
+                        }
+                    </FluentStack>
+                </Body>
+            </FluentPopover>
+        </MudStack>
+        <Microsoft.Fast.Components.FluentUI.FluentSpacer />
+        <MudStack Justify="Justify.Center">
+            <FluentButton Disabled="Disabled"
+                          Appearance="Microsoft.Fast.Components.FluentUI.Appearance.Accent"
+                          OnClick="OpenCreate">New...</FluentButton>
+        </MudStack>
+    </MudStack>
+}
+@code {
+    private Guid _guid = Guid.NewGuid();
+    private bool _showColumnSelection = false;
+    [Parameter]
+    public required EntityDto? Entity { get; set; }
+    [Parameter]
+    public required List<AttributeDto> ShowingColumns { get; set; }
+    [Parameter]
+    public required bool Disabled { get; set; }
+    [Parameter]
+    public EventCallback OnChanges { get; set; }
+
+
+    private async Task OpenCreate()
+    {
+        var dialogRef = DialogService.Show<EditDialog>("", new MudBlazor.DialogParameters
+        {
+            { nameof(EditDialog.EntityLogicalName), Entity!.LogicalName }
+        });
+        var result = await dialogRef.Result;
+        await OnChanges.InvokeAsync();
+    }
+
+    private async Task ToggleShowingColumn(AttributeDto attr, bool isChecked)
+    {
+        if (isChecked && !ShowingColumns.Contains(attr))
+        {
+            ShowingColumns.Add(attr);
+        }
+        if (!isChecked && ShowingColumns.Contains(attr))
+        {
+            ShowingColumns.Remove(attr);
+        }
+        await OnChanges.InvokeAsync();
+    }
+}

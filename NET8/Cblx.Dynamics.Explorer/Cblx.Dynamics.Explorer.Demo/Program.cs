@@ -22,6 +22,7 @@ string[] ignored = [
     "aciviewmapper",
     "adminsettingsentity",
     "advancedsimilarityrule",
+    "apisettings",
     "asyncoperation",
     "audit",
     "authorizationserver",
@@ -100,11 +101,13 @@ var options = new DynamicsExplorerOptions
                             || table.LogicalName.StartsWith("bulk")
                             || table.LogicalName.StartsWith("business")
                             || table.LogicalName.StartsWith("calendar")
+                            || table.LogicalName.StartsWith("call")
                             || table.LogicalName.StartsWith("campaign")
                             || table.LogicalName.StartsWith("card")
                             || table.LogicalName.StartsWith("cascade")
                             || table.LogicalName.StartsWith("catalog")
                             || table.LogicalName.StartsWith("ch")
+                            || table.LogicalName.StartsWith("codek")
                             || table.LogicalName.StartsWith("com")
                             || table.LogicalName.StartsWith("conn")
                             || table.LogicalName.StartsWith("cont")

@@ -14,24 +14,10 @@
 @inject IDeleteHandler DeleteHandler
 <PageTitle>@EntityLogicalName</PageTitle>
 <SectionContent SectionName="app-bar-content">
-    @if (_entity != null)
-    {
-        <MudStack Row Class="flex-grow-1" AlignItems="AlignItems.Stretch">
-             <MudStack Spacing="0">
-                 <MudText Typo="Typo.caption">@_entity.LogicalName</MudText>
-                 <MudText Typo="Typo.caption" Color="Color.Tertiary">@(_entity.DisplayName ?? "-")</MudText>
-             </MudStack>
-             <MudDivider Vertical Style="height: initial"/>
-             <div class="mud-typography-caption">
-                 Showing @_entity.Attributes.Length columns
-             </div>
-             @* <AppDynamicsElementName LogicalName="@_entity?.LogicalName" DisplayName="@_entity?.DisplayName" CustomName="@_entity?.CustomName" /> *@
-             <MudSpacer></MudSpacer>
-             <MudStack Justify="Justify.Center">
-                 <MudButton Size="Size.Small" Disabled="_error is not null" OnClick="OpenCreate" Variant="Variant.Filled" Color="Color.Primary">New...</MudButton>
-             </MudStack>
-         </MudStack>
-    }
+    <TablePageToolBar Entity="_entity" 
+                      ShowingColumns="_showingColumns" 
+                      Disabled="_error is not null"
+                      OnChanges="() => _shouldRefresh = true"></TablePageToolBar>
 </SectionContent>
 <div scoped-css>
     @if (_error != null)
@@ -61,7 +47,7 @@
                     <MudIconButton OnClick="() => DeleteAsync(context)" Disabled="!canChange" Color="Color.Error" Icon="@Icons.Material.Outlined.Delete" Size="Size.Small"></MudIconButton>
                 </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
 
-                @foreach (var attribute in _entity?.Attributes ?? Array.Empty<AttributeDto>())
+                @foreach (var attribute in _showingColumns)
                 {
                     string logicalName = attribute.LogicalName;
                     bool isLookup = attribute.DerivedType == AttributeMetadataDerivedTypes.LookupAttributeMetadata;
@@ -110,6 +96,7 @@
     private bool _shouldRefresh = false;
     private string? _lastQuery;
     private GridItemsProviderResult<JsonObject>? _lastProviderResult;
+    private List<AttributeDto> _showingColumns = new();
     private async ValueTask<GridItemsProviderResult<JsonObject>> ServerReloadJson(GridItemsProviderRequest<JsonObject> state)
     {
         _error = null;
@@ -209,8 +196,6 @@
     {
         _filters[logicalName] = filter;
         _shouldRefresh = true;
-        //await _table.RefreshDataAsync();
-        //Console.WriteLine("ué");
     }
 
     protected override async Task OnParametersSetAsync()
@@ -220,20 +205,18 @@
         _error = null;
         _entity = null;
         _previousEntityLogicalName = EntityLogicalName;
+        _showingColumns.Clear();
         _entity = await GetEntityHandler.GetAsync(EntityLogicalName);
-    }
-
-
-
-    private async Task OpenCreate()
-    {
-        var dialogRef = DialogService.Show<EditDialog>("", new DialogParameters
+        int i = 0;
+        foreach(var attr in _entity.Attributes)
         {
-            { nameof(EditDialog.EntityLogicalName), EntityLogicalName }
-        });
-        var result = await dialogRef.Result;
-        _shouldRefresh = result.Data is true;
+            _showingColumns.Add(attr);
+            i++;
+            if(i == 15){ break; }
+        }
+
     }
+
 
     private async Task OpenEdit(JsonObject item)
     {

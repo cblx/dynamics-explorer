@@ -1,12 +1,15 @@
 ﻿@using Cblx.Dynamics.Explorer.Client.Components
 @using Microsoft.Fast.Components.FluentUI
 @inherits LayoutComponentBase
-<MudThemeProvider IsDarkMode="true"/>
-<MudDialogProvider/>
-<MudSnackbarProvider/>
-<MudLayout>
-    <AppBarAndDrawer/>
-    <MudMainContent>
-        @Body
-    </MudMainContent>
-</MudLayout>
+<MudThemeProvider IsDarkMode="true" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+<FluentDesignSystemProvider BaseLayerLuminance="0">
+    <MudLayout>
+        <AppBarAndDrawer />
+        <MudMainContent>
+            @Body
+        </MudMainContent>
+    </MudLayout>
+</FluentDesignSystemProvider>
+

@@ -9,13 +9,13 @@
                  <MudDivider Light />
                  @*     <MudNavLink Href="/diagram" Match="NavLinkMatch.All">Diagram (Under construction)</MudNavLink>
                 <MudDivider /> *@
-                 <MudStack Row>
-                    <MudTextField Placeholder="Filter tables" @bind-Value="_filter" Immediate />
+                 <MudStack Row AlignItems="AlignItems.Stretch">
+                    <input placeholder="Filter entities..." @bind="_filter" @bind:event="oninput" class="pa-1" style="width: 100%"/>
+                 </MudStack>
+                 <MudStack Class="pa-1 mud-typography-caption" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Row>
+                     showing @(_displayedEntities.Count()) entities
                     <MudIconButton Size="Size.Small" OnClick="LoadAsync" Icon="@Icons.Material.Filled.Refresh" />
                  </MudStack>
-                 <div class="pa-1 mud-typography-caption">
-                     showing @(_displayedEntities.Count()) entities
-                 </div>
                 <MudDivider />
              </MudStack>
              <div class="tables pb-16">
