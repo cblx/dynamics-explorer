@@ -8,6 +8,7 @@ public class EditDialogSet
     public object? Value { get; set; }
     public string? FormattedValue { get; set; }
     public object? AcceptedValue { get; set; }
+    public object? OriginalValue { get; set; }
     public bool? ValueAsBoolean
     {
         get => Value as bool?;

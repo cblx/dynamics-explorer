@@ -66,12 +66,8 @@
             EntityLogicalName = Entity!.LogicalName,
             Id = null
         }, AppEditDialog.DialogParameters);
-
-        // var dialogRef = DialogService.Show<EditDialog>("", new MudBlazor.DialogParameters
-        // {
-        //     { nameof(EditDialog.EntityLogicalName), Entity!.LogicalName }
-        // });
-        // var result = await dialogRef.Result;
+        var result = await dialogRef.Result;
+        if(result.Cancelled){ return; }
         await OnChanges.InvokeAsync();
     }
 
