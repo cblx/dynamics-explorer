@@ -60,13 +60,14 @@ else
             </div>
             break;
         case { DerivedType: AttributeMetadataDerivedTypes.DateTimeAttributeMetadata, DateTimeFormat: DateTimeFormat.DateAndTime }:
-            <MudTextField @bind-Value="Set.ValueAsDateTime"
+            @* <MudTextField @bind-Value="Set.ValueAsDateTime"
                           InputType="InputType.DateTimeLocal"
                           Variant="Variant.Outlined"
                           Placeholder="NULL"
                           HelperText="@Set.ValueHelperText"
                           Converter="new AppDateTimeIsoConverter()"
-                          Label="Value" />
+                          Label="Value" /> *@
+            <AppSetDateTimeField Set="Set"/>
             break;
         case { DerivedType: AttributeMetadataDerivedTypes.DateTimeAttributeMetadata, DateTimeFormat: DateTimeFormat.DateOnly }:
             <MudTextField @bind-Value="Set.ValueAsDateOnly"

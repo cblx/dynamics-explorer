@@ -44,7 +44,7 @@
                 }
                 else
                 {
-                    <FluentLabel>No fields being set</FluentLabel>
+                    <FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Info">No fields being set</FluentLabel>
                 }
             </FluentStack>
             <FluentDivider />
@@ -124,7 +124,7 @@
         {
             current = await ExecuteQueryHandler.GetAsync($"{_entity.EntitySetName}({Content.Id})");
         }
-     
+
         foreach (var attribute in _entity.Attributes.Where(c => c.IsEditable))
         {
             var jsonVal = current?[attribute.LookupPropertyNameOrLogicalName];
@@ -148,7 +148,7 @@
                 {
                     DerivedType: AttributeMetadataDerivedTypes.DateTimeAttributeMetadata,
                     DateTimeFormat: DateTimeFormat.DateAndTime
-                } => jsonVal?.GetValue<DateTime>(),
+                } => jsonVal?.GetValue<string>()?.Replace("Z", ""),
                 {
                     DerivedType: AttributeMetadataDerivedTypes.DateTimeAttributeMetadata,
                     DateTimeFormat: DateTimeFormat.DateOnly
@@ -189,7 +189,8 @@
             set.AcceptValue();
             _fields.Add(set);
         }
-        if (!Content.Id.HasValue){
+        if (!Content.Id.HasValue)
+        {
             var idField = _fields.First();
             idField.Value = Guid.NewGuid().ToString();
             MarkForSet(idField);
