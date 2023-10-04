@@ -2,12 +2,20 @@
 @using System.Net.Http.Json;
 @using Cblx.Dynamics.Explorer.Models;
 @using Cblx.Dynamics.Explorer.Shared;
-<MudTextField @bind-Value="Set.ValueAsString"
+@using Microsoft.Fast.Components.FluentUI
+@* <MudTextField @bind-Value="Set.ValueAsString"
               Variant="Variant.Outlined"
               OnKeyDown="(args) => AlternateEmptyNull(args, Set)"
               Placeholder="@(Set.Value is null ? "NULL" : " ")"
               HelperText="@Set.ValueHelperText"
-              Label="Value" />
+              Label="Value" /> *@
+<FluentStack Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical" VerticalGap="0">
+    <FluentTextField @bind-Value="Set.ValueAsString" Style="width: 100%" 
+        Immediate
+        @onkeydown="(args) => AlternateEmptyNull(args, Set)"
+                     Placeholder="@(Set.Value is null ? "NULL" : " ")" />
+    <FluentLabel Typo="Microsoft.Fast.Components.FluentUI.Typography.Body" Color="Microsoft.Fast.Components.FluentUI.Color.Info">@Set.ValueHelperText</FluentLabel>
+</FluentStack>
 @code {
     [Parameter]
     [EditorRequired]
