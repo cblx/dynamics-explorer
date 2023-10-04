@@ -23,7 +23,8 @@
     {
         <FluentStack Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
             <FluentLabel Typo="Microsoft.Fast.Components.FluentUI.Typography.H4">Setting Fields (@_settingFields.Count)</FluentLabel>
-            <FluentStack Style="max-height: 400px; overflow-y: auto; overflow-x: hidden; padding-right: 40px" Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
+            @* Não adicionar scroll, senão quebra funcionamento do select do fluent. O painel de opções fica por trás *@
+            <FluentStack Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
                 @if (_settingFields.Any())
                 {
                     @foreach (var field in _settingFields)

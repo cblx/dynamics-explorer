@@ -5,12 +5,13 @@
 @using Cblx.Dynamics.Explorer.Services.DynamicsServices.Metadata.ListStateCodeOptions;
 @using Cblx.Dynamics.Explorer.Services.DynamicsServices.Metadata.ListStatusCodeOptions;
 @using Cblx.Dynamics.Explorer.Shared;
+@using Microsoft.Fast.Components.FluentUI
 @inject IListPicklistOptionsHandler ListPicklistOptionsHandler
 @inject IListStateCodeOptionsHandler ListStateCodeOptionsHandler
 @inject IListStatusCodeOptionsHandler ListStatusCodeOptionsHandler
-@if(Options != null)
+@if (_options != null)
 {
-    <MudSelect @bind-Value="Set.ValueAsInt32"
+    @*  <MudSelect @bind-Value="Set.ValueAsInt32"
                Variant="Variant.Outlined"
                Placeholder="NULL"
                HelperText="@Set.ValueHelperText"
@@ -20,13 +21,37 @@
         {
             <MudSelectItem Value="@((int?)option.Value)">@option.Text</MudSelectItem>
         }
-    </MudSelect>
+    </MudSelect> *@
+    <FluentStack Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical" VerticalGap="0">
+       @*  <FluentSelect @bind-Value="Set.ValueAsInt32" TOption="Option<int>">
+            <FluentOption Value="@null">null</FluentOption>
+            @foreach (var option in Options)
+            {
+                <FluentOption Value="@option.Value.ToString()">@option.Text</FluentOption>
+            }
+        </FluentSelect> *@
+        <FluentSelect Items=@_options
+                      TOption="Option<int?>"
+                      OptionText="@(i => _picklistOptions!.Find(o => o.Value == i.Value)!.Text)"
+                      OptionValue="@(i => i.Value.ToString())"
+                      @bind-SelectedOption="@_selectedIntOption"
+                      Value="@Set.ValueAsString"
+                      ValueChanged="str => Set.ValueAsInt32 = str is null ? null : int.Parse(str)"
+                     />
+        <FluentLabel Typo="Microsoft.Fast.Components.FluentUI.Typography.Body" Color="Microsoft.Fast.Components.FluentUI.Color.Info">@Set.ValueHelperText</FluentLabel>
+    </FluentStack>
+}
+else
+{
+    <FluentLabel>Loading...</FluentLabel>
 }
 @code {
     [Parameter]
     [EditorRequired]
     public required EditDialogSet Set { get; set; }
-    private PicklistOption[]? Options = null;
+    private Option<int?>[]? _options = null;
+    private Option<int?>? _selectedIntOption;
+    private PicklistOption[]? _picklistOptions = null;
     protected override async Task OnInitializedAsync()
     {
         try
@@ -34,16 +59,18 @@
             var attribute = Set.Attribute;
             if (attribute!.LogicalName == "statuscode")
             {
-                Options = await ListStatusCodeOptionsHandler.GetAsync(attribute.EntityLogicalName);
+                _picklistOptions = await ListStatusCodeOptionsHandler.GetAsync(attribute.EntityLogicalName);
             }
             else if (attribute.LogicalName == "statecode")
             {
-                Options = await ListStateCodeOptionsHandler.GetAsync(attribute.EntityLogicalName);
+                _picklistOptions = await ListStateCodeOptionsHandler.GetAsync(attribute.EntityLogicalName);
             }
             else
             {
-                Options = await ListPicklistOptionsHandler.GetAsync(attribute.EntityLogicalName, attribute.LogicalName);
+                _picklistOptions = await ListPicklistOptionsHandler.GetAsync(attribute.EntityLogicalName, attribute.LogicalName);
             }
-        }catch{}
+            _options = _picklistOptions.Select(pko => new Option<int?> { Text = pko.Value, Value = pko.Value }).ToArray();
+        }
+        catch { }
     }
 }
