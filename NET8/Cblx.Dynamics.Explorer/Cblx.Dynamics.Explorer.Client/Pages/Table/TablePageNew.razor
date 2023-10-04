@@ -219,11 +219,10 @@
 
     private async Task OpenEdit(JsonObject item)
     {
-        var dialogRef = DialogService.Show<EditDialog>("", new DialogParameters
-        {
-            { nameof(EditDialog.Id), item[_entity!.PrimaryId!]!.GetValue<Guid>() },
-            { nameof(EditDialog.EntityLogicalName), EntityLogicalName }
-        });
+        var dialogRef = await FluentDialogService.ShowDialogAsync<AppEditDialog>(new AppEditDialogArguments{
+            EntityLogicalName = EntityLogicalName,
+                Id = item[_entity!.PrimaryId!]!.GetValue<Guid>()
+        }, AppEditDialog.DialogParameters);
         var result = await dialogRef.Result;
         _shouldRefresh = result.Data is true;
     }

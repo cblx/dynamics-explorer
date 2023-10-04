@@ -1,0 +1,179 @@
+﻿@using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
+@using Cblx.Dynamics.Explorer.Services.DynamicsServices.ExecuteQuery;
+@using Cblx.Dynamics.Explorer.Shared;
+@using Microsoft.Fast.Components.FluentUI
+@using System.Text.Json.Nodes;
+@implements IDialogContentComponent<AppEditDialogArguments>
+@inject IGetEntityHandler GetEntityHandler
+@inject IExecuteQueryHandler ExecuteQueryHandler
+<FluentDialogHeader>
+    <FluentStack Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical" VerticalGap="0">
+        <FluentLabel Typo="Microsoft.Fast.Components.FluentUI.Typography.H2">@Content.EntityLogicalName</FluentLabel>
+        <FluentLabel Typo="Microsoft.Fast.Components.FluentUI.Typography.H3">@_entity?.DisplayName</FluentLabel>
+    </FluentStack>
+</FluentDialogHeader>
+<FluentDialogBody>
+    <FluentStack Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
+        <FluentLabel Typo="Microsoft.Fast.Components.FluentUI.Typography.H4">Setting Fields (@_settingFields.Count)</FluentLabel>
+        <FluentStack Style="max-height: 400px; overflow-y: auto; overflow-x: hidden; padding-right: 40px" Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
+            @if (_settingFields.Any())
+            {
+                @foreach (var field in _settingFields)
+                {
+                    <FluentStack>
+                        <FluentStack VerticalGap="0" Width="360px" Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
+                            <FluentLabel>@field.Attribute!.LogicalName</FluentLabel>
+                            <FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Info">@field.Attribute!.DisplayName</FluentLabel>
+                        </FluentStack>
+                        <FluentSpacer />
+                    </FluentStack>
+                    <FluentDivider />
+                }
+            }
+            else
+            {
+                <FluentLabel>No fields being set</FluentLabel>
+            }
+        </FluentStack>
+        <FluentDivider />
+        <FluentLabel Typo="Microsoft.Fast.Components.FluentUI.Typography.H4">Available Fields (@_fields.Count)</FluentLabel>
+        <FluentStack Style="max-height: 240px; overflow-y: auto; overflow-x: hidden; padding-right: 40px" Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
+            @foreach (var field in _fields)
+            {
+                <FluentStack>
+                    <FluentStack VerticalGap="0" Width="360px" Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
+                        <FluentLabel>@field.Attribute!.LogicalName</FluentLabel>
+                        <FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Info">@field.Attribute!.DisplayName</FluentLabel>
+                    </FluentStack>
+                    <FluentSpacer />
+                    <FluentStack VerticalAlignment="VerticalAlignment.Center">
+                        <FluentStack VerticalGap="0" Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
+                            <FluentLabel>@field.Value</FluentLabel>
+                            <FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Info">@field.FormattedValue</FluentLabel>
+                        </FluentStack>
+                        <FluentSpacer Width="100" />
+                        <FluentButton Appearance="Appearance.Lightweight" OnClick="() => MarkForSet(field)">Edit</FluentButton>
+                    </FluentStack>
+                </FluentStack>
+                <FluentDivider/>
+            }
+        </FluentStack>
+    </FluentStack>
+</FluentDialogBody>
+
+@code {
+    private EntityDto? _entity;
+    private List<EditDialogSet> _fields = new();
+    private List<EditDialogSet> _settingFields = new();
+    private bool _loading = true;
+
+    public static Microsoft.Fast.Components.FluentUI.DialogParameters DialogParameters = new Microsoft.Fast.Components.FluentUI.DialogParameters()
+        {
+            Width = "900px"
+        };
+
+    [Parameter]
+    public required AppEditDialogArguments Content { get; set; }
+
+    [CascadingParameter]
+    public FluentDialog Dialog { get; set; } = default!;
+
+    private void MarkForSet(EditDialogSet field)
+    {
+        _fields.Remove(field);
+        _settingFields.Add(field);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _entity = await GetEntityHandler.GetAsync(Content.EntityLogicalName);
+            JsonObject? current = null;
+            if (Content.Id.HasValue)
+            {
+                current = await ExecuteQueryHandler.GetAsync($"{_entity.EntitySetName}({Content.Id})");
+            }
+
+            // if (!Id.HasValue)
+            // {
+            //     _sets.Add(new EditDialogSet()
+            //         {
+            //             Attribute = _entity.Attributes.First(a => a.LogicalName == _entity.PrimaryId),
+            //             Value = Guid.NewGuid().ToString()
+            //         });
+            // }
+            // else
+            // {
+            foreach (var attribute in _entity.Attributes.Where(c => c.IsEditable))
+            {
+                var jsonVal = current?[attribute.LookupPropertyNameOrLogicalName];
+                //if (jsonVal is null) { continue; }
+                var set = new EditDialogSet { Attribute = attribute, };
+                set.FormattedValue = current?[$"{attribute.LookupPropertyNameOrLogicalName}@OData.Community.Display.V1.FormattedValue"]?.GetValue<string>();
+                set.Value = attribute switch
+                {
+                    {
+                        AttributeType: "Uniqueidentifier"
+                    } => jsonVal?.GetValue<string>(),
+                    {
+                        DerivedType: AttributeMetadataDerivedTypes.PicklistAttributeMetadata
+                    } => jsonVal?.GetValue<int>(),
+                    {
+                        DerivedType: AttributeMetadataDerivedTypes.MultiSelectPicklistAttributeMetadata
+                    } => jsonVal?.GetValue<string>(),
+                    {
+                        DerivedType: AttributeMetadataDerivedTypes.LookupAttributeMetadata
+                    } => jsonVal?.GetValue<string>(),
+                    {
+                        DerivedType: AttributeMetadataDerivedTypes.DateTimeAttributeMetadata,
+                        DateTimeFormat: DateTimeFormat.DateAndTime
+                    } => jsonVal?.GetValue<DateTime>(),
+                    {
+                        DerivedType: AttributeMetadataDerivedTypes.DateTimeAttributeMetadata,
+                        DateTimeFormat: DateTimeFormat.DateOnly
+                    } => jsonVal != null ? DateOnly.FromDateTime(jsonVal.GetValue<DateTime>()) : null,
+                    {
+                        DerivedType: AttributeMetadataDerivedTypes.BooleanAttributeMetadata
+                    } => jsonVal?.GetValue<bool>(),
+                    {
+                        DerivedType: AttributeMetadataDerivedTypes.DecimalAttributeMetadata
+                    } => jsonVal?.GetValue<decimal>(),
+                    {
+                        DerivedType: AttributeMetadataDerivedTypes.DoubleAttributeMetadata
+                    } => jsonVal?.GetValue<double>(),
+                    {
+                        DerivedType: AttributeMetadataDerivedTypes.IntegerAttributeMetadata
+                    } => jsonVal?.GetValue<int>(),
+                    {
+                        DerivedType: AttributeMetadataDerivedTypes.MoneyAttributeMetadata
+                    } => jsonVal?.GetValue<decimal>(),
+                    {
+                        DerivedType: AttributeMetadataDerivedTypes.StringAttributeMetadata
+                    } => jsonVal?.GetValue<string>(),
+                    {
+                        DerivedType: AttributeMetadataDerivedTypes.MemoAttributeMetadata
+                    } => jsonVal?.GetValue<string>(),
+                    {
+                        DerivedType: AttributeMetadataDerivedTypes.StateAttributeMetadata
+                    } => jsonVal?.GetValue<int>(),
+                    {
+                        DerivedType: AttributeMetadataDerivedTypes.StatusAttributeMetadata
+                    } => jsonVal?.GetValue<int>(),
+                    {
+                        DerivedType: AttributeMetadataDerivedTypes.BigIntAttributeMetadata
+                    } => jsonVal?.GetValue<long>(),
+                    _ => null
+                };
+
+                set.AcceptValue();
+                _fields.Add(set);
+            }
+            //}
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}

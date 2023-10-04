@@ -2,7 +2,7 @@
 @using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
 @using Microsoft.Fast.Components.FluentUI
 @using Microsoft.Fast.Components.FluentUI.DesignTokens
-@inject MudBlazor.IDialogService DialogService
+@inject Microsoft.Fast.Components.FluentUI.IDialogService DialogService
 @if (Entity != null)
 {
     <MudStack Row Class="flex-grow-1" AlignItems="AlignItems.Stretch">
@@ -30,7 +30,7 @@
                                                 ValueChanged="isChecked => ToggleShowingColumn(attr, isChecked)">
                                     @attr.LogicalName
                                     <br />
-                                    @attr.DisplayName
+                                    <FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Info">@attr.DisplayName</FluentLabel>
                                 </FluentCheckbox>
                             <FluentDivider />
                         }
@@ -61,11 +61,17 @@
 
     private async Task OpenCreate()
     {
-        var dialogRef = DialogService.Show<EditDialog>("", new MudBlazor.DialogParameters
+        var dialogRef = await DialogService.ShowDialogAsync<AppEditDialog>(new AppEditDialogArguments
         {
-            { nameof(EditDialog.EntityLogicalName), Entity!.LogicalName }
-        });
-        var result = await dialogRef.Result;
+            EntityLogicalName = Entity!.LogicalName,
+            Id = null
+        }, AppEditDialog.DialogParameters);
+
+        // var dialogRef = DialogService.Show<EditDialog>("", new MudBlazor.DialogParameters
+        // {
+        //     { nameof(EditDialog.EntityLogicalName), Entity!.LogicalName }
+        // });
+        // var result = await dialogRef.Result;
         await OnChanges.InvokeAsync();
     }
 

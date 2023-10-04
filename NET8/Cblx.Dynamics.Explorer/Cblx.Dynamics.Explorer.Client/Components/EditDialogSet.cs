@@ -6,6 +6,7 @@ public class EditDialogSet
 {
     public AttributeDto? Attribute { get; set; }
     public object? Value { get; set; }
+    public string? FormattedValue { get; set; }
     public object? AcceptedValue { get; set; }
     public bool? ValueAsBoolean
     {
