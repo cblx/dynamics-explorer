@@ -22,7 +22,7 @@ else
             Label="Value" />
             break;
         case { DerivedType: AttributeMetadataDerivedTypes.LookupAttributeMetadata }:
-            <AppNavigationField @bind-Value="Set.ValueAsString" Attribute="Set.Attribute" />
+            <AppNavigationField Set="Set" />
             break;
         case { DerivedType: AttributeMetadataDerivedTypes.PicklistAttributeMetadata
                 or AttributeMetadataDerivedTypes.StateAttributeMetadata

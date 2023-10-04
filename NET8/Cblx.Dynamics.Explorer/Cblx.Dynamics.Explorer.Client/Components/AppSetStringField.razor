@@ -14,7 +14,7 @@
         Immediate
         @onkeydown="(args) => AlternateEmptyNull(args, Set)"
                      Placeholder="@(Set.Value is null ? "NULL" : " ")" />
-    <FluentLabel Typo="Microsoft.Fast.Components.FluentUI.Typography.Body" Color="Microsoft.Fast.Components.FluentUI.Color.Info">@Set.ValueHelperText</FluentLabel>
+    <FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Info">@Set.ValueHelperText</FluentLabel>
 </FluentStack>
 @code {
     [Parameter]

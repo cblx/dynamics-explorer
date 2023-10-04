@@ -11,27 +11,10 @@
 @inject IListStatusCodeOptionsHandler ListStatusCodeOptionsHandler
 @if (_options != null)
 {
-    @*  <MudSelect @bind-Value="Set.ValueAsInt32"
-               Variant="Variant.Outlined"
-               Placeholder="NULL"
-               HelperText="@Set.ValueHelperText"
-               Label="Value">
-        <MudSelectItem Value="(int?)null">null</MudSelectItem>
-        @foreach (var option in Options)
-        {
-            <MudSelectItem Value="@((int?)option.Value)">@option.Text</MudSelectItem>
-        }
-    </MudSelect> *@
     <FluentStack Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical" VerticalGap="0">
-       @*  <FluentSelect @bind-Value="Set.ValueAsInt32" TOption="Option<int>">
-            <FluentOption Value="@null">null</FluentOption>
-            @foreach (var option in Options)
-            {
-                <FluentOption Value="@option.Value.ToString()">@option.Text</FluentOption>
-            }
-        </FluentSelect> *@
         <FluentSelect Items=@_options
                       TOption="Option<int?>"
+                      Width="100%"
                       OptionText="@(i => _picklistOptions!.Find(o => o.Value == i.Value)!.Text)"
                       OptionValue="@(i => i.Value.ToString())"
                       @bind-SelectedOption="@_selectedIntOption"
