@@ -9,17 +9,15 @@
 @inject IListPicklistOptionsHandler ListPicklistOptionsHandler
 @inject IListStateCodeOptionsHandler ListStateCodeOptionsHandler
 @inject IListStatusCodeOptionsHandler ListStatusCodeOptionsHandler
-@if (_options != null)
+@if (_picklistOptions != null)
 {
     <FluentStack Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical" VerticalGap="0">
-        <FluentSelect Items=@_options
-                      TOption="Option<int?>"
+        <FluentSelect Items=@_picklistOptions
+                      TOption="PicklistOption"
                       Width="100%"
-                      OptionText="@(i => _picklistOptions!.Find(o => o.Value == i.Value)!.Text)"
-                      OptionValue="@(i => i.Value.ToString())"
-                      @bind-SelectedOption="@_selectedIntOption"
-                      Value="@Set.ValueAsString"
-                      ValueChanged="str => Set.ValueAsInt32 = str is null ? null : int.Parse(str)" />
+                      OptionText="@(opt => opt.Text)"
+                      SelectedOption="@_selectedOption"
+                      SelectedOptionChanged="@(opt => { _selectedOption = opt; Set.Value = _selectedOption.Value is int.MinValue ? null : _selectedOption.Value; })"/>
         <FluentLabel Typo="Microsoft.Fast.Components.FluentUI.Typography.Body" Color="Microsoft.Fast.Components.FluentUI.Color.Info">@Set.ValueHelperText</FluentLabel>
     </FluentStack>
 }
@@ -31,9 +29,8 @@ else
     [Parameter]
     [EditorRequired]
     public required EditDialogSet Set { get; set; }
-    private Option<int?>[]? _options = null;
-    private Option<int?>? _selectedIntOption;
-    private PicklistOption[]? _picklistOptions = null;
+    private PicklistOption? _selectedOption;
+    private PicklistOption?[]? _picklistOptions = null;
     protected override async Task OnInitializedAsync()
     {
         var attribute = Set.Attribute;
@@ -49,7 +46,15 @@ else
         {
             _picklistOptions = await ListPicklistOptionsHandler.GetAsync(attribute.EntityLogicalName, attribute.LogicalName);
         }
-        _options = _picklistOptions.Select(pko => new Option<int?> { Text = pko.Value, Value = pko.Value }).ToArray();
-
+        _picklistOptions = new PicklistOption?[] { new PicklistOption()
+        {
+            Text = "NULL",
+            Value = int.MinValue
+        } }.Union(_picklistOptions).ToArray();
+        _selectedOption = _picklistOptions.First(); // NULL
+        if(Set.ValueAsInt32 is not null)
+        {
+            _selectedOption = _picklistOptions.FirstOrDefault(opt => opt.Value == Set.ValueAsInt32);
+        }
     }
 }
