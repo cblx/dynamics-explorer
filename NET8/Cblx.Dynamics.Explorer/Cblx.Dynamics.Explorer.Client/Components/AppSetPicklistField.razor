@@ -19,8 +19,7 @@
                       OptionValue="@(i => i.Value.ToString())"
                       @bind-SelectedOption="@_selectedIntOption"
                       Value="@Set.ValueAsString"
-                      ValueChanged="str => Set.ValueAsInt32 = str is null ? null : int.Parse(str)"
-                     />
+                      ValueChanged="str => Set.ValueAsInt32 = str is null ? null : int.Parse(str)" />
         <FluentLabel Typo="Microsoft.Fast.Components.FluentUI.Typography.Body" Color="Microsoft.Fast.Components.FluentUI.Color.Info">@Set.ValueHelperText</FluentLabel>
     </FluentStack>
 }
@@ -37,23 +36,20 @@ else
     private PicklistOption[]? _picklistOptions = null;
     protected override async Task OnInitializedAsync()
     {
-        try
+        var attribute = Set.Attribute;
+        if (attribute!.LogicalName == "statuscode")
         {
-            var attribute = Set.Attribute;
-            if (attribute!.LogicalName == "statuscode")
-            {
-                _picklistOptions = await ListStatusCodeOptionsHandler.GetAsync(attribute.EntityLogicalName);
-            }
-            else if (attribute.LogicalName == "statecode")
-            {
-                _picklistOptions = await ListStateCodeOptionsHandler.GetAsync(attribute.EntityLogicalName);
-            }
-            else
-            {
-                _picklistOptions = await ListPicklistOptionsHandler.GetAsync(attribute.EntityLogicalName, attribute.LogicalName);
-            }
-            _options = _picklistOptions.Select(pko => new Option<int?> { Text = pko.Value, Value = pko.Value }).ToArray();
+            _picklistOptions = await ListStatusCodeOptionsHandler.GetAsync(attribute.EntityLogicalName);
         }
-        catch { }
+        else if (attribute.LogicalName == "statecode")
+        {
+            _picklistOptions = await ListStateCodeOptionsHandler.GetAsync(attribute.EntityLogicalName);
+        }
+        else
+        {
+            _picklistOptions = await ListPicklistOptionsHandler.GetAsync(attribute.EntityLogicalName, attribute.LogicalName);
+        }
+        _options = _picklistOptions.Select(pko => new Option<int?> { Text = pko.Value, Value = pko.Value }).ToArray();
+
     }
 }

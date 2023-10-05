@@ -4,7 +4,7 @@
 @using Cblx.Dynamics.Explorer.Shared;
 @using Microsoft.Fast.Components.FluentUI
 <FluentStack Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical" VerticalGap="0">
-    <FluentTextField Pattern="@Pattern" @bind-Value="Set.ValueAsString" Style="width: 100%" 
+    <FluentTextField @bind-Value="Set.ValueAsString" Style="width: 100%" 
         Immediate
         @onkeydown="(args) => AlternateEmptyNull(args, Set)"
                      Placeholder="@(Set.Value is null ? "NULL" : " ")" />
@@ -14,9 +14,7 @@
     [Parameter]
     [EditorRequired]
     public required EditDialogSet Set { get; set; }
-    [Parameter]
-    public string? Pattern { get; set; }
-
+    
     private void AlternateEmptyNull(KeyboardEventArgs args, EditDialogSet set)
     {
         if (args.Key == "Backspace")

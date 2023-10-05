@@ -1,0 +1,42 @@
+﻿@using System.Text.Json.Nodes;
+@using System.Net.Http.Json;
+@using Cblx.Dynamics.Explorer.Models;
+@using Cblx.Dynamics.Explorer.Services.DynamicsServices.ListMultiSelectPicklistOptions;
+@using Cblx.Dynamics.Explorer.Shared;
+@using Microsoft.Fast.Components.FluentUI
+@inject IListMultiSelectPicklistOptionsHandler Handler
+@if (Options != null)
+{
+    <FluentStack Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical" VerticalGap="0">
+        <FluentAutocomplete Items=@Options
+                            TOption="PicklistOption"
+                            Width="100%"
+                            OptionText="@(i => i.Text)"
+                            OptionValue="@(i => i.Value.ToString())"
+                            SelectedOptions="_selectedOptions"
+                            SelectedOptionsChanged="@((options) =>{ _selectedOptions = options.ToArray(); Set.ValueAsString = options.Any() ? string.Join(", ", options.Select(o => o.Value)) : null; })" />
+        <FluentLabel Typo="Microsoft.Fast.Components.FluentUI.Typography.Body" Color="Microsoft.Fast.Components.FluentUI.Color.Info">@Set.ValueHelperText</FluentLabel>
+    </FluentStack>
+}
+else
+{
+    <FluentLabel>Loading...</FluentLabel>
+}
+@code {
+    [Parameter]
+    [EditorRequired]
+    public required EditDialogSet Set { get; set; }
+    private PicklistOption[]? Options = null;
+    private PicklistOption[]? _selectedOptions = Array.Empty<PicklistOption>();
+    protected override async Task OnInitializedAsync()
+    {
+
+        var attribute = Set.Attribute!;
+        Options = await Handler.GetAsync(attribute.EntityLogicalName, attribute.LogicalName);
+        if(Set.ValueAsString != null)
+        {
+            var selectedValues = Set.ValueAsString.Split(",").Select(str => int.Parse(str.Trim()));
+            _selectedOptions = Options.Where(o => selectedValues.Contains(o.Value)).ToArray();
+        }
+    }
+}

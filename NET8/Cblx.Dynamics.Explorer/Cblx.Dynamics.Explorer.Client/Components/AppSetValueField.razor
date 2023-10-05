@@ -14,12 +14,6 @@ else
     switch (attribute)
     {
         case { AttributeType: "Uniqueidentifier" }:
-          @*   <MudTextField @bind-Value="Set.ValueAsString"
-                          Variant="Variant.Outlined"
-                          Placeholder="NULL"
-                          Mask="@(new PatternMask("********-****-****-****-************"){ CleanDelimiters = true })"
-                          HelperText="@Set.ValueHelperText"
-            Label="Value" /> *@
             <AppSetStringField Set="Set" />
             break;
         case { DerivedType: AttributeMetadataDerivedTypes.LookupAttributeMetadata }:
@@ -31,7 +25,7 @@ else
            <AppSetPicklistField Set="Set" />
             break;
         case { DerivedType: AttributeMetadataDerivedTypes.MultiSelectPicklistAttributeMetadata }:
-            <AppMultiSelectPicklistField Set="Set" />
+            <AppSetMultiSelectPicklistField Set="Set" />
             break;
         case { DerivedType: AttributeMetadataDerivedTypes.StringAttributeMetadata }:
             <AppSetStringField Set="Set" />
