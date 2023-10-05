@@ -10,37 +10,35 @@ internal class EditDialogService(IGetEntityHandler getEntityHandler, IPostItem p
 { 
     public async Task PatchAsync(Guid id, string entitySetName, EditDialogSet[] sets)
     {
-        var body = await PrepareBodyAsync(sets.Where(s => s.IsDirty()).ToArray());
+        Console.WriteLine("APA");
+        var body = await PrepareBodyAsync(sets);
+        Console.WriteLine("EPA");
         if (!body.Any()) { return; }
+        Console.WriteLine("OPA");
         await patchItem.ExecuteAsync(new PatchItemRequest
         {
             Data = body,
             EntitySetName = entitySetName,
             Id = id
         });
+        Console.WriteLine("IPA");
     }
 
     public async Task PostAsync(string entitySetName, EditDialogSet[] sets)
     {
+        Console.WriteLine("APA2");
         var body = await PrepareBodyAsync(sets);
+        Console.WriteLine("EPA2");
         if (!body.Any()) { return; }
+        Console.WriteLine("OPA2");
         await postItem.ExecuteAsync(new PostItemRequest
         {
             Data = body,
             EntitySetName = entitySetName,
         });
-        //await ManageResponseAsync(await httpClient.PostAsJsonAsync(entitySetName, body));
+        Console.WriteLine("IPA2");
     }
-
-    private static async Task ManageResponseAsync(HttpResponseMessage response)
-    {
-        if (!response.IsSuccessStatusCode)
-        {
-            var errorJson = await response.Content.ReadFromJsonAsync<JsonObject>();
-            throw new InvalidOperationException(errorJson!["error"]!["message"]!.ToString());
-        }
-    }
-
+    
     private async Task<Dictionary<string, object?>> PrepareBodyAsync(EditDialogSet[] sets)
     {
         var fields = new Dictionary<string, object?>();

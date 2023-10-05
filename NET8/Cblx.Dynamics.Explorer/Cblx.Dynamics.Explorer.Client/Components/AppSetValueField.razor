@@ -3,71 +3,65 @@
 @using System.Linq.Expressions;
 @using Cblx.Dynamics.Explorer.Shared.Converters;
 @using Cblx.Dynamics.Explorer.Shared;
-@if (Set.Attribute is null)
+@switch (Set.Attribute)
 {
-    <MudText Align="Align.Center">Choose column</MudText>
-}
-else
-{
-    var attribute = Set.Attribute;
-
-    switch (attribute)
+    case { AttributeType: "Uniqueidentifier" }:
+        <AppSetStringField Set="Set" />
+        break;
+    case { DerivedType: AttributeMetadataDerivedTypes.LookupAttributeMetadata }:
+        <AppSetNavigationField Set="Set" />
+        break;
+    case
     {
-        case { AttributeType: "Uniqueidentifier" }:
-            <AppSetStringField Set="Set" />
-            break;
-        case { DerivedType: AttributeMetadataDerivedTypes.LookupAttributeMetadata }:
-            <AppSetNavigationField Set="Set" />
-            break;
-        case { DerivedType: AttributeMetadataDerivedTypes.PicklistAttributeMetadata
-                or AttributeMetadataDerivedTypes.StateAttributeMetadata
-                or AttributeMetadataDerivedTypes.StatusAttributeMetadata }:
-           <AppSetPicklistField Set="Set" />
-            break;
-        case { DerivedType: AttributeMetadataDerivedTypes.MultiSelectPicklistAttributeMetadata }:
-            <AppSetMultiSelectPicklistField Set="Set" />
-            break;
-        case { DerivedType: AttributeMetadataDerivedTypes.StringAttributeMetadata }:
-            <AppSetStringField Set="Set" />
-            break;
-        case { DerivedType: AttributeMetadataDerivedTypes.IntegerAttributeMetadata }:
-            <Microsoft.Fast.Components.FluentUI.FluentNumberField Placeholder="NULL" Style="width: 100%" Immediate @bind-Value="Set.ValueAsInt32" />
-            break;
-        case { DerivedType: AttributeMetadataDerivedTypes.BigIntAttributeMetadata }:
-            <Microsoft.Fast.Components.FluentUI.FluentNumberField Placeholder="NULL" Style="width: 100%" Immediate @bind-Value="Set.ValueAsInt64" />
-            break;
-        case { DerivedType: AttributeMetadataDerivedTypes.BooleanAttributeMetadata }:
-            <MudCheckBox @bind-Checked="Set.ValueAsBoolean" TriState Label="Value" />
-            <div class="mud-input-control-helper-container px-2">
-                <p class="mud-input-helper-text">
-                    <div class="d-flex">
-                        <div class="me-auto">@Set.ValueHelperText</div>
-                    </div>
-                </p>
-            </div>
-            break;
-        case { DerivedType: AttributeMetadataDerivedTypes.DateTimeAttributeMetadata, DateTimeFormat: DateTimeFormat.DateAndTime }:
-            <AppSetDateTimeField Set="Set"/>
-            break;
-        case { DerivedType: AttributeMetadataDerivedTypes.DateTimeAttributeMetadata, DateTimeFormat: DateTimeFormat.DateOnly }:
-            <MudTextField @bind-Value="Set.ValueAsDateOnly"
-                          InputType="InputType.Date"
-                          Variant="Variant.Outlined"
-                          Placeholder="NULL"
-                          HelperText="@Set.ValueHelperText"
-                          Converter="new AppDateOnlyIsoConverter()"
-                          Label="Value" />
-            break;
-        case { DerivedType: AttributeMetadataDerivedTypes.DecimalAttributeMetadata }:
-            <Microsoft.Fast.Components.FluentUI.FluentNumberField Placeholder="NULL" Style="width: 100%" Immediate @bind-Value="Set.ValueAsDecimal" />
-            break;
-        case { DerivedType: AttributeMetadataDerivedTypes.DoubleAttributeMetadata }:
-            <Microsoft.Fast.Components.FluentUI.FluentNumberField Placeholder="NULL" Style="width: 100%" Immediate @bind-Value="Set.ValueAsDouble" />
-            break; 
-        default:
-            <Microsoft.Fast.Components.FluentUI.FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Error">Unsupported</Microsoft.Fast.Components.FluentUI.FluentLabel>
-            break;
-    }
+        DerivedType: AttributeMetadataDerivedTypes.PicklistAttributeMetadata
+           or AttributeMetadataDerivedTypes.StateAttributeMetadata
+           or AttributeMetadataDerivedTypes.StatusAttributeMetadata
+    }:
+        <AppSetPicklistField Set="Set" />
+        break;
+    case { DerivedType: AttributeMetadataDerivedTypes.MultiSelectPicklistAttributeMetadata }:
+        <AppSetMultiSelectPicklistField Set="Set" />
+        break;
+    case { DerivedType: AttributeMetadataDerivedTypes.StringAttributeMetadata }:
+        <AppSetStringField Set="Set" />
+        break;
+    case { DerivedType: AttributeMetadataDerivedTypes.IntegerAttributeMetadata }:
+        <Microsoft.Fast.Components.FluentUI.FluentNumberField Placeholder="NULL" Style="width: 100%" Immediate @bind-Value="Set.ValueAsInt32" />
+        break;
+    case { DerivedType: AttributeMetadataDerivedTypes.BigIntAttributeMetadata }:
+        <Microsoft.Fast.Components.FluentUI.FluentNumberField Placeholder="NULL" Style="width: 100%" Immediate @bind-Value="Set.ValueAsInt64" />
+        break;
+    case { DerivedType: AttributeMetadataDerivedTypes.BooleanAttributeMetadata }:
+        <Microsoft.Fast.Components.FluentUI.FluentRadioGroup TValue="int" 
+                Immediate
+                Value="@(Set.ValueAsBoolean is null ? -1 : Convert.ToInt32(Set.ValueAsBoolean.Value))" 
+                ValueChanged="b => Set.ValueAsBoolean = b == -1 ? null : Convert.ToBoolean(b)">
+            <Microsoft.Fast.Components.FluentUI.FluentRadio Value="1">True</Microsoft.Fast.Components.FluentUI.FluentRadio>
+            <Microsoft.Fast.Components.FluentUI.FluentRadio Value="0">False</Microsoft.Fast.Components.FluentUI.FluentRadio>
+            <Microsoft.Fast.Components.FluentUI.FluentRadio Value="-1">NULL</Microsoft.Fast.Components.FluentUI.FluentRadio>
+        </Microsoft.Fast.Components.FluentUI.FluentRadioGroup>
+        break;
+    case { DerivedType: AttributeMetadataDerivedTypes.DateTimeAttributeMetadata, DateTimeFormat: DateTimeFormat.DateAndTime }:
+        <AppSetDateTimeField Set="Set" />
+        break;
+    case { DerivedType: AttributeMetadataDerivedTypes.DateTimeAttributeMetadata, DateTimeFormat: DateTimeFormat.DateOnly }:
+        <MudTextField @bind-Value="Set.ValueAsDateOnly"
+                      InputType="InputType.Date"
+                      Variant="Variant.Outlined"
+                      Placeholder="NULL"
+                      HelperText="@Set.ValueHelperText"
+                      Converter="new AppDateOnlyIsoConverter()"
+                      Label="Value" />
+        break;
+    case { DerivedType: AttributeMetadataDerivedTypes.DecimalAttributeMetadata }:
+        <Microsoft.Fast.Components.FluentUI.FluentNumberField Placeholder="NULL" Style="width: 100%" Immediate @bind-Value="Set.ValueAsDecimal" />
+        break;
+    case { DerivedType: AttributeMetadataDerivedTypes.DoubleAttributeMetadata }:
+        <Microsoft.Fast.Components.FluentUI.FluentNumberField Placeholder="NULL" Style="width: 100%" Immediate @bind-Value="Set.ValueAsDouble" />
+        break;
+    default:
+        <Microsoft.Fast.Components.FluentUI.FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Error">Unsupported</Microsoft.Fast.Components.FluentUI.FluentLabel>
+        break;
 }
 @code {
     [Parameter]

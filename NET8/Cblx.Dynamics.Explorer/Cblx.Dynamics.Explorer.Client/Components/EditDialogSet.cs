@@ -66,9 +66,4 @@ public class EditDialogSet
     {
         AcceptedValue = Value;
     }
-
-    public bool IsDirty()
-    {
-        return !Equals(Value, AcceptedValue);
-    }
 }
