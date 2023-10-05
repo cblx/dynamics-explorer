@@ -31,10 +31,10 @@ else
             <AppSetStringField Set="Set" />
             break;
         case { DerivedType: AttributeMetadataDerivedTypes.IntegerAttributeMetadata }:
-            <Microsoft.Fast.Components.FluentUI.FluentNumberField Style="width: 100%" Immediate @bind-Value="Set.ValueAsInt32"/>
+            <Microsoft.Fast.Components.FluentUI.FluentNumberField Placeholder="NULL" Style="width: 100%" Immediate @bind-Value="Set.ValueAsInt32" />
             break;
         case { DerivedType: AttributeMetadataDerivedTypes.BigIntAttributeMetadata }:
-            <Microsoft.Fast.Components.FluentUI.FluentNumberField Style="width: 100%" Immediate @bind-Value="Set.ValueAsInt64" />
+            <Microsoft.Fast.Components.FluentUI.FluentNumberField Placeholder="NULL" Style="width: 100%" Immediate @bind-Value="Set.ValueAsInt64" />
             break;
         case { DerivedType: AttributeMetadataDerivedTypes.BooleanAttributeMetadata }:
             <MudCheckBox @bind-Checked="Set.ValueAsBoolean" TriState Label="Value" />
@@ -59,18 +59,10 @@ else
                           Label="Value" />
             break;
         case { DerivedType: AttributeMetadataDerivedTypes.DecimalAttributeMetadata }:
-            <MudNumericField @bind-Value="Set.ValueAsDecimal"
-                             Variant="Variant.Outlined"
-                             Placeholder="NULL"
-                             HelperText="@Set.ValueHelperText"
-                             Label="Value" />
+            <Microsoft.Fast.Components.FluentUI.FluentNumberField Placeholder="NULL" Style="width: 100%" Immediate @bind-Value="Set.ValueAsDecimal" />
             break;
         case { DerivedType: AttributeMetadataDerivedTypes.DoubleAttributeMetadata }:
-            <MudNumericField @bind-Value="Set.ValueAsDouble"
-                             Variant="Variant.Outlined"
-                             Placeholder="NULL"
-                             HelperText="@Set.ValueHelperText"
-                             Label="Value" />
+            <Microsoft.Fast.Components.FluentUI.FluentNumberField Placeholder="NULL" Style="width: 100%" Immediate @bind-Value="Set.ValueAsDouble" />
             break; 
         default:
             <MudText Color="Color.Error">Unsupported</MudText>
