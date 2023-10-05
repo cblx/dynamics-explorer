@@ -22,12 +22,12 @@ else
             Label="Value" />
             break;
         case { DerivedType: AttributeMetadataDerivedTypes.LookupAttributeMetadata }:
-            <AppNavigationField Set="Set" />
+            <AppSetNavigationField Set="Set" />
             break;
         case { DerivedType: AttributeMetadataDerivedTypes.PicklistAttributeMetadata
                 or AttributeMetadataDerivedTypes.StateAttributeMetadata
                 or AttributeMetadataDerivedTypes.StatusAttributeMetadata }:
-           <AppPicklistField Set="Set" />
+           <AppSetPicklistField Set="Set" />
             break;
         case { DerivedType: AttributeMetadataDerivedTypes.MultiSelectPicklistAttributeMetadata }:
             <AppMultiSelectPicklistField Set="Set" />
