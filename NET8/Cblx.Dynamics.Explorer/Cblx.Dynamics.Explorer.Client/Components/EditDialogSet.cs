@@ -7,7 +7,6 @@ public class EditDialogSet
     public AttributeDto? Attribute { get; set; }
     public object? Value { get; set; }
     public string? FormattedValue { get; set; }
-    public object? AcceptedValue { get; set; }
     public object? OriginalValue { get; set; }
     public bool? ValueAsBoolean
     {
@@ -45,25 +44,8 @@ public class EditDialogSet
         set => Value = value;
     }
 
-    public DateTime? ValueAsDateTime
-    {
-        get => Value as DateTime?;
-        set => Value = value;
-    }
-
-    public DateOnly? ValueAsDateOnly
-    {
-        get => Value as DateOnly?;
-        set => Value = value;
-    }
-
     public string ValueHelperText
     {
         get => JsonSerializer.Serialize(Value);
-    }
-
-    public void AcceptValue()
-    {
-        AcceptedValue = Value;
     }
 }
