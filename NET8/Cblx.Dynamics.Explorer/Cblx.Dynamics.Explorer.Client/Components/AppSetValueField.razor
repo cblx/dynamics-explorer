@@ -45,13 +45,7 @@
         <AppSetDateTimeField Set="Set" />
         break;
     case { DerivedType: AttributeMetadataDerivedTypes.DateTimeAttributeMetadata, DateTimeFormat: DateTimeFormat.DateOnly }:
-        <MudTextField @bind-Value="Set.ValueAsDateOnly"
-                      InputType="InputType.Date"
-                      Variant="Variant.Outlined"
-                      Placeholder="NULL"
-                      HelperText="@Set.ValueHelperText"
-                      Converter="new AppDateOnlyIsoConverter()"
-                      Label="Value" />
+        <AppSetDateField Set="Set" />
         break;
     case { DerivedType: AttributeMetadataDerivedTypes.DecimalAttributeMetadata }:
         <Microsoft.Fast.Components.FluentUI.FluentNumberField Placeholder="NULL" Style="width: 100%" Immediate @bind-Value="Set.ValueAsDecimal" />

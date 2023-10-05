@@ -152,7 +152,7 @@
                 {
                     DerivedType: AttributeMetadataDerivedTypes.DateTimeAttributeMetadata,
                     DateTimeFormat: DateTimeFormat.DateOnly
-                } => jsonVal != null ? DateOnly.FromDateTime(jsonVal.GetValue<DateTime>()) : null,
+                } => jsonVal?.GetValue<string>()?.Split('T').First(),
                 {
                     DerivedType: AttributeMetadataDerivedTypes.BooleanAttributeMetadata
                 } => jsonVal?.GetValue<bool>(),

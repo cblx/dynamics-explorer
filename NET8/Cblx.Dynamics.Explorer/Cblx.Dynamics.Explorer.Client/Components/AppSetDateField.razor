@@ -1,0 +1,16 @@
+﻿@using Cblx.Dynamics.Explorer.Shared;
+@using Cblx.Dynamics.Explorer.Shared.Converters;
+@using Microsoft.Fast.Components.FluentUI
+<FluentStack Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical" VerticalGap="0">
+    <FluentTextField @bind-Value="Set.ValueAsString" 
+                     type="date" 
+                     Style="width: 100%" 
+                     Immediate />
+    <FluentLabel Typo="Microsoft.Fast.Components.FluentUI.Typography.Body" 
+                 Color="Microsoft.Fast.Components.FluentUI.Color.Info">@Set.ValueHelperText</FluentLabel>
+</FluentStack>
+@code {
+    [Parameter]
+    [EditorRequired]
+    public required EditDialogSet Set { get; set; }
+}
