@@ -11,7 +11,11 @@ using Cblx.Dynamics.Explorer.Services.DynamicsServices.Metadata.ListPicklistOpti
 using Cblx.Dynamics.Explorer.Services.DynamicsServices.Metadata.ListStateCodeOptions;
 using Cblx.Dynamics.Explorer.Services.DynamicsServices.Metadata.ListStatusCodeOptions;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Cblx.Dynamics.Explorer.Services.DynamicsServices;
 
@@ -76,6 +80,22 @@ public static class Apis
             (IListStatusCodeOptionsHandler handler, string entityLogicalName)
                 => handler.GetAsync(entityLogicalName)
         );
+        app.UseExceptionHandler(app => app.Run(async context =>
+        {
+            var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>()!;
+            var exception = exceptionHandlerPathFeature.Error;
+            if(exception is InvalidOperationException)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            }
+            string error = exception.Message;
+            await context.Response.WriteAsJsonAsync(new
+            {
+                error,
+                type = "application"
+            });
+            await context.Response.CompleteAsync();
+        }));
         return app;
     }
 }

@@ -131,7 +131,7 @@
                             }
                             break;
                         case AttributeMetadataDerivedTypes.LookupAttributeMetadata:
-                            oDataFilters.Add($"{attribute.LogicalName} eq '{kvp.Value}'");
+                            oDataFilters.Add($"{attribute.LookupPropertyNameOrLogicalName} eq '{kvp.Value}'");
                             break;
                         case AttributeMetadataDerivedTypes.StringAttributeMetadata:
                         case AttributeMetadataDerivedTypes.MultiSelectPicklistAttributeMetadata:

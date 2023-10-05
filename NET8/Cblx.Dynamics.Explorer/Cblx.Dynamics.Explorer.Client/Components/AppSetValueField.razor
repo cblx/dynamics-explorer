@@ -14,12 +14,13 @@ else
     switch (attribute)
     {
         case { AttributeType: "Uniqueidentifier" }:
-            <MudTextField @bind-Value="Set.ValueAsString"
+          @*   <MudTextField @bind-Value="Set.ValueAsString"
                           Variant="Variant.Outlined"
                           Placeholder="NULL"
                           Mask="@(new PatternMask("********-****-****-****-************"){ CleanDelimiters = true })"
                           HelperText="@Set.ValueHelperText"
-            Label="Value" />
+            Label="Value" /> *@
+            <AppSetStringField Set="Set" />
             break;
         case { DerivedType: AttributeMetadataDerivedTypes.LookupAttributeMetadata }:
             <AppSetNavigationField Set="Set" />
