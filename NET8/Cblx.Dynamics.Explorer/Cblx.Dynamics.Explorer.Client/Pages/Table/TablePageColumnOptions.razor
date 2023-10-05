@@ -1,6 +1,6 @@
 ﻿@using Cblx.Dynamics.Explorer.Client.Components;
 @using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
-@inject IDialogService DialogService
+@inject  Microsoft.Fast.Components.FluentUI.IDialogService DialogService
 <MudStack>
     <div>
         <input type="search" @bind="_filtering" autofocus placeholder="Filter" />
@@ -41,13 +41,9 @@
         OnFilterApplied.InvokeAsync(_filtering);
     }
 
-    private void ShowOptions()
+    private async Task ShowOptions()
     {
-        DialogService.Show<OptionsDialog>($"{Attribute.EntityLogicalName}.{Attribute.LogicalName} options", new DialogParameters()
-        {
-            { "Attribute", Attribute },
-            { "EntityLogicalName", Attribute.EntityLogicalName }
-        });
+        await DialogService.ShowDialogAsync<OptionsDialog>(Attribute, new Microsoft.Fast.Components.FluentUI.DialogParameters{});
     }
 
 }

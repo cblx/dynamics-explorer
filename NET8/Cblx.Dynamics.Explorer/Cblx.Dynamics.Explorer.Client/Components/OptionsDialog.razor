@@ -4,53 +4,47 @@
 @using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
 @using Cblx.Dynamics.Explorer.Models;
 @using Cblx.Dynamics.Explorer.Services.DynamicsServices.Metadata.ListOptionsHandler;
+@using Microsoft.Fast.Components.FluentUI;
+@implements IDialogContentComponent<AttributeDto>
 @inject IListOptionsHandler ListOptionsHandler
-<MudDialog>
-    <DialogContent>
-        @if (_loading)
+<FluentDialogBody>
+    @if (_loading)
+    {
+        <div>Loading...</div>
+    }
+    else
+    {
+        if (!_options.Any())
         {
-            <div>Loading...</div>
+            <MudAlert>No options for this column</MudAlert>
         }
         else
         {
-            if (!_options.Any())
-            {
-                <MudAlert>No options for this column</MudAlert>
-            }
-            else
-            {
-                <MudList>
-                    @foreach (var option in _options)
-                    {
-                        <MudListItem>@option.Value - @option.Text</MudListItem>
-                    }
-                </MudList>
-            }
+            <MudList>
+                @foreach (var option in _options)
+                {
+                    <MudListItem>@option.Value - @option.Text</MudListItem>
+                }
+            </MudList>
         }
-    </DialogContent>
-    <DialogActions>
-        <MudButton OnClick="() => MudDialog.Close()">Close</MudButton>
-    </DialogActions>
-</MudDialog>
-
+    }
+</FluentDialogBody>
+<FluentDialogFooter Visible="false"/>
 @code {
     private bool _loading = true;
     private PicklistOption[] _options = Array.Empty<PicklistOption>();
 
     [Parameter]
-    public required AttributeDto Attribute { get; set; }
+    public required AttributeDto Content { get; set; }
 
-    [Parameter]
-    public required string EntityLogicalName { get; set; }
-
-    [CascadingParameter] 
-    MudDialogInstance MudDialog { get; set; } = default!;
+    [CascadingParameter]
+    FluentDialog Dialog { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            _options = await ListOptionsHandler.GetAsync(EntityLogicalName, Attribute.LogicalName, Attribute.DerivedType!);
+            _options = await ListOptionsHandler.GetAsync(Content.EntityLogicalName, Content.LogicalName, Content.DerivedType!);
         }
         //catch
         //{
