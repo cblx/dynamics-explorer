@@ -30,13 +30,14 @@
                     @foreach (var field in _settingFields)
                     {
                         <FluentStack>
-                            <FluentStack VerticalGap="0" Width="360px" Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
+                            <FluentStack VerticalGap="0" Width="200px" Style="overflow: hidden" Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
                                 <FluentLabel>@field.Attribute!.LogicalName</FluentLabel>
                                 <FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Info">@field.Attribute!.DisplayName</FluentLabel>
                             </FluentStack>
-                            <FluentSpacer />
-                            <FluentStack>
-                                <AppSetValueField Set="field" />
+                            <FluentStack Style="flex: 1" Width="0">
+                                <div style="flex: 1; width: 0;">
+                                    <AppSetValueField Set="field" />
+                                </div>
                                 <FluentButton Appearance="Appearance.Lightweight" OnClick="() => UnMarkForSet(field)">Remove</FluentButton>
                             </FluentStack>
                         </FluentStack>
@@ -50,21 +51,19 @@
             </FluentStack>
             <FluentDivider />
             <FluentLabel Typo="Microsoft.Fast.Components.FluentUI.Typography.H4">Available Fields (@_fields.Count)</FluentLabel>
-            <FluentStack Style="max-height: 240px; overflow-y: auto; overflow-x: hidden; padding-right: 40px" Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
+            <FluentStack Style="max-height: 240px; overflow-y: auto;" Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
                 @foreach (var field in _fields)
                 {
                     <FluentStack>
-                        <FluentStack VerticalGap="0" Width="360px" Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
+                        <FluentStack VerticalGap="0" Width="200px" Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
                             <FluentLabel>@field.Attribute!.LogicalName</FluentLabel>
                             <FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Info">@field.Attribute!.DisplayName</FluentLabel>
                         </FluentStack>
-                        <FluentSpacer />
-                        <FluentStack VerticalAlignment="VerticalAlignment.Center">
-                            <FluentStack VerticalGap="0" Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
+                        <FluentStack Style="flex: 1" Width="0" VerticalAlignment="VerticalAlignment.Center">
+                            <FluentStack VerticalGap="0" Style="flex: 1; overflow: hidden" Width="0" Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
                                 <FluentLabel>@field.OriginalValue</FluentLabel>
                                 <FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Info">@field.FormattedValue</FluentLabel>
                             </FluentStack>
-                            <FluentSpacer Width="100" />
                             <FluentButton Appearance="Appearance.Lightweight" OnClick="() => MarkForSet(field)">Edit</FluentButton>
                         </FluentStack>
                     </FluentStack>
