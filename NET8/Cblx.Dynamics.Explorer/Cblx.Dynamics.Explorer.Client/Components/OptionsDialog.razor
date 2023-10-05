@@ -7,6 +7,9 @@
 @using Microsoft.Fast.Components.FluentUI;
 @implements IDialogContentComponent<AttributeDto>
 @inject IListOptionsHandler ListOptionsHandler
+<FluentDialogHeader>
+    @Content.LogicalName
+</FluentDialogHeader>
 <FluentDialogBody>
     @if (_loading)
     {
@@ -16,20 +19,20 @@
     {
         if (!_options.Any())
         {
-            <MudAlert>No options for this column</MudAlert>
+            <FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Info">No options for this column</FluentLabel>
         }
         else
         {
-            <MudList>
+            <ul>
                 @foreach (var option in _options)
                 {
-                    <MudListItem>@option.Value - @option.Text</MudListItem>
+                    <li>@option.Value - @option.Text</li>
                 }
-            </MudList>
+            </ul>
         }
     }
 </FluentDialogBody>
-<FluentDialogFooter Visible="false"/>
+<FluentDialogFooter Visible="false" />
 @code {
     private bool _loading = true;
     private PicklistOption[] _options = Array.Empty<PicklistOption>();

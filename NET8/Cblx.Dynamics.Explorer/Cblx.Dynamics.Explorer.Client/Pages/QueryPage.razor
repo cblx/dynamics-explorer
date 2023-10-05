@@ -5,34 +5,41 @@
 @using System.Text.RegularExpressions;
 @using System.Web;
 @using Cblx.Dynamics.Explorer.Services.DynamicsServices.ExecuteQuery;
+@using Microsoft.Fast.Components.FluentUI;
 @inject IExecuteQueryHandler Handler
-<MudStack Class="px-4">
-    <MudTextField Label="GET" Lines="10" @bind-Value="_query" />
-    <MudStack AlignItems="AlignItems.Start">
-        <MudButton Disabled="_searching" Color="Color.Primary" Variant="Variant.Filled" OnClick="RunAsync">Run</MudButton>
-    </MudStack>
+<FluentGrid Style="padding: 16px;">
+    <FluentGridItem xs="12">
+        <FluentTextArea Style="width: 100%" Rows="10" @bind-Value="_query">GET</FluentTextArea>
+    </FluentGridItem>
+    <FluentGridItem xs="12">
+        <FluentButton Disabled="_searching" Variant="Variant.Filled" OnClick="RunAsync">Run</FluentButton>
+    </FluentGridItem>
     @if (_searching)
     {
-        <MudProgressCircular Size="Size.Small" Indeterminate />
+        <FluentGridItem xs="12">
+            <FluentProgressRing/>
+        </FluentGridItem>
     }
     else
     {
+        <FluentGridItem xs="12">
         @if (_error != null)
         {
             @_error
         }
         else
         {
-            <MudPaper>
+            <FluentCard>
                 <Virtualize Items="_json">
                     <div style="white-space: pre">
                         @context
                     </div>
                 </Virtualize>
-            </MudPaper>
+            </FluentCard>
         }
+        </FluentGridItem>
     }
-</MudStack>
+</FluentGrid>
 @code {
     private string _query = "accounts";
     private string[] _json = Array.Empty<string>();
