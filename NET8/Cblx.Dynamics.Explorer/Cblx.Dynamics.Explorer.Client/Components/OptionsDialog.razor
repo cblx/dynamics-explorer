@@ -32,7 +32,10 @@
         }
     }
 </FluentDialogBody>
-<FluentDialogFooter Visible="false" />
+<FluentDialogFooter>
+    <!-- no buttons -->
+    <div></div>
+</FluentDialogFooter>
 @code {
     private bool _loading = true;
     private PicklistOption[] _options = Array.Empty<PicklistOption>();
