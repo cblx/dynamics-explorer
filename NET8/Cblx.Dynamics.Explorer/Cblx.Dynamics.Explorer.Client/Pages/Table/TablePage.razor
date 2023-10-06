@@ -86,7 +86,7 @@
     //private Guid[] _applicationUsersIds = default!;
     private QuickGrid<JsonObject> _table = default!;
     private EntityDto? _entity = null;
-    private PaginationState _pagination = new PaginationState
+    private Microsoft.AspNetCore.Components.QuickGrid.PaginationState _pagination = new ()
         {
             ItemsPerPage = 50
         };
@@ -96,9 +96,9 @@
 
     private bool _shouldRefresh = false;
     private string? _lastQuery;
-    private GridItemsProviderResult<JsonObject>? _lastProviderResult;
+    private Microsoft.AspNetCore.Components.QuickGrid.GridItemsProviderResult<JsonObject>? _lastProviderResult;
     private List<AttributeDto> _showingColumns = new();
-    private async ValueTask<GridItemsProviderResult<JsonObject>> ServerReloadJson(GridItemsProviderRequest<JsonObject> state)
+    private async ValueTask<Microsoft.AspNetCore.Components.QuickGrid.GridItemsProviderResult<JsonObject>> ServerReloadJson(Microsoft.AspNetCore.Components.QuickGrid.GridItemsProviderRequest<JsonObject> state)
     {
         _error = null;
         try
@@ -173,7 +173,7 @@
                 Console.WriteLine(json);
                 _error = json.GetErrorMessage();
                 StateHasChanged();
-                return GridItemsProviderResult.From(items: Array.Empty<JsonObject>(), totalItemCount: 0);
+                return Microsoft.AspNetCore.Components.QuickGrid.GridItemsProviderResult.From(items: Array.Empty<JsonObject>(), totalItemCount: 0);
 
             }
             var value = json!["value"]?.AsArray().Select(n => n!.AsObject());
@@ -181,16 +181,16 @@
             if (count is null)
             {
 
-                return GridItemsProviderResult.From(items: Array.Empty<JsonObject>(), totalItemCount: 0);
+                return Microsoft.AspNetCore.Components.QuickGrid.GridItemsProviderResult.From(items: Array.Empty<JsonObject>(), totalItemCount: 0);
             }
-            _lastProviderResult = GridItemsProviderResult.From<JsonObject>(items: value!.ToArray(), totalItemCount: count.Value);
+            _lastProviderResult = Microsoft.AspNetCore.Components.QuickGrid.GridItemsProviderResult.From<JsonObject>(items: value!.ToArray(), totalItemCount: count.Value);
             return _lastProviderResult.Value;
         }
         catch (Exception ex)
         {
             _error = ex.Message;
             StateHasChanged();
-            return GridItemsProviderResult.From(items: Array.Empty<JsonObject>(), totalItemCount: 0);
+            return Microsoft.AspNetCore.Components.QuickGrid.GridItemsProviderResult.From(items: Array.Empty<JsonObject>(), totalItemCount: 0);
         }
     }
 

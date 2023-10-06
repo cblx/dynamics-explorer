@@ -1,41 +1,36 @@
 ﻿@attribute [RenderModeWebAssembly(false)]
 @using Cblx.Dynamics.Explorer.Services.DynamicsServices.ListTablesForMenu;
 @inject IListEntitiesForMenuHandler Handler
-<div>
-    <MudNavMenu Dense Style="overflow: hidden !important">
-         <MudStack  Class="menu-content" Spacing="0">
-             <MudStack Spacing="0">
-                 <MudNavLink Href="/" Match="NavLinkMatch.All">Queries</MudNavLink>
-                 <MudDivider Light />
-                 @*     <MudNavLink Href="/diagram" Match="NavLinkMatch.All">Diagram (Under construction)</MudNavLink>
-                <MudDivider /> *@
-                 <MudStack Row AlignItems="AlignItems.Stretch">
-                    <input placeholder="Filter entities..." @bind="_filter" @bind:event="oninput" class="pa-1" style="width: 100%"/>
-                 </MudStack>
-                 <MudStack Class="pa-1 mud-typography-caption" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Row>
-                     showing @(_displayedEntities.Count()) entities
-                    <MudIconButton Size="Size.Small" OnClick="LoadAsync" Icon="@Icons.Material.Filled.Refresh" />
-                 </MudStack>
-                <MudDivider />
-             </MudStack>
-             <div class="tables pb-16">
-                 @foreach (var tbl in _displayedEntities)
-                {
-                    <MudNavLink Href="@($"tbl/{tbl.LogicalName}")" Match="NavLinkMatch.All">
-                        <MudStack Spacing="0">
-                            <MudText Typo="Typo.caption" Class="truncate">@tbl.LogicalName</MudText>
-                            <MudText Typo="Typo.caption" Color="Color.Tertiary">@(tbl.DisplayName ?? "-")</MudText>
-                            @* <MudText Typo="Typo.caption" Color="Color.Tertiary">@(tbl.CustomName ?? "-")</MudText> *@
-                        </MudStack>
-                    </MudNavLink>
-                    <MudDivider Light />
-                }
-                <MudOverlay Visible="_loading" Absolute DarkBackground />
-             </div>
-         </MudStack>
-     </MudNavMenu>
- </div>
- @code {
+<div style="overflow-x: hidden; height: calc(100vh - 101px); overflow-y:scroll;">
+    <div class="menu-header" style="position: sticky; top: 0; background-color: var(--fill-color); z-index: 1;">
+        <FluentNavMenuLink Href="/">Query</FluentNavMenuLink>
+        @* <FluentNavMenuLink Href="/diagram">Diagram</FluentNavMenuLink> *@
+        <FluentTextField @bind-Value="_filter" Immediate Placeholder="Filter entities..." />
+         <Density Value="-3">
+             <FluentStack>
+                 <FluentLabel> showing @(_displayedEntities.Count()) entities</FluentLabel>
+                 <FluentButton ParentReference="context" IconEnd="@(new Icons.Regular.Size16.ArrowSync())" OnClick="LoadAsync" />
+             </FluentStack>
+         </Density>
+        <FluentDivider Style="position: sticky; top: 0" />
+     </div>
+     @foreach (var tbl in _displayedEntities)
+    {
+        <FluentNavMenuLink Href="@($"tbl/{tbl.LogicalName}")" title="@tbl.LogicalName">
+
+            <FluentStack Orientation="Orientation.Vertical"
+                         VerticalGap="0" Style="pointer-events: none; width: 160px; overflow: hidden; text-overflow: ellipsis">
+                <FluentLabel Style="text-overflow: ellipsis; overflow: hidden; width: 100%; line-height: 1">@tbl.LogicalName</FluentLabel>
+                <FluentLabel Color="Color.Info" Style="font-size: 0.7rem; text-overflow: ellipsis; overflow: hidden; width: 100%;line-height: 1;">@(tbl.DisplayName ?? "-")</FluentLabel>
+            </FluentStack>
+        </FluentNavMenuLink>
+    }
+
+    <FluentOverlay Opacity="0.4"
+                   Dismissable="false"
+                   Visible="_loading" />
+</div>
+@code {
     private bool _loading = true;
     private EntityDto[] _entities = Array.Empty<EntityDto>();
     private string _filter = string.Empty;
@@ -48,6 +43,7 @@
     protected override async Task OnInitializedAsync() => await LoadAsync();
     private async Task LoadAsync()
     {
+
         try
         {
             _loading = true;

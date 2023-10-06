@@ -1,8 +1,9 @@
 ﻿@using Cblx.Dynamics.Explorer.Client.Components
 @using Microsoft.Fast.Components.FluentUI
+@using Microsoft.Fast.Components.FluentUI.DesignTokens
 @inherits LayoutComponentBase
-<MudThemeProvider IsDarkMode="true" />
-<MudDialogProvider />
+@* <MudThemeProvider IsDarkMode="true" /> *@
+@* <MudDialogProvider />
 <FluentDesignSystemProvider BaseLayerLuminance="0">
     <FluentDialogProvider />
     <MudLayout>
@@ -11,16 +12,22 @@
             @Body
         </MudMainContent>
     </MudLayout>
-</FluentDesignSystemProvider>
-@* <FluentDesignSystemProvider BaseLayerLuminance="0">
-    <FluentMainLayout NavMenuTitle="Navigation menu" HeaderHeight="0">
+</FluentDesignSystemProvider> *@
+<FluentDesignSystemProvider BaseLayerLuminance="0.15f">
+    <FluentDialogProvider />
+    <FluentMainLayout NavMenuTitle="Navigation menu" HeaderHeight="0" Style="background-color: var(--neutral-layer-3)">
+        <SubHeader>
+            <FluentToolbar Style="min-height: 60px; max-height: 60px;">
+                <SectionOutlet SectionName="app-bar-content"></SectionOutlet>
+            </FluentToolbar>
+        </SubHeader>
         <Body>
-            @Body
+            <div style="height: calc(100vh - 68px)">
+                @Body
+            </div>
         </Body>
         <NavMenuContent>
-            <FluentNavMenuLink Href="/" Text="Home" />
             <NavMenu />
         </NavMenuContent>
     </FluentMainLayout>
 </FluentDesignSystemProvider>
- *@

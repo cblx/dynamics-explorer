@@ -6,7 +6,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Fast.Components.FluentUI;
-using MudBlazor.Services;
 
 namespace Cblx.Dynamics.Explorer;
 public static class ServiceCollectionExtensions
@@ -38,15 +37,12 @@ public static class ServiceCollectionExtensions
         services.AddRazorComponents()
                    .AddServerComponents()
                    .AddWebAssemblyComponents();
-        services.AddMudServices();
         services.AddFluentUIComponents();
         services.AddDynamicsServices();
         services.AddScoped<ExplorerHttpClient>();
 
        
         services.AddSingleton<ApplicationService>();
-        //services.AddSingleton<AppBarService>();
-        //services.AddScoped<EditDialogService>();
         return services;
     }
 }

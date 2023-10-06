@@ -1,28 +1,28 @@
 ﻿@using Cblx.Dynamics.Explorer.Client.Components;
 @using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
-@inject Microsoft.Fast.Components.FluentUI.IDialogService DialogService
-<Microsoft.Fast.Components.FluentUI.FluentStack Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical" VerticalGap="4">
-    <Microsoft.Fast.Components.FluentUI.FluentTextField @bind-Value="_filtering" Autofocus Placeholder="Filter..." Style="width: 100%" />
-     <Microsoft.Fast.Components.FluentUI.FluentButton OnClick="ApplyFilter">Apply</Microsoft.Fast.Components.FluentUI.FluentButton>
-     <Microsoft.Fast.Components.FluentUI.FluentDivider Style="width: 100%;" Role="Microsoft.Fast.Components.FluentUI.DividerRole.Presentation" />
-     <Microsoft.Fast.Components.FluentUI.FluentLabel>@Attribute.LogicalName</Microsoft.Fast.Components.FluentUI.FluentLabel>
-     <Microsoft.Fast.Components.FluentUI.FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Info">@Attribute.DisplayName</Microsoft.Fast.Components.FluentUI.FluentLabel>
-     <Microsoft.Fast.Components.FluentUI.FluentDivider Style="width: 100%;" Role="Microsoft.Fast.Components.FluentUI.DividerRole.Presentation" />
-     <Microsoft.Fast.Components.FluentUI.FluentStack>
-         <Microsoft.Fast.Components.FluentUI.FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Info">@(Attribute.AttributeType)</Microsoft.Fast.Components.FluentUI.FluentLabel>
-         <Microsoft.Fast.Components.FluentUI.FluentDivider Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical" />
-         <Microsoft.Fast.Components.FluentUI.FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Info">@((Attribute.DerivedType ?? "Not derived").Split('.').Last())</Microsoft.Fast.Components.FluentUI.FluentLabel>
-     </Microsoft.Fast.Components.FluentUI.FluentStack>
-     <Microsoft.Fast.Components.FluentUI.FluentDivider Style="width: 100%;" Role="Microsoft.Fast.Components.FluentUI.DividerRole.Presentation" />
+@inject IDialogService DialogService
+<FluentStack Orientation="Orientation.Vertical" VerticalGap="4">
+    <FluentTextField @bind-Value="_filtering" Autofocus Placeholder="Filter..." Style="width: 100%" />
+     <FluentButton OnClick="ApplyFilter">Apply</FluentButton>
+     <FluentDivider Style="width: 100%;" Role="DividerRole.Presentation" />
+     <FluentLabel>@Attribute.LogicalName</FluentLabel>
+     <FluentLabel Color="Color.Info">@Attribute.DisplayName</FluentLabel>
+     <FluentDivider Style="width: 100%;" Role="DividerRole.Presentation" />
+     <FluentStack>
+         <FluentLabel Color="Color.Info">@(Attribute.AttributeType)</FluentLabel>
+         <FluentDivider Orientation="Orientation.Vertical" />
+         <FluentLabel Color="Color.Info">@((Attribute.DerivedType ?? "Not derived").Split('.').Last())</FluentLabel>
+     </FluentStack>
+     <FluentDivider Style="width: 100%;" Role="DividerRole.Presentation" />
      @if (Attribute.DerivedType is AttributeMetadataDerivedTypes.MultiSelectPicklistAttributeMetadata
     or AttributeMetadataDerivedTypes.StatusAttributeMetadata
     or AttributeMetadataDerivedTypes.StateAttributeMetadata
     or AttributeMetadataDerivedTypes.PicklistAttributeMetadata
     )
     {
-        <Microsoft.Fast.Components.FluentUI.FluentButton OnClick="ShowOptions">Show options list</Microsoft.Fast.Components.FluentUI.FluentButton>
+        <FluentButton OnClick="ShowOptions">Show options list</FluentButton>
     }
-</Microsoft.Fast.Components.FluentUI.FluentStack>
+</FluentStack>
 @code {
     private string _filtering = "";
     [Parameter] public required AttributeDto Attribute { get; set; }
@@ -40,7 +40,7 @@
 
     private async Task ShowOptions()
     {
-        await DialogService.ShowDialogAsync<OptionsDialog>(Attribute, new Microsoft.Fast.Components.FluentUI.DialogParameters { });
+        await DialogService.ShowDialogAsync<OptionsDialog>(Attribute, new DialogParameters { });
     }
 
 }

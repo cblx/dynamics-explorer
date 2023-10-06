@@ -1,13 +1,3 @@
-::deep .menu-content{
-    overflow-y: hidden !important;
-    display: flex;
-    height: 100vh;
-}
-::deep .tables{
-    flex: 1;
-    overflow-y: scroll;
-}
-
-::deep .mud-nav-link{
-    padding: 2px 0px !important;
+::deep fluent-tree-item {
+    margin: 2px;
 }

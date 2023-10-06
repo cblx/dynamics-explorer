@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
 using System.Reflection;
 using System.Text.Json.Serialization;
-using static MudBlazor.CategoryTypes;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);

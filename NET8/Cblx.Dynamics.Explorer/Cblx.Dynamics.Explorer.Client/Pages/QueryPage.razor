@@ -7,6 +7,10 @@
 @using Cblx.Dynamics.Explorer.Services.DynamicsServices.ExecuteQuery;
 @using Microsoft.Fast.Components.FluentUI;
 @inject IExecuteQueryHandler Handler
+<PageTitle>Query</PageTitle>
+<SectionContent SectionName="app-bar-content">
+    Query
+</SectionContent>
 <FluentGrid Style="padding: 16px;">
     <FluentGridItem xs="12">
         <FluentTextArea Style="width: 100%" Rows="10" @bind-Value="_query">GET</FluentTextArea>
