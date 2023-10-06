@@ -45,8 +45,13 @@
                     @{
                         var canChange = true;
                     }
-                    <MudIconButton OnClick="() => OpenEdit(context)" Disabled="!canChange" Color="Color.Primary" Icon="@Icons.Material.Outlined.Edit" Size="Size.Small"></MudIconButton>
-                    <MudIconButton OnClick="() => DeleteAsync(context)" Disabled="!canChange" Color="Color.Error" Icon="@Icons.Material.Outlined.Delete" Size="Size.Small"></MudIconButton>
+                    <Microsoft.Fast.Components.FluentUI.FluentButton IconEnd="@(new Microsoft.Fast.Components.FluentUI.Icons.Regular.Size16.Edit())"
+                        Title="Edit" OnClick="() => OpenEdit(context)" />
+                    <Microsoft.Fast.Components.FluentUI.FluentButton IconEnd="@(new Microsoft.Fast.Components.FluentUI.Icons.Regular.Size16.Delete().WithColor(Microsoft.Fast.Components.FluentUI.Color.Error))"
+                                                                     
+                                                                     Title="Edit" OnClick="() => DeleteAsync(context)" />
+                    @* <MudIconButton OnClick="() => OpenEdit(context)" Disabled="!canChange" Color="Color.Primary" Icon="@Icons.Material.Outlined.Edit" Size="Size.Small"></MudIconButton> *@
+                    @* <MudIconButton OnClick="() => DeleteAsync(context)" Disabled="!canChange" Color="Color.Error" Icon="@Icons.Material.Outlined.Delete" Size="Size.Small"></MudIconButton> *@
                 </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
 
                 @foreach (var attribute in _showingColumns)

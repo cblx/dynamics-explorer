@@ -49,7 +49,8 @@
         position: sticky;
         left: 0;
         z-index: 1;
-        --size: 64px;
+        --size: 70px;
+        padding:0 !important;
         min-width: var(--size);
         max-width: var(--size);
         width: var(--size);
