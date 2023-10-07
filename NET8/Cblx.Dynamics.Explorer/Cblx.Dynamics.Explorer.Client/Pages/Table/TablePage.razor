@@ -13,7 +13,7 @@
 @inject IGetEntityHandler GetEntityHandler
 @inject IExecuteQueryHandler ExecuteQueryHandler
 @inject IDeleteHandler DeleteHandler
-@inject Microsoft.Fast.Components.FluentUI.IDialogService FluentDialogService
+@inject IDialogService FluentDialogService
 <PageTitle>@EntityLogicalName</PageTitle>
 <SectionContent SectionName="app-bar-content">
     <TablePageToolBar Entity="_entity"
@@ -37,41 +37,43 @@
     else if (_error is null)
     {
         <div class="grid">
-            <QuickGrid @ref="_table" TGridItem="JsonObject"
-                       ItemsProvider="ServerReloadJson"
-                       Pagination="_pagination">
-                <!-- se um dia não tiver mais o mud no projeto, poderíamos ajustar aqui -->
-                <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
-                    @{
-                        var canChange = true;
-                    }
-                    <Microsoft.Fast.Components.FluentUI.FluentButton IconEnd="@(new Microsoft.Fast.Components.FluentUI.Icons.Regular.Size16.Edit())"
-                        Title="Edit" OnClick="() => OpenEdit(context)" />
-                    <Microsoft.Fast.Components.FluentUI.FluentButton IconEnd="@(new Microsoft.Fast.Components.FluentUI.Icons.Regular.Size16.Delete().WithColor(Microsoft.Fast.Components.FluentUI.Color.Error))"
-                                                                     
-                                                                     Title="Edit" OnClick="() => DeleteAsync(context)" />
-                </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
-
-                @foreach (var attribute in _showingColumns)
-                {
-                    bool isLookup = attribute.DerivedType == AttributeMetadataDerivedTypes.LookupAttributeMetadata;
-                    string logicalName = attribute.LookupPropertyNameOrLogicalName;
-                    <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn Class="mud-typography mud-typography-caption"
-                                                                              Sortable="!isLookup"
-                                                                              Title="@(attribute.LogicalName)">
-                        <ColumnOptions>
-                            <TablePageColumnOptions Attribute="attribute"
-                                                    CurrentFilter="@_filters.GetValueOrDefault(attribute.LogicalName, "")"
-                                                    OnFilterApplied="(filter) => ApplyFilter(attribute.LogicalName, filter)" />
-                        </ColumnOptions>
-                        <ChildContent>
-                            <span title="@context[attribute.LogicalName]">@context[logicalName]</span>
-                            <br />
-                            <span class="mud-tertiary-text mud-typography-caption">@(context[$"{logicalName}@OData.Community.Display.V1.FormattedValue"]?.GetValue<string>())</span>
-                        </ChildContent>
+            <FluentDesignSystemProvider TypeRampBaseFontSize="12px" Density="-2">
+                <QuickGrid @ref="_table" TGridItem="JsonObject"
+                           ItemsProvider="ServerReloadJson"
+                           Pagination="_pagination">
+                    <!-- se um dia não tiver mais o mud no projeto, poderíamos ajustar aqui -->
+                    <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
+                        @{
+                            var canChange = true;
+                        }
+                        <FluentButton IconEnd="@(new Icons.Regular.Size16.Edit())"
+                                                                         Title="Edit" OnClick="() => OpenEdit(context)" />
+                        <FluentButton IconEnd="@(new Icons.Regular.Size16.Delete().WithColor(Color.Error))"
+                                                                         Title="Edit" OnClick="() => DeleteAsync(context)" />
                     </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
-                }
-            </QuickGrid>
+
+                    @foreach (var attribute in _showingColumns)
+                    {
+                        bool isLookup = attribute.DerivedType == AttributeMetadataDerivedTypes.LookupAttributeMetadata;
+                        string logicalName = attribute.LookupPropertyNameOrLogicalName;
+                        <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn Class="mud-typography mud-typography-caption"
+                                                                                  Sortable="!isLookup"
+                                                                                  Title="@(attribute.LogicalName)">
+                            <ColumnOptions>
+                                <TablePageColumnOptions Attribute="attribute"
+                                                        CurrentFilter="@_filters.GetValueOrDefault(attribute.LogicalName, "")"
+                                                        OnFilterApplied="(filter) => ApplyFilter(attribute.LogicalName, filter)" />
+                            </ColumnOptions>
+                            <ChildContent>
+                                <FluentStack Orientation="Orientation.Vertical" VerticalGap="1" Style="padding: 1px">
+                                    <FluentLabel Class="truncate" Style="line-height: 1; width: 100%;" title="@context[attribute.LogicalName]">@context[logicalName]</FluentLabel>
+                                    <FluentLabel Class="truncate" Style="line-height: 1; width: 100%;" Color="Color.Info">@(context[$"{logicalName}@OData.Community.Display.V1.FormattedValue"]?.GetValue<string>())</FluentLabel>
+                                </FluentStack>
+                            </ChildContent>
+                        </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
+                    }
+                </QuickGrid>
+            </FluentDesignSystemProvider>
         </div>
         <Paginator State="_pagination" />
     }
@@ -86,7 +88,7 @@
     //private Guid[] _applicationUsersIds = default!;
     private QuickGrid<JsonObject> _table = default!;
     private EntityDto? _entity = null;
-    private Microsoft.AspNetCore.Components.QuickGrid.PaginationState _pagination = new ()
+    private Microsoft.AspNetCore.Components.QuickGrid.PaginationState _pagination = new()
         {
             ItemsPerPage = 50
         };
@@ -222,10 +224,11 @@
 
     private async Task OpenEdit(JsonObject item)
     {
-        var dialogRef = await FluentDialogService.ShowDialogAsync<AppEditDialog>(new AppEditDialogArguments{
-            EntityLogicalName = EntityLogicalName,
+        var dialogRef = await FluentDialogService.ShowDialogAsync<AppEditDialog>(new AppEditDialogArguments
+            {
+                EntityLogicalName = EntityLogicalName,
                 Id = item[_entity!.PrimaryId!]!.GetValue<Guid>()
-        }, AppEditDialog.DialogParameters);
+            }, AppEditDialog.DialogParameters);
         var result = await dialogRef.Result;
         _shouldRefresh = result.Data is true;
     }
