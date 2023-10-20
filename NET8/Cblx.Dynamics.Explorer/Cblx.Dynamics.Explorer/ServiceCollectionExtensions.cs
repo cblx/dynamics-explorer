@@ -1,10 +1,12 @@
 ﻿using Cblx.Dynamics.Explorer.Services;
 using Cblx.Dynamics.Explorer.Services.Authenticator;
 using Cblx.Dynamics.Explorer.Services.DynamicsServices;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Fast.Components.FluentUI;
+using System.Net.Http;
 
 namespace Cblx.Dynamics.Explorer;
 public static class ServiceCollectionExtensions
@@ -12,7 +14,6 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddDynamicsExplorer(this IServiceCollection services)
     {
         var configuration = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
-        var defaultConfig = configuration.GetSection("Dynamics").Get<DynamicsConfig>();
         var instances = configuration.GetSection("Instances").Get<DynamicsConfig[]>();
         var options = new DynamicsExplorerOptions
         {
@@ -21,21 +22,16 @@ public static class ServiceCollectionExtensions
         services.AddHttpContextAccessor();
         services.AddSingleton(options);
         services.AddMemoryCache();
-        List<DynamicsConfig> allInstances = [];
-        if (defaultConfig != null)
-        {
-            allInstances.Add(defaultConfig);
-            services.AddHttpClientForInstance(defaultConfig);
-        }
         instances?.ToList().ForEach(instance => services.AddHttpClientForInstance(instance));
-        if(instances!= null)
-        {
-            allInstances.AddRange(instances);
-        }
-        services.AddSingleton(allInstances.ToArray());
+        services.AddSingleton(instances ?? []);
         services.AddKeyedScoped("dynamics.explorer", (sp, _key) =>
         {
-            return sp.GetRequiredService<IHttpClientFactory>().CreateClient(defaultConfig!.Key);
+            var httpContext = sp.GetRequiredService<IHttpContextAccessor>().HttpContext!;
+            var key = DynamicsConfig.CreateKey(
+                httpContext.Request.Headers["x-Dynamics-Explorer-Group"]!,
+                httpContext.Request.Headers["x-Dynamics-Explorer-Instance"]!
+            );
+            return sp.GetRequiredService<IHttpClientFactory>().CreateClient(key);
         });
         services.AddRazorComponents()
                    .AddServerComponents()

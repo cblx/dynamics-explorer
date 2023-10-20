@@ -2,5 +2,5 @@
 
 public interface IListInstancesHandler
 {
-    Task<InstanceGroupDto[]> ExecuteAsync();
+    Task<InstanceDto[]> ExecuteAsync();
 }

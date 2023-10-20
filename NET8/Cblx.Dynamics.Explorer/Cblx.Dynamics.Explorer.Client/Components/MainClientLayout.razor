@@ -1,33 +1,73 @@
 ﻿@using Cblx.Dynamics.Explorer.Client.Components
+@using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.ListInstances;
+@using Cblx.Dynamics.Explorer.Client.Services;
 @using Microsoft.Fast.Components.FluentUI
 @using Microsoft.Fast.Components.FluentUI.DesignTokens
 @inherits LayoutComponentBase
-@* <MudThemeProvider IsDarkMode="true" /> *@
-@* <MudDialogProvider />
-<FluentDesignSystemProvider BaseLayerLuminance="0">
-    <FluentDialogProvider />
-    <MudLayout>
-        <AppBarAndDrawer />
-        <MudMainContent>
-            @Body
-        </MudMainContent>
-    </MudLayout>
-</FluentDesignSystemProvider> *@
+@inject IListInstancesHandler ListInstancesHandler
+@inject InstanceContextService InstanceContextService;
+@inject NavigationManager NavigationManager
+<InstanceContextProvider />
 <FluentDesignSystemProvider BaseLayerLuminance="0.15f">
     <FluentDialogProvider />
     <FluentMainLayout NavMenuTitle="Navigation menu" HeaderHeight="0" Style="background-color: var(--neutral-layer-3)">
         <SubHeader>
             <FluentToolbar Style="min-height: 60px; max-height: 60px;">
-                <SectionOutlet SectionName="app-bar-content"></SectionOutlet>
+                <FluentStack VerticalAlignment="VerticalAlignment.Center">
+                    <FluentSelect Width="190px" Style="min-width: 190px" TOption="InstanceDto" SelectedOption="_instances.FirstOrDefault(i => i.Group == Group && i.Name == Instance, _empty)"
+                                  SelectedOptionChanged="ChangeOption"
+                                  Items="_instances"
+                                  OptionText="@(i => i.Group == "NULL" ? "Select..." : $"{i.Group} - {i.Name}")" />
+                    <FluentDivider/>
+                    @if (Instance != null)
+                    {
+                        <SectionOutlet SectionName="app-bar-content"></SectionOutlet>
+                    }
+                </FluentStack>
             </FluentToolbar>
         </SubHeader>
         <Body>
             <div style="height: calc(100vh - 68px)">
-                @Body
+                @if (Instance != null)
+                {
+                    @Body
+                }
+                else
+                {
+                    <div>Choose an instance</div>
+                }
             </div>
         </Body>
         <NavMenuContent>
-            <NavMenu />
+            @if (Instance != null)
+            {
+                <NavMenu />
+            }
         </NavMenuContent>
     </FluentMainLayout>
 </FluentDesignSystemProvider>
+@code {
+    [SupplyParameterFromQuery]
+    public string? Group { get; set; }
+    [SupplyParameterFromQuery]
+    public string? Instance { get; set; }
+    private readonly InstanceDto _empty = new InstanceDto { Group = "NULL", Name = "NULL" };
+    InstanceDto[] _instances = [];
+    protected override async Task OnInitializedAsync()
+    {
+        _instances = new[] { _empty }.Union(await ListInstancesHandler.ExecuteAsync()).ToArray();
+    }
+
+    private void ChangeOption(InstanceDto instanceDto)
+    {
+        if (instanceDto == _empty)
+        {
+            NavigationManager.NavigateTo("/");
+            return;
+        }
+        // Já atualiza o service pois o timing do provider não é suficiente.
+        InstanceContextService.Group = instanceDto.Group;
+        InstanceContextService.Instance = instanceDto.Name;
+        NavigationManager.NavigateTo($"?group={instanceDto.Group}&instance={instanceDto.Name}");
+    }
+}

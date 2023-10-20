@@ -1,6 +1,8 @@
-﻿using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices;
+﻿using Cblx.Dynamics.Explorer.Client.Services;
+using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Fast.Components.FluentUI;
+using System.Net.Http;
 
 namespace Cblx.Dynamics.Explorer.Client;
 
@@ -12,12 +14,26 @@ public static class ClientServices
         {
             options.HostingModel = BlazorHostingModel.WebAssembly;
         });
-        services.AddTransient(sp => {
-            var httpClient = new HttpClient { BaseAddress = new Uri(baseAddress) };
-            httpClient.DefaultRequestHeaders.Add("x-Dynamics-Explorer-Context", "TODO");
+        services.AddSingleton<InstanceContextService>();
+        services.AddSingleton(sp => {
+            var instanceService = sp.GetRequiredService<InstanceContextService>();
+            var httpClient = new HttpClient(new InstanceScopeHandler(instanceService) { InnerHandler = new HttpClientHandler() }) { 
+                BaseAddress = new Uri(baseAddress) 
+            };
             return httpClient;
         });
+        
         services.AddDynamicsServices();
         return services;
+    }
+
+    class InstanceScopeHandler(InstanceContextService instanceContextService) : DelegatingHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            request.Headers.Add("x-Dynamics-Explorer-Group", instanceContextService.Group);
+            request.Headers.Add("x-Dynamics-Explorer-Instance", instanceContextService.Instance);
+            return base.SendAsync(request, cancellationToken);
+        }
     }
 }

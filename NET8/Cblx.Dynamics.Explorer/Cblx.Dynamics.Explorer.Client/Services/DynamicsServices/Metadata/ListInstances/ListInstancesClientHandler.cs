@@ -4,6 +4,6 @@ namespace Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.ListI
 
 public class ListInstancesClientHandler(HttpClient client) : IListInstancesHandler
 {
-    public async Task<InstanceGroupDto[]> ExecuteAsync()
-        => (await client.GetFromJsonAsync<InstanceGroupDto[]>($"{Route.GetEndpoint<IListInstancesHandler>()}"))!;
+    public async Task<InstanceDto[]> ExecuteAsync()
+        => (await client.GetFromJsonAsync<InstanceDto[]>($"{Route.GetEndpoint<IListInstancesHandler>()}"))!;
 }

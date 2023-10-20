@@ -5,12 +5,11 @@ namespace Cblx.Dynamics.Explorer.Services.DynamicsServices.Metadata.ListInstance
 
 internal class ListInstancesHandler(DynamicsConfig[] instances) : IListInstancesHandler
 {
-    public Task<InstanceGroupDto[]> ExecuteAsync()
+    public Task<InstanceDto[]> ExecuteAsync()
     {
-        return Task.FromResult(instances.Select(i => i.Group).Distinct().Select(groupName => new InstanceGroupDto
-        {
-            Name = groupName,
-            Instances = instances.Where(i => i.Group == groupName).Select(i => new InstanceDto { Name = i.Name }).ToArray()
+        return Task.FromResult(instances.Select(i => new InstanceDto {
+            Group = i.Group,
+            Name = i.Name
         }).ToArray());
     }
 }

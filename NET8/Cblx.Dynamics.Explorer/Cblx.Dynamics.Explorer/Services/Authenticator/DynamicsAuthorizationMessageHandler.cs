@@ -8,7 +8,7 @@ public class DynamicsAuthorizationMessageHandler(DynamicsConfig config, IMemoryC
 {
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        var authorizationHeader = await memoryCache.GetOrCreateAsync(config.Name, async (entry) =>
+        var authorizationHeader = await memoryCache.GetOrCreateAsync(config.Key, async (entry) =>
         {
             Console.WriteLine($"*** ACQUIRING NEW TOKEN FOR {config.Name} ***");
             var app = ConfidentialClientApplicationBuilder.Create(config.ClientId)
