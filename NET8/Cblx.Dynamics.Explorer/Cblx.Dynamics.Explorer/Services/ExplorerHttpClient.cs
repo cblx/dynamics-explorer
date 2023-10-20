@@ -1,6 +1,8 @@
-﻿namespace Cblx.Dynamics.Explorer.Services;
+﻿using Microsoft.Extensions.DependencyInjection;
 
-public class ExplorerHttpClient(HttpClient httpClient)
+namespace Cblx.Dynamics.Explorer.Services;
+
+public class ExplorerHttpClient([FromKeyedServices("dynamics.explorer")]HttpClient httpClient)
 {
     public HttpClient HttpClient => httpClient;
 }
