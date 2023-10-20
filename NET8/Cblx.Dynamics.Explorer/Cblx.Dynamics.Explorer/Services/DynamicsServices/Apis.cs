@@ -2,6 +2,7 @@
 using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Data.PatchItem;
 using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Data.PostItem;
 using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
+using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.ListInstances;
 using Cblx.Dynamics.Explorer.Services.DynamicsServices.Data.Delete;
 using Cblx.Dynamics.Explorer.Services.DynamicsServices.ExecuteQuery;
 using Cblx.Dynamics.Explorer.Services.DynamicsServices.ListMultiSelectPicklistOptions;
@@ -50,6 +51,11 @@ public static class Apis
         app.MapGet(
             Route.GetEndpoint<IListEntitiesForMenuHandler>(),
             (IListEntitiesForMenuHandler handler) => handler.GetAsync()
+        );
+
+        app.MapGet(
+            Route.GetEndpoint<IListInstancesHandler>(),
+            (IListInstancesHandler handler) => handler.ExecuteAsync()
         );
 
         app.MapGet(

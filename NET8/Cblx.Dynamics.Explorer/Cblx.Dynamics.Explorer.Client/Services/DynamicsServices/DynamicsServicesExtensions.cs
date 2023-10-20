@@ -3,6 +3,7 @@ using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Data.PatchItem;
 using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Data.PostItem;
 using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
 using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.ListEntitiesForMenu;
+using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.ListInstances;
 using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.ListMultiSelectPicklistOptions;
 using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.ListOptionsHandler;
 using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.ListPicklistOptions;
@@ -29,6 +30,7 @@ public static class DynamicsServicesExtensions
         services.AddScoped<IExecuteQueryHandler, ExecuteQueryClientHandler>();
         services.AddScoped<IGetEntityHandler, GetEntityClientHandler>();
         services.AddScoped<IListEntitiesForMenuHandler, ListEntitiesForMenuClientHandler>();
+        services.AddScoped<IListInstancesHandler, ListInstancesClientHandler>();
         services.AddScoped<IListMultiSelectPicklistOptionsHandler, ListMultiSelectPicklistOptionsClientHandler>();
         services.AddScoped<IListOptionsHandler, ListOptionsClientHandler>();
         services.AddScoped<IListPicklistOptionsHandler, ListPicklistOptionsClientHandler>();

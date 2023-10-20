@@ -21,11 +21,18 @@ public static class ServiceCollectionExtensions
         services.AddHttpContextAccessor();
         services.AddSingleton(options);
         services.AddMemoryCache();
+        List<DynamicsConfig> allInstances = [];
         if (defaultConfig != null)
         {
+            allInstances.Add(defaultConfig);
             services.AddHttpClientForInstance(defaultConfig);
         }
         instances?.ToList().ForEach(instance => services.AddHttpClientForInstance(instance));
+        if(instances!= null)
+        {
+            allInstances.AddRange(instances);
+        }
+        services.AddSingleton(allInstances.ToArray());
         services.AddKeyedScoped("dynamics.explorer", (sp, _key) =>
         {
             return sp.GetRequiredService<IHttpClientFactory>().CreateClient(defaultConfig!.Key);

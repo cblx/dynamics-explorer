@@ -12,7 +12,11 @@ public static class ClientServices
         {
             options.HostingModel = BlazorHostingModel.WebAssembly;
         });
-        services.AddScoped(_ => new HttpClient { BaseAddress = new Uri(baseAddress) });
+        services.AddTransient(sp => {
+            var httpClient = new HttpClient { BaseAddress = new Uri(baseAddress) };
+            httpClient.DefaultRequestHeaders.Add("x-Dynamics-Explorer-Context", "TODO");
+            return httpClient;
+        });
         services.AddDynamicsServices();
         return services;
     }
