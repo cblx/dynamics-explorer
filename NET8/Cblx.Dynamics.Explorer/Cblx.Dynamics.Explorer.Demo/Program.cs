@@ -1,13 +1,31 @@
 using Cblx.Dynamics;
 using Cblx.Dynamics.Explorer;
 using Cblx.Dynamics.Explorer.Models;
+using Cblx.Dynamics.Explorer.Services.Authenticator;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Web;
 using System.Reflection;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
+
+builder.Configuration.AddAzureAppConfiguration("", optional: true);
+//builder.Configuration.AddAzureAppConfiguration(a => { 
+//    a.Connect().
+//});
+var teste = builder.Configuration.GetValue<Teste>("Teste");
+
+Console.WriteLine(JsonSerializer.Serialize(teste));
+Console.WriteLine(builder.Configuration["Teste"]);
+
+var cfg = builder.Configuration["Instances"];
+var instances = builder.Configuration.GetSection("Instances").Get<DynamicsConfig[]>();
+Console.WriteLine(cfg);
+Console.WriteLine(instances?.Length ?? -1);
+Console.WriteLine(builder.Configuration["Teste"]);
 #if !DEBUG
 builder.Services
     .AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
@@ -211,3 +229,5 @@ builder.Services.AddServerSideBlazor().AddMicrosoftIdentityConsentHandler();
 var app = builder.Build();
 app.UseDynamicsExplorer();
 app.Run();
+
+record Teste(int Epa, int Opa);
