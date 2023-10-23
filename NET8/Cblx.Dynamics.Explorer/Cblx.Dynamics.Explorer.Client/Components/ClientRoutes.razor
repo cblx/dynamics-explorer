@@ -1,5 +1,5 @@
 ﻿@using Microsoft.Fast.Components.FluentUI
-@attribute [RenderModeWebAssembly(false)]
+@attribute [RenderModeInteractiveWebAssembly(prerender: false)]
 <Router AppAssembly="@typeof(Client._Imports).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainClientLayout)" />

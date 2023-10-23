@@ -1,4 +1,5 @@
-﻿using Cblx.Dynamics.Explorer.Services;
+﻿using Cblx.Dynamics.Explorer.Client.Services;
+using Cblx.Dynamics.Explorer.Services;
 using Cblx.Dynamics.Explorer.Services.Authenticator;
 using Cblx.Dynamics.Explorer.Services.DynamicsServices;
 using Microsoft.AspNetCore.Http;
@@ -20,6 +21,7 @@ public static class ServiceCollectionExtensions
             Tables = []
         };
         services.AddHttpContextAccessor();
+        services.AddSingleton<InstanceContextService>();
         services.AddSingleton(options);
         services.AddMemoryCache();
         instances?.ToList().ForEach(instance => services.AddHttpClientForInstance(instance));
@@ -34,8 +36,8 @@ public static class ServiceCollectionExtensions
             return sp.GetRequiredService<IHttpClientFactory>().CreateClient(key);
         });
         services.AddRazorComponents()
-                   .AddServerComponents()
-                   .AddWebAssemblyComponents();
+                   .AddInteractiveServerComponents()
+                   .AddInteractiveWebAssemblyComponents();
         services.AddFluentUIComponents();
         services.AddDynamicsServices();
         services.AddScoped<ExplorerHttpClient>();

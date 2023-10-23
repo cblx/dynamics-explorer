@@ -8,7 +8,7 @@
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using System.Globalization;
 @using System.Text.Json;
-@attribute [RenderModeWebAssembly(false)]
+@attribute [RenderModeInteractiveWebAssembly(prerender: false)]
 @inject IDialogService DialogService
 @inject IGetEntityHandler GetEntityHandler
 @inject IExecuteQueryHandler ExecuteQueryHandler

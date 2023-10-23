@@ -27,8 +27,8 @@ public static class WebApplicationExtensions
         app.UseStaticFiles();
 
         app.MapRazorComponents<App>()
-            .AddServerRenderMode()
-            .AddWebAssemblyRenderMode()
+            .AddInteractiveServerRenderMode()
+            .AddInteractiveWebAssemblyRenderMode()
             .AddAdditionalAssemblies(typeof(Client._Imports).Assembly);
         app.MapDynamicsExplorerApis();
         
