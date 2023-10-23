@@ -13,7 +13,7 @@ jobs:
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v1.8.1
         with:
-          dotnet-version: 8.0.100-rc.1.23455.8
+          dotnet-version: 8.0.100-rc.2.23502.2
       - run: dotnet publish -c Release --property:PublishDir='./demo-package' --self-contained
         working-directory: NET8/Cblx.Dynamics.Explorer/Cblx.Dynamics.Explorer.Demo
       
