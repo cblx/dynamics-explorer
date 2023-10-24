@@ -15,14 +15,14 @@
 @inject IDeleteHandler DeleteHandler
 @inject IDialogService FluentDialogService
 <PageTitle>@EntityLogicalName</PageTitle>
-<SectionContent SectionName="app-bar-content">
-    <TablePageToolBar Entity="_entity"
-                      ShowingColumns="_showingColumns"
-                      Disabled="_error is not null"
-                      OnChanges="() => _shouldRefresh = true"></TablePageToolBar>
-</SectionContent>
-<div scoped-css>
-    @if (_error != null)
+    <SectionContent SectionName="app-bar-content">
+        <TablePageToolBar Entity="_entity"
+                          ShowingColumns="_showingColumns"
+                          Disabled="_error is not null"
+                          OnChanges="() => _shouldRefresh = true"></TablePageToolBar>
+    </SectionContent>
+    <div scoped-css>
+        @if (_error != null)
     {
         <div class="grid">
             <div style="background-color: red">@_error</div>
@@ -36,63 +36,72 @@
     }
     else if (_error is null)
     {
-        <div class="grid">
-            <FluentDesignSystemProvider TypeRampBaseFontSize="12px" Density="-2">
-                <QuickGrid @ref="_table" TGridItem="JsonObject"
-                           ItemsProvider="ServerReloadJson"
-                           Pagination="_pagination">
-                    <!-- se um dia não tiver mais o mud no projeto, poderíamos ajustar aqui -->
-                    <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
-                        @{
-                            var canChange = true;
-                        }
-                        <FluentButton IconEnd="@(new Icons.Regular.Size16.Edit())"
-                                                                         Title="Edit" OnClick="() => OpenEdit(context)" />
-                        <FluentButton IconEnd="@(new Icons.Regular.Size16.Delete().WithColor(Color.Error))"
-                                                                         Title="Edit" OnClick="() => DeleteAsync(context)" />
-                    </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
-
-                    @foreach (var attribute in _showingColumns)
-                    {
-                        bool isLookup = attribute.DerivedType == AttributeMetadataDerivedTypes.LookupAttributeMetadata;
-                        string logicalName = attribute.LookupPropertyNameOrLogicalName;
-                        <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn Class="mud-typography mud-typography-caption"
-                                                                                  Sortable="!isLookup"
-                                                                                  Title="@(attribute.LogicalName)">
-                            <ColumnOptions>
-                                <TablePageColumnOptions Attribute="attribute"
-                                                        CurrentFilter="@_filters.GetValueOrDefault(attribute.LogicalName, "")"
-                                                        OnFilterApplied="(filter) => ApplyFilter(attribute.LogicalName, filter)" />
-                            </ColumnOptions>
-                            <ChildContent>
-                                <FluentStack Orientation="Orientation.Vertical" VerticalGap="1" Style="padding: 1px; position: relative">
-                                    @{
-                                        var text = context[logicalName]?.ToString();
-                                        int maxTextLength = 128;
-                                        var overflown = text?.Length > maxTextLength;
-                                        if(overflown)
-                                        {
-                                            text = text![..maxTextLength] + " (more...)";
-                                        }
-                                        var formattedText = context[$"{logicalName}@OData.Community.Display.V1.FormattedValue"]?.GetValue<string>();
-                                    }
-                                    <FluentLabel Class="truncate" Style="line-height: 1; width: 100%;" title="@text">@text</FluentLabel>
-                                    @if (!string.IsNullOrEmpty(formattedText))
-                                    {
-                                        <FluentLabel Class="truncate" Style="line-height: 1; width: 100%;" Color="Color.Info" title="@formattedText">@formattedText</FluentLabel>
-                                    }
-                                    @if (overflown)
-                                    {
-                                        <FluentIcon Style="position: absolute; right: 0; background-color: var(--neutral-layer-3)" Color="Color.Warning" Title="Too big to show" Icon="Icons.Filled.Size16.Warning" />
-                                    }
-                                </FluentStack>
-                            </ChildContent>
+        if (!_showingColumns.Any())
+        {
+            <div class="grid">
+                <div>Select at least one column</div>
+            </div>
+        }
+        else
+        {
+            <div class="grid">
+                <FluentDesignSystemProvider TypeRampBaseFontSize="12px" Density="-2">
+                    <QuickGrid @ref="_table" TGridItem="JsonObject"
+                               ItemsProvider="ServerReloadJson"
+                               Pagination="_pagination">
+                        <!-- se um dia não tiver mais o mud no projeto, poderíamos ajustar aqui -->
+                        <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
+                            @{
+                                var canChange = true;
+                            }
+                            <FluentButton IconEnd="@(new Icons.Regular.Size16.Edit())"
+                                          Title="Edit" OnClick="() => OpenEdit(context)" />
+                            <FluentButton IconEnd="@(new Icons.Regular.Size16.Delete().WithColor(Color.Error))"
+                                          Title="Edit" OnClick="() => DeleteAsync(context)" />
                         </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
-                    }
-                </QuickGrid>
-            </FluentDesignSystemProvider>
-        </div>
-        <Paginator State="_pagination" />
+
+                        @foreach (var attribute in _showingColumns)
+                        {
+                            bool isLookup = attribute.DerivedType == AttributeMetadataDerivedTypes.LookupAttributeMetadata;
+                            string logicalName = attribute.LookupPropertyNameOrLogicalName;
+                            <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn Class="mud-typography mud-typography-caption"
+                                                                                      Sortable="!isLookup"
+                                                                                      Title="@(attribute.LogicalName)">
+                                <ColumnOptions>
+                                    <TablePageColumnOptions Attribute="attribute"
+                                                            CurrentFilter="@_filters.GetValueOrDefault(attribute.LogicalName, "")"
+                                                            OnFilterApplied="(filter) => ApplyFilter(attribute.LogicalName, filter)" />
+                                </ColumnOptions>
+                                <ChildContent>
+                                    <FluentStack Orientation="Orientation.Vertical" VerticalGap="1" Style="padding: 1px; position: relative">
+                                        @{
+                                            var text = context[logicalName]?.ToString();
+                                            int maxTextLength = 128;
+                                            var overflown = text?.Length > maxTextLength;
+                                            if (overflown)
+                                            {
+                                                text = text![..maxTextLength] + " (more...)";
+                                            }
+                                            var formattedText = context[$"{logicalName}@OData.Community.Display.V1.FormattedValue"]?.GetValue<string>();
+                                        }
+                                        <FluentLabel Class="truncate" Style="line-height: 1; width: 100%;" title="@text">@text</FluentLabel>
+                                            @if (!string.IsNullOrEmpty(formattedText))
+                                        {
+                                            <FluentLabel Class="truncate" Style="line-height: 1; width: 100%;" Color="Color.Info" title="@formattedText">@formattedText</FluentLabel>
+                                        }
+                                        @if (overflown)
+                                        {
+                                            <FluentIcon Style="position: absolute; right: 0; background-color: var(--neutral-layer-3)" Color="Color.Warning" Title="Too big to show" Icon="Icons.Filled.Size16.Warning" />
+                                        }
+                                    </FluentStack>
+                                </ChildContent>
+                            </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
+                        }
+                    </QuickGrid>
+                </FluentDesignSystemProvider>
+            </div>
+            <Paginator State="_pagination" />
+        }
     }
 </div>
 @code {
@@ -229,13 +238,38 @@
         _showingColumns.Clear();
         _entity = await GetEntityHandler.GetAsync(EntityLogicalName);
         int i = 0;
-        foreach (var attr in _entity.Attributes)
+
+        string[] notRelevantAttributes = [
+            "body",
+            // Esses de created já são satisfeitos pelo modified para análises mais comuns
+            "createdby",
+            "createdon",
+            "createdonbehalfby",
+            "documentbody",
+            "importsequencenumber",
+            "modifiedonbehalfby",
+            "msft_datastate",
+            "organizationid",
+            "overriddencreatedon",
+            "ownerid",
+            "owningbusinessunit",
+            "owningteam",
+            "owninguser",
+            "timezoneruleversionnumber",
+            "utcconversiontimezonecode",
+            "versionnumber"
+        ];
+
+        var relevantAttributes = _entity.Attributes
+            .Where(a => !notRelevantAttributes.Contains(a.LogicalName))
+            .ToArray();
+
+        foreach (var attribute in relevantAttributes)
         {
-            _showingColumns.Add(attr);
+            _showingColumns.Add(attribute);
             i++;
             if (i == 15) { break; }
         }
-
     }
 
 

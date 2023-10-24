@@ -16,8 +16,9 @@ public class AttributeDto
     public required string EntityLogicalName { get; set; }
     public required bool IsValidForCreate { get; set; }
     public required bool IsValidForUpdate { get; set; }
+    public required bool IsValidODataAttribute { get; set; }
     public string? ReferencedEntity { get; set; }
-    public string LookupPropertyNameOrLogicalName => DerivedType == AttributeMetadataDerivedTypes.LookupAttributeMetadata ?
+    public string LookupPropertyNameOrLogicalName => DerivedType == AttributeMetadataDerivedTypes.LookupAttributeMetadata && AttributeType is "Lookup" ?
         $"_{LogicalName}_value" : LogicalName;
 
     public bool IsValidForRead { get; set; }

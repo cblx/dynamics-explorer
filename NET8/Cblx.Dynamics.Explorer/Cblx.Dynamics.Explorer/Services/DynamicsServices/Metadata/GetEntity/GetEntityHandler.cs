@@ -12,7 +12,7 @@ public class GetEntityHandler(ExplorerHttpClient client, DynamicsExplorerOptions
                    .GetFromJsonAsync<JsonObject>($"""
                      EntityDefinitions(LogicalName='{entityLogicalName}')?
                         $select=LogicalName,DisplayName,EntitySetName
-                        &$expand=Attributes($select=LogicalName,DisplayName,IsPrimaryId,IsPrimaryName,AttributeType,IsValidForUpdate,IsValidForCreate,IsValidForRead)
+                        &$expand=Attributes($select=LogicalName,DisplayName,IsPrimaryId,IsPrimaryName,AttributeType,IsValidForUpdate,IsValidForCreate,IsValidForRead,IsValidODataAttribute)
                      """.RemoveLineEndingsForODataQuery());
         var jsonAttributes = jsonObject!["Attributes"]!.AsArray();
         var attributes = jsonAttributes.Select(item => new AttributeDto
@@ -32,9 +32,13 @@ public class GetEntityHandler(ExplorerHttpClient client, DynamicsExplorerOptions
             DerivedType = item["@odata.type"]?.GetValue<string>(),
             IsValidForCreate = item["IsValidForCreate"]!.GetValue<bool>(),
             IsValidForUpdate = item["IsValidForUpdate"]!.GetValue<bool>(),
-            IsValidForRead = item["IsValidForRead"]!.GetValue<bool>()
+            IsValidForRead = item["IsValidForRead"]!.GetValue<bool>(),
+            IsValidODataAttribute = item["IsValidODataAttribute"]!.GetValue<bool>()
+            
         }).Where(e => e.DisplayName != null)
           .Where(e => e.IsValidForRead)
+          .Where(e => e.IsValidODataAttribute)
+          .Where(e => e.AttributeType != "PartyList") // Tipo de lookup especial onde não vale o padrão _x_value
           .OrderBy(e => !e.IsPrimaryId)
           .ThenBy(e => e.CustomName == null)
           .ToArray();
