@@ -1,3 +1,6 @@
-::deep fluent-tree-item {
-    margin: 2px;
+::deep .fluent-nav-icon{
+    display: none;
+}
+::deep .fluent-nav-text {
+    width: 100%;
 }

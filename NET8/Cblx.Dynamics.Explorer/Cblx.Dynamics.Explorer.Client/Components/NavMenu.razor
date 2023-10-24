@@ -18,7 +18,8 @@
                 };
 
         <div class="menu-header" style="position: sticky; top: 0; background-color: var(--fill-color); z-index: 1;">
-            <FluentNavMenuLink Href="@(instanceContext.GetRoute("/"))">Query</FluentNavMenuLink>
+            <FluentNavLink Href="@(instanceContext.GetRoute("/"))">Query</FluentNavLink>
+            @* <FluentNavMenuLink Href="@(instanceContext.GetRoute("/"))">Query</FluentNavMenuLink> *@
             @* <FluentNavMenuLink Href="/diagram">Diagram</FluentNavMenuLink> *@
             <FluentTextField @bind-Value="_filter" Immediate Placeholder="Filter entities..." />
              <Density Value="-3">
@@ -31,14 +32,14 @@
          </div>
         @foreach (var tbl in _displayedEntities)
         {
-            <FluentNavMenuLink Href="@(instanceContext.GetRoute($"/tbl/{tbl.LogicalName}"))" title="@tbl.LogicalName">
+            <FluentNavLink Href="@(instanceContext.GetRoute($"/tbl/{tbl.LogicalName}"))" title="@tbl.LogicalName">
 
                 <FluentStack Orientation="Orientation.Vertical"
                              VerticalGap="0" Style="pointer-events: none; width: 160px; overflow: hidden; text-overflow: ellipsis">
                     <FluentLabel Style="text-overflow: ellipsis; overflow: hidden; width: 100%; line-height: 1">@tbl.LogicalName</FluentLabel>
                         <FluentLabel Color="Color.Info" Style="font-size: 0.7rem; text-overflow: ellipsis; overflow: hidden; width: 100%;line-height: 1;">@(tbl.DisplayName ?? "-")</FluentLabel>
                     </FluentStack>
-                </FluentNavMenuLink>
+                </FluentNavLink>
         }
         <FluentOverlay Opacity="0.4"
                        Dismissable="false"
