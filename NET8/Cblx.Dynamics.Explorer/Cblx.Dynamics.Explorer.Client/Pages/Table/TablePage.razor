@@ -65,9 +65,26 @@
                                                         OnFilterApplied="(filter) => ApplyFilter(attribute.LogicalName, filter)" />
                             </ColumnOptions>
                             <ChildContent>
-                                <FluentStack Orientation="Orientation.Vertical" VerticalGap="1" Style="padding: 1px">
-                                    <FluentLabel Class="truncate" Style="line-height: 1; width: 100%;" title="@context[attribute.LogicalName]">@context[logicalName]</FluentLabel>
-                                    <FluentLabel Class="truncate" Style="line-height: 1; width: 100%;" Color="Color.Info">@(context[$"{logicalName}@OData.Community.Display.V1.FormattedValue"]?.GetValue<string>())</FluentLabel>
+                                <FluentStack Orientation="Orientation.Vertical" VerticalGap="1" Style="padding: 1px; position: relative">
+                                    @{
+                                        var text = context[logicalName]?.ToString();
+                                        int maxTextLength = 128;
+                                        var overflown = text?.Length > maxTextLength;
+                                        if(overflown)
+                                        {
+                                            text = text![..maxTextLength] + " (more...)";
+                                        }
+                                        var formattedText = context[$"{logicalName}@OData.Community.Display.V1.FormattedValue"]?.GetValue<string>();
+                                    }
+                                    <FluentLabel Class="truncate" Style="line-height: 1; width: 100%;" title="@text">@text</FluentLabel>
+                                    @if (!string.IsNullOrEmpty(formattedText))
+                                    {
+                                        <FluentLabel Class="truncate" Style="line-height: 1; width: 100%;" Color="Color.Info" title="@formattedText">@formattedText</FluentLabel>
+                                    }
+                                    @if (overflown)
+                                    {
+                                        <FluentIcon Style="position: absolute; right: 0; background-color: var(--neutral-layer-3)" Color="Color.Warning" Title="Too big to show" Icon="Icons.Filled.Size16.Warning" />
+                                    }
                                 </FluentStack>
                             </ChildContent>
                         </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
