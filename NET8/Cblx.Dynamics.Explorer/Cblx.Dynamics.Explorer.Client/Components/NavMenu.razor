@@ -24,7 +24,7 @@
              <Density Value="-3">
                  <FluentStack>
                      <FluentLabel> showing @(_displayedEntities.Count()) entities</FluentLabel>
-                     <FluentButton ParentReference="context" IconEnd="@(new Icons.Regular.Size16.ArrowSync())" OnClick="LoadAsync" />
+                     <FluentButton ParentReference="context" IconEnd="@(new Icons.Regular.Size16.ArrowSync())" OnClick="() => LoadAsync(refresh: true)" />
                  </FluentStack>
              </Density>
              <FluentDivider Style="position: sticky; top: 0" />
@@ -63,17 +63,21 @@
 
     protected override async Task OnParametersSetAsync() => await LoadAsync();
     private string _state = "";
-    private async Task LoadAsync()
+    private async Task LoadAsync(bool refresh = false)
     {
         // Guarda uma chave para a combinação grupo/instância. Se continuar o mesmo, não carrega.
         string state = $"{Group}/{Instance}";
-        if (state == _state) { return; }
+        bool sameState = state == _state;
+        if (sameState && !refresh) { return; }
         _state = state;
         try
         {
             _exception = null;
             _loading = true;
-            _entities = [];
+            if (!sameState)
+            {
+                _entities = [];
+            }
             _entities = await Handler.GetAsync();
         }
         catch (Exception ex)
