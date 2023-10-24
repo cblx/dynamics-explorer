@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
+builder.Configuration.AddAzureAppConfiguration(builder.Configuration["AzureAppConfigurationConnectionString"]);
 #if !DEBUG
 builder.Services
     .AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
