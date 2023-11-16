@@ -7,7 +7,7 @@ public class PostItemClient(HttpClient client) : IPostItem
 {
     public async Task ExecuteAsync(PostItemRequest request)
     {
-        var response = await client.PostAsJsonAsync(Route.GetEndpoint<IPostItem>(), request);
+        var response = await client.PostAsJsonAsync(Routes.GetEndpoint<IPostItem>(), request);
         if (!response.IsSuccessStatusCode)
         {
             var responseJson = await response.Content.ReadFromJsonAsync<JsonObject>();

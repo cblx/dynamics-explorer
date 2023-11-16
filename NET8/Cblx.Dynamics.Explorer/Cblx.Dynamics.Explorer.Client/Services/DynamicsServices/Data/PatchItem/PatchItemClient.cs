@@ -8,7 +8,7 @@ public class PatchItemClient(HttpClient client) : IPatchItem
 {
     public async Task ExecuteAsync(PatchItemRequest request)
     {
-        var response = await client.PatchAsJsonAsync(Route.GetEndpoint<IPatchItem>(), request);
+        var response = await client.PatchAsJsonAsync(Routes.GetEndpoint<IPatchItem>(), request);
         if (!response.IsSuccessStatusCode)
         {
             var responseJson = await response.Content.ReadFromJsonAsync<JsonObject>();

@@ -8,7 +8,7 @@ public class ListItemsClient(HttpClient client) : IListItems
 {
     public async Task<JsonObject[]> HandleAsync(ListItemsRequest request)
     {
-        var sb = new StringBuilder(Route.GetEndpoint<IListItems>())
+        var sb = new StringBuilder(Routes.GetEndpoint<IListItems>())
             .Append('?')
             .Append($"{nameof(request.EntitySetName)}={request.EntitySetName}")
             .Append('&')

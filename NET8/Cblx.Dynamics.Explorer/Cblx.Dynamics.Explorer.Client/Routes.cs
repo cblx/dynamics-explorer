@@ -1,6 +1,6 @@
 ﻿namespace Cblx.Dynamics.Explorer.Client;
 
-public static class Route
+public static class Routes
 {
     public static string GetEndpoint<T>()
     {

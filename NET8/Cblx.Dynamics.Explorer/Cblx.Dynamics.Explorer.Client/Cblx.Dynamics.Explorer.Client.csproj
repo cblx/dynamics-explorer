@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
     <StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
+	  <!-- Experimentar quando lançar .net8 final: <RunAOTCompilation>true</RunAOTCompilation>-->
   </PropertyGroup>
 	<ItemGroup>
 		<SupportedPlatform Include="browser" />

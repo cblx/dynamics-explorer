@@ -15,12 +15,12 @@ jobs:
         with:
           dotnet-version: 8.0.x
       - run: dotnet publish -c Release --property:PublishDir='./demo-package'
-        working-directory: NET8/Cblx.Dynamics.Explorer/Cblx.Dynamics.Explorer.Demo
+        working-directory: NET8/Cblx.Dynamics.Explorer/Cblx.Dynamics.Explorer
       
       - uses: Azure/webapps-deploy@v2.2.11
         with:
           app-name: Dynamics-Explorer
           publish-profile: ${{secrets.PUBLISH_PROFILE}}
-          package: 'NET8/Cblx.Dynamics.Explorer/Cblx.Dynamics.Explorer.Demo/demo-package'
+          package: 'NET8/Cblx.Dynamics.Explorer/Cblx.Dynamics.Explorer/demo-package'
 
 

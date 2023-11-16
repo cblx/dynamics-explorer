@@ -6,5 +6,5 @@ namespace Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEn
 public class GetEntityClientHandler(HttpClient client) : IGetEntityHandler
 {
     public async Task<EntityDto> GetAsync(string entityLogicalName)
-        => (await client.GetFromJsonAsync<EntityDto>($"{Route.GetEndpoint<IGetEntityHandler>()}?{nameof(entityLogicalName)}={entityLogicalName}"))!;
+        => (await client.GetFromJsonAsync<EntityDto>($"{Routes.GetEndpoint<IGetEntityHandler>()}?{nameof(entityLogicalName)}={entityLogicalName}"))!;
 }

@@ -7,5 +7,5 @@ namespace Cblx.Dynamics.Explorer.Services.DynamicsServices.ExecuteQuery;
 internal class ExecuteQueryClientHandler(HttpClient client) : IExecuteQueryHandler
 {
     public async Task<JsonObject?> GetAsync(string query)
-        => await client.GetFromJsonAsync<JsonObject>($"{Route.GetEndpoint<IExecuteQueryHandler>()}?{nameof(query)}={query}");
+        => await client.GetFromJsonAsync<JsonObject>($"{Routes.GetEndpoint<IExecuteQueryHandler>()}?{nameof(query)}={query}");
 }

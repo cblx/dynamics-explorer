@@ -7,5 +7,5 @@ namespace Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.ListP
 internal class ListPicklistOptionsClientHandler(HttpClient client) : IListPicklistOptionsHandler
 {
     public async Task<PicklistOption[]> GetAsync(string entityLogicalName, string attributeLogicalName)
-        => (await client.GetFromJsonAsync<PicklistOption[]>($"{Route.GetEndpoint<IListPicklistOptionsHandler>()}?{nameof(entityLogicalName)}={entityLogicalName}&{nameof(attributeLogicalName)}={attributeLogicalName}"))!;
+        => (await client.GetFromJsonAsync<PicklistOption[]>($"{Routes.GetEndpoint<IListPicklistOptionsHandler>()}?{nameof(entityLogicalName)}={entityLogicalName}&{nameof(attributeLogicalName)}={attributeLogicalName}"))!;
 }

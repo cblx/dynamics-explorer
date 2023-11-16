@@ -9,7 +9,7 @@ internal class ListMultiSelectPicklistOptionsClientHandler(HttpClient client) : 
     public async Task<PicklistOption[]> GetAsync(string entityLogicalName, string attributeLogicalName)
     {
         return (await client.GetFromJsonAsync<PicklistOption[]>(
-            $"{Route.GetEndpoint<IListMultiSelectPicklistOptionsHandler>()}?entityLogicalName={entityLogicalName}&attributeLogicalName={attributeLogicalName}"
+            $"{Routes.GetEndpoint<IListMultiSelectPicklistOptionsHandler>()}?entityLogicalName={entityLogicalName}&attributeLogicalName={attributeLogicalName}"
         ))!;
     }
 }

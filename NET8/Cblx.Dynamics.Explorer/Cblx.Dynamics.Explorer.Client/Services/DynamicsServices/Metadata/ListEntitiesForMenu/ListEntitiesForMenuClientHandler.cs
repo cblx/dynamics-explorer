@@ -6,5 +6,5 @@ namespace Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.ListE
 public class ListEntitiesForMenuClientHandler(HttpClient client) : IListEntitiesForMenuHandler
 {
     public async Task<EntityDto[]> GetAsync()
-        => (await client.GetFromJsonAsync<EntityDto[]>($"{Route.GetEndpoint<IListEntitiesForMenuHandler>()}"))!;
+        => (await client.GetFromJsonAsync<EntityDto[]>($"{Routes.GetEndpoint<IListEntitiesForMenuHandler>()}"))!;
 }

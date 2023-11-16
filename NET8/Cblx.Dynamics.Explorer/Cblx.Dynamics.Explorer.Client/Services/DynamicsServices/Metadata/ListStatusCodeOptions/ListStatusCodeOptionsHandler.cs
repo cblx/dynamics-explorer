@@ -9,6 +9,6 @@ namespace Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.ListS
 internal class ListStatusCodeOptionsClientHandler(HttpClient client) : IListStatusCodeOptionsHandler
 {
     public async Task<PicklistOption[]> GetAsync(string entityLogicalName)
-        => (await client.GetFromJsonAsync<PicklistOption[]>($"{Route.GetEndpoint<IListStatusCodeOptionsHandler>()}?{nameof(entityLogicalName)}={entityLogicalName}"))!;
+        => (await client.GetFromJsonAsync<PicklistOption[]>($"{Routes.GetEndpoint<IListStatusCodeOptionsHandler>()}?{nameof(entityLogicalName)}={entityLogicalName}"))!;
 
 }

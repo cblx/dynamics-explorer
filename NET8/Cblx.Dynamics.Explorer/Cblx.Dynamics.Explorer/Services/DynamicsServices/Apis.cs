@@ -11,12 +11,9 @@ using Cblx.Dynamics.Explorer.Services.DynamicsServices.Metadata.ListOptionsHandl
 using Cblx.Dynamics.Explorer.Services.DynamicsServices.Metadata.ListPicklistOptions;
 using Cblx.Dynamics.Explorer.Services.DynamicsServices.Metadata.ListStateCodeOptions;
 using Cblx.Dynamics.Explorer.Services.DynamicsServices.Metadata.ListStatusCodeOptions;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Cblx.Dynamics.Explorer.Services.DynamicsServices;
 
@@ -26,63 +23,63 @@ public static class Apis
     {
         // Data
         app.MapDelete(
-            Route.GetEndpoint<IDeleteHandler>(), 
+            Routes.GetEndpoint<IDeleteHandler>(), 
             (IDeleteHandler handler, string entityLogicalName, Guid id) => handler.DeleteAsync(entityLogicalName, id)
         );
         app.MapGet(
-            Route.GetEndpoint<IExecuteQueryHandler>(),
+            Routes.GetEndpoint<IExecuteQueryHandler>(),
             (IExecuteQueryHandler handler, string query) => handler.GetAsync(query)
         );
         app.MapPatch(
-            Route.GetEndpoint<IPatchItem>(),
+            Routes.GetEndpoint<IPatchItem>(),
             (IPatchItem handler, [FromBody]PatchItemRequest request) => handler.ExecuteAsync(request)
         );
         app.MapPost(
-            Route.GetEndpoint<IPostItem>(),
+            Routes.GetEndpoint<IPostItem>(),
             (IPostItem handler, [FromBody]PostItemRequest request) => handler.ExecuteAsync(request)
         );
 
         // Metadata
         app.MapGet(
-            Route.GetEndpoint<IGetEntityHandler>(), 
+            Routes.GetEndpoint<IGetEntityHandler>(), 
             (IGetEntityHandler handler, string entityLogicalName) => handler.GetAsync(entityLogicalName)
         );
 
         app.MapGet(
-            Route.GetEndpoint<IListEntitiesForMenuHandler>(),
+            Routes.GetEndpoint<IListEntitiesForMenuHandler>(),
             (IListEntitiesForMenuHandler handler) => handler.GetAsync()
         );
 
         app.MapGet(
-            Route.GetEndpoint<IListInstancesHandler>(),
+            Routes.GetEndpoint<IListInstancesHandler>(),
             (IListInstancesHandler handler) => handler.ExecuteAsync()
         );
 
         app.MapGet(
-            Route.GetEndpoint<IListMultiSelectPicklistOptionsHandler>(),
+            Routes.GetEndpoint<IListMultiSelectPicklistOptionsHandler>(),
             (IListMultiSelectPicklistOptionsHandler handler, string entityLogicalName, string attributeLogicalName)
                 => handler.GetAsync(entityLogicalName, attributeLogicalName)
         );
         app.MapGet(
-            Route.GetEndpoint<IListOptionsHandler>(),
+            Routes.GetEndpoint<IListOptionsHandler>(),
             (IListOptionsHandler handler, string entityLogicalName, string attributeLogicalName, string derivedTypeName)
                 => handler.GetAsync(entityLogicalName, attributeLogicalName, derivedTypeName)
         );
 
         app.MapGet(
-          Route.GetEndpoint<IListPicklistOptionsHandler>(),
+          Routes.GetEndpoint<IListPicklistOptionsHandler>(),
           (IListPicklistOptionsHandler handler, string entityLogicalName, string attributeLogicalName)
               => handler.GetAsync(entityLogicalName, attributeLogicalName)
         );
 
         app.MapGet(
-            Route.GetEndpoint<IListStateCodeOptionsHandler>(),
+            Routes.GetEndpoint<IListStateCodeOptionsHandler>(),
             (IListStateCodeOptionsHandler handler, string entityLogicalName)
                 => handler.GetAsync(entityLogicalName)
         );
 
         app.MapGet(
-            Route.GetEndpoint<IListStatusCodeOptionsHandler>(),
+            Routes.GetEndpoint<IListStatusCodeOptionsHandler>(),
             (IListStatusCodeOptionsHandler handler, string entityLogicalName)
                 => handler.GetAsync(entityLogicalName)
         );
