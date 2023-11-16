@@ -15,7 +15,7 @@
 	<PackageReference Include="Microsoft.Identity.Web" Version="2.13.4" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Cblx.Dynamics.Explorer.Client\Cblx.Dynamics.Explorer.Client.csproj" />
+    <ProjectReference Include="..\Client\Cblx.Dynamics.Explorer.Client.csproj" />
   </ItemGroup>
 
 </Project>
