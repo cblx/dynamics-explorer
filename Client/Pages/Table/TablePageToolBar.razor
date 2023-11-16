@@ -1,0 +1,82 @@
+﻿@using Cblx.Dynamics.Explorer.Client.Components;
+@using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
+@using Microsoft.Fast.Components.FluentUI
+@using Microsoft.Fast.Components.FluentUI.DesignTokens
+@inject Microsoft.Fast.Components.FluentUI.IDialogService DialogService
+@if (Entity != null)
+{
+    <FluentStack VerticalAlignment="VerticalAlignment.Center">
+        <div>
+            <FluentLabel>@Entity.LogicalName</FluentLabel>
+            <FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Success">@(Entity.DisplayName ?? "-")</FluentLabel>
+        </div>
+        <FluentDivider Style="height: 40px" Role="DividerRole.Presentation" Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical" />
+        <div>
+            <FluentLabel>Showing @ShowingColumns.Count() of @Entity.Attributes.Length columns</FluentLabel>
+            <FluentButton Id="@_guid.ToString()"
+                          Appearance="Appearance.Lightweight"
+                          OnClick="() => _showColumnSelection = !_showColumnSelection">
+                Select columns...
+            </FluentButton>
+            <FluentPopover Style="width: 300px; height: 480px; overflow-y: auto" AnchorId="@_guid.ToString()" @bind-Open="_showColumnSelection">
+                <Body>
+                    <FluentStack Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
+                        @foreach (var attr in Entity.Attributes)
+                        {
+                            <FluentCheckbox Disabled="attr.IsPrimaryId"
+                                            Value="@ShowingColumns.Contains(attr)"
+                                            ValueChanged="isChecked => ToggleShowingColumn(attr, isChecked)">
+                                @attr.LogicalName
+                                <br />
+                                <FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Info">@attr.DisplayName</FluentLabel>
+                            </FluentCheckbox>
+                            <FluentDivider />
+                        }
+                    </FluentStack>
+                </Body>
+            </FluentPopover>
+        </div>
+        <FluentSpacer />
+        <FluentButton Disabled="Disabled"
+                      Appearance="Microsoft.Fast.Components.FluentUI.Appearance.Accent"
+                      OnClick="OpenCreate">New...</FluentButton>
+    </FluentStack>
+}
+@code {
+    private Guid _guid = Guid.NewGuid();
+    private bool _showColumnSelection = false;
+    [Parameter]
+    public required EntityDto? Entity { get; set; }
+    [Parameter]
+    public required List<AttributeDto> ShowingColumns { get; set; }
+    [Parameter]
+    public required bool Disabled { get; set; }
+    [Parameter]
+    public EventCallback OnChanges { get; set; }
+
+
+    private async Task OpenCreate()
+    {
+        var dialogRef = await DialogService.ShowDialogAsync<AppEditDialog>(new AppEditDialogArguments
+            {
+                EntityLogicalName = Entity!.LogicalName,
+                Id = null
+            }, AppEditDialog.DialogParameters);
+        var result = await dialogRef.Result;
+        if (result.Cancelled) { return; }
+        await OnChanges.InvokeAsync();
+    }
+
+    private async Task ToggleShowingColumn(AttributeDto attribute, bool isChecked)
+    {
+        if (isChecked && !ShowingColumns.Contains(attribute))
+        {
+            ShowingColumns.Add(attribute);
+        }
+        if (!isChecked && ShowingColumns.Contains(attribute))
+        {
+            ShowingColumns.Remove(attribute);
+        }
+        await OnChanges.InvokeAsync();
+    }
+}

@@ -1,0 +1,85 @@
+﻿@using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
+@using Cblx.Dynamics.Explorer.Models;
+@using System.Linq.Expressions;
+@using System.Net.Http.Json;
+@using System.Text.Json.Nodes;
+@using System.Text.Json;
+@using System.Net.Http.Headers;
+@using Cblx.Dynamics.Explorer.Services.DynamicsServices.ExecuteQuery;
+@using Cblx.Dynamics.Explorer.Shared;
+@using Microsoft.Fast.Components.FluentUI
+@inject IGetEntityHandler GetEntityHandler
+@inject IExecuteQueryHandler ExecuteQueryHandler
+<FluentStack Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical" VerticalGap="0">
+    <FluentAutocomplete Id="my-autocomplete"
+                        Width="100%"
+                        TOption="SearchItem"
+                        OnOptionsSearch="@OnSearchAsync"
+                        MaximumSelectedOptions="1"
+                        SelectedOptions="@SelectedItems"
+                        SelectedOptionsChanged="(options) => { SelectedItems = options; Set.ValueAsString = SelectedItems.FirstOrDefault()?.Value; }"
+                        OptionValue="@(item => item.Value)"
+                        OptionText="@(item => item.Text)" />
+    <FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Info">@Set.ValueHelperText</FluentLabel>
+</FluentStack>
+@code {
+    IEnumerable<SearchItem> SelectedItems = Array.Empty<SearchItem>();
+
+    [Parameter]
+    [EditorRequired]
+    public required EditDialogSet Set { get; set; }
+
+    private EntityDto? _foreignEntity;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _foreignEntity = await GetEntityHandler.GetAsync(Set.Attribute!.ReferencedEntity!);
+        if (Set.Value is not null)
+        {
+            SelectedItems = new[] { 
+                new SearchItem {
+                    Text = Set.FormattedValue ?? "-",
+                    Value = Set.ValueAsString
+                }
+            };
+        }
+    }
+
+    private async Task OnSearchAsync(OptionsSearchEventArgs<SearchItem> e)
+    {
+        var foreignPimaryIdAttribute = _foreignEntity!.Attributes.Find(a => a.IsPrimaryId);
+        var foreignPrimaryNameAttribute = _foreignEntity!.Attributes.Find(a => a.IsPrimaryName);
+        string filters = "";
+        if (!string.IsNullOrEmpty(e.Text))
+        {
+            if (Guid.TryParse(e.Text, out var guid))
+            {
+                filters = $"&$filter={foreignPimaryIdAttribute!.LogicalName} eq '{guid:D}'";
+            }
+            else
+            {
+                filters = $"&$filter=contains({foreignPrimaryNameAttribute!.LogicalName},'{e.Text}')";
+            }
+        }
+        string select = $"&$select={foreignPimaryIdAttribute!.LogicalName},{foreignPrimaryNameAttribute!.LogicalName}";
+        var json = await ExecuteQueryHandler.GetAsync($"{_foreignEntity.EntitySetName}?$top=100{select}{filters}");
+        var jsonItems = json!["value"]!.AsArray();
+        var foundIds = new List<string?>() { null };
+        var foundItems = new List<SearchItem>();
+        foreach (var item in jsonItems)
+        {
+            string id = item![foreignPimaryIdAttribute.LogicalName]!.GetValue<string>();
+            foundIds.Add(id);
+            string name = item![foreignPrimaryNameAttribute.LogicalName]?.GetValue<string>() ?? "NAME NOT FOUND";
+            foundItems.Add(new SearchItem { Text = name, Value = id });
+        }
+
+        e.Items = foundItems;
+    }
+
+    class SearchItem
+    {
+        public required string? Value { get; set; }
+        public required string Text { get; set; }
+    }
+}

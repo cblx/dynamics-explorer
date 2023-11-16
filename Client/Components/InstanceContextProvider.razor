@@ -1,0 +1,13 @@
+﻿@using Cblx.Dynamics.Explorer.Client.Services;
+@inject InstanceContextService InstanceContextService;
+@code {
+    [SupplyParameterFromQuery]
+    public string? Group { get; set; }
+    [SupplyParameterFromQuery]
+    public string? Instance { get; set; }
+    protected override void OnParametersSet()
+    {
+        InstanceContextService.Group = Group;
+        InstanceContextService.Instance = Instance;
+    }
+}

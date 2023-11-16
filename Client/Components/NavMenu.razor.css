@@ -1,0 +1,6 @@
+::deep .fluent-nav-icon{
+    display: none;
+}
+::deep .fluent-nav-text {
+    width: 100%;
+}

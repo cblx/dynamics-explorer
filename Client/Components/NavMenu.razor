@@ -1,0 +1,96 @@
+﻿@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+@using Cblx.Dynamics.Explorer.Client.Services;
+@using Cblx.Dynamics.Explorer.Services.DynamicsServices.ListTablesForMenu;
+@inject IListEntitiesForMenuHandler Handler
+<div style="overflow-x: hidden; height: calc(100vh - 101px); overflow-y:scroll; position: relative">
+    @if (_exception != null)
+    {
+        <div style="position: sticky; top: 0; left: 0; right: 0; color: red; z-index: 1; font-size: 10px">
+            @_exception.Message
+        </div>
+    }
+    else
+    {
+        var instanceContext = new InstanceContextService
+                {
+                    Group = Group,
+                    Instance = Instance
+                };
+
+        <div class="menu-header" style="position: sticky; top: 0; background-color: var(--fill-color); z-index: 1;">
+            <FluentNavLink Href="@(instanceContext.GetRoute("/"))">Query</FluentNavLink>
+            @* <FluentNavMenuLink Href="@(instanceContext.GetRoute("/"))">Query</FluentNavMenuLink> *@
+            @* <FluentNavMenuLink Href="/diagram">Diagram</FluentNavMenuLink> *@
+            <FluentTextField @bind-Value="_filter" Immediate Placeholder="Filter entities..." />
+             <Density Value="-3">
+                 <FluentStack>
+                     <FluentLabel> showing @(_displayedEntities.Count()) entities</FluentLabel>
+                     <FluentButton ParentReference="context" IconEnd="@(new Icons.Regular.Size16.ArrowSync())" OnClick="() => LoadAsync(refresh: true)" />
+                 </FluentStack>
+             </Density>
+             <FluentDivider Style="position: sticky; top: 0" />
+         </div>
+        @foreach (var tbl in _displayedEntities)
+        {
+            <FluentNavLink Href="@(instanceContext.GetRoute($"/tbl/{tbl.LogicalName}"))" title="@tbl.LogicalName">
+
+                <FluentStack Orientation="Orientation.Vertical"
+                             VerticalGap="0" Style="pointer-events: none; width: 160px; overflow: hidden; text-overflow: ellipsis">
+                    <FluentLabel Style="text-overflow: ellipsis; overflow: hidden; width: 100%; line-height: 1">@tbl.LogicalName</FluentLabel>
+                        <FluentLabel Color="Color.Info" Style="font-size: 0.7rem; text-overflow: ellipsis; overflow: hidden; width: 100%;line-height: 1;">@(tbl.DisplayName ?? "-")</FluentLabel>
+                    </FluentStack>
+                </FluentNavLink>
+        }
+        <FluentOverlay Opacity="0.4"
+                       Dismissable="false"
+                       Visible="_loading" />
+    }
+</div>
+@code {
+    [SupplyParameterFromQuery]
+    public string? Group { get; set; }
+    [SupplyParameterFromQuery]
+    public string? Instance { get; set; }
+
+    private Exception? _exception = null;
+    private bool _loading = true;
+    private EntityDto[] _entities = Array.Empty<EntityDto>();
+    private string _filter = string.Empty;
+    private EntityDto[] _displayedEntities
+           => _entities.Where(
+               t => t.DisplayName?.Contains(_filter, StringComparison.OrdinalIgnoreCase) is true
+                   || t.LogicalName?.Contains(_filter, StringComparison.OrdinalIgnoreCase) is true).ToArray();
+
+
+    protected override async Task OnParametersSetAsync() => await LoadAsync();
+    private string _state = "";
+    private async Task LoadAsync(bool refresh = false)
+    {
+        // Guarda uma chave para a combinação grupo/instância. Se continuar o mesmo, não carrega.
+        string state = $"{Group}/{Instance}";
+        bool sameState = state == _state;
+        if (sameState && !refresh) { return; }
+        _state = state;
+        try
+        {
+            _exception = null;
+            _loading = true;
+            if (!sameState)
+            {
+                _entities = [];
+            }
+            _entities = await Handler.GetAsync();
+        }
+        catch (Exception ex)
+        {
+            _exception = ex;
+        }
+        finally
+        {
+            _loading = false;
+            StateHasChanged();
+        }
+    }
+
+
+}

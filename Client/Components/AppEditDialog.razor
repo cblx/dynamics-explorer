@@ -1,0 +1,224 @@
+﻿@using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
+@using Cblx.Dynamics.Explorer.Services.DynamicsServices.ExecuteQuery;
+@using Cblx.Dynamics.Explorer.Shared;
+@using Microsoft.Fast.Components.FluentUI
+@using System.Text.Json.Nodes;
+@implements IDialogContentComponent<AppEditDialogArguments>
+@inject IGetEntityHandler GetEntityHandler
+@inject IExecuteQueryHandler ExecuteQueryHandler
+@inject EditDialogService EditDialogService
+@inject Microsoft.Fast.Components.FluentUI.IDialogService DialogService
+<FluentDialogHeader>
+    <FluentStack Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical" VerticalGap="0">
+        <FluentLabel Typo="Microsoft.Fast.Components.FluentUI.Typography.H2">@Content.EntityLogicalName</FluentLabel>
+        <FluentLabel Typo="Microsoft.Fast.Components.FluentUI.Typography.H3" Color="Microsoft.Fast.Components.FluentUI.Color.Info">@_entity?.DisplayName</FluentLabel>
+    </FluentStack>
+</FluentDialogHeader>
+<FluentDialogBody>
+    @if (_entity is null)
+    {
+        <FluentLabel>Loading...</FluentLabel>
+    }
+    else
+    {
+        <FluentStack Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
+            <FluentLabel Typo="Microsoft.Fast.Components.FluentUI.Typography.H4">Setting Fields (@_settingFields.Count)</FluentLabel>
+            @* Não adicionar scroll, senão quebra funcionamento do select do fluent. O painel de opções fica por trás *@
+            <FluentStack Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
+                @if (_settingFields.Any())
+                {
+                    @foreach (var field in _settingFields)
+                    {
+                        <FluentStack>
+                            <FluentStack VerticalGap="0" Width="200px" Style="overflow: hidden" Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
+                                <FluentLabel>@field.Attribute!.LogicalName</FluentLabel>
+                                <FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Info">@field.Attribute!.DisplayName</FluentLabel>
+                            </FluentStack>
+                            <FluentStack Style="flex: 1" Width="0">
+                                <div style="flex: 1; width: 0;">
+                                    <AppSetValueField Set="field" />
+                                </div>
+                                <FluentButton Appearance="Appearance.Lightweight" OnClick="() => UnMarkForSet(field)">Remove</FluentButton>
+                            </FluentStack>
+                        </FluentStack>
+                        <FluentDivider />
+                    }
+                }
+                else
+                {
+                    <FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Info">No fields being set</FluentLabel>
+                }
+            </FluentStack>
+            <FluentDivider />
+            <FluentLabel Typo="Microsoft.Fast.Components.FluentUI.Typography.H4">Available Fields (@_fields.Count)</FluentLabel>
+            <FluentStack Style="max-height: 240px; overflow-y: auto;" Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
+                @foreach (var field in _fields)
+                {
+                    <FluentStack>
+                        <FluentStack VerticalGap="0" Width="200px" Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
+                            <FluentLabel Class="truncate">@field.Attribute!.LogicalName</FluentLabel>
+                            <FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Info">@field.Attribute!.DisplayName</FluentLabel>
+                        </FluentStack>
+                        <FluentStack Style="flex: 1" Width="0" VerticalAlignment="VerticalAlignment.Center">
+                            <FluentStack VerticalGap="0" Style="flex: 1; overflow: hidden" Width="0" Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
+                                <FluentLabel>@field.OriginalValue</FluentLabel>
+                                <FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Info">@field.FormattedValue</FluentLabel>
+                            </FluentStack>
+                            <FluentButton Appearance="Appearance.Lightweight" OnClick="() => MarkForSet(field)">Edit</FluentButton>
+                        </FluentStack>
+                    </FluentStack>
+                    <FluentDivider />
+                }
+            </FluentStack>
+        </FluentStack>
+    }
+</FluentDialogBody>
+<FluentDialogFooter>
+    <FluentButton OnClick="Submit" Disabled="_entity is null" Appearance="Appearance.Accent">Submit</FluentButton>
+    <FluentButton OnClick="() => Dialog.CancelAsync()">Cancel</FluentButton>
+</FluentDialogFooter>
+<FluentOverlay @bind-Visible=@_saving
+               Opacity="0.4"
+               FullScreen="true"
+               Dismissable="false"
+               PreventScroll=true>
+    <FluentProgressRing />
+</FluentOverlay>
+@code {
+    private EntityDto? _entity;
+    private List<EditDialogSet> _fields = new();
+    private List<EditDialogSet> _settingFields = new();
+    private bool _saving = false;
+
+
+    public static Microsoft.Fast.Components.FluentUI.DialogParameters DialogParameters = new Microsoft.Fast.Components.FluentUI.DialogParameters()
+        {
+            Width = "900px"
+        };
+
+    [Parameter]
+    public required AppEditDialogArguments Content { get; set; }
+
+    [CascadingParameter]
+    public FluentDialog Dialog { get; set; } = default!;
+
+    private void MarkForSet(EditDialogSet field)
+    {
+        _fields.Remove(field);
+        _settingFields.Add(field);
+    }
+
+    private void UnMarkForSet(EditDialogSet field)
+    {
+
+        _settingFields.Remove(field);
+        _fields.Add(field);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        _entity = await GetEntityHandler.GetAsync(Content.EntityLogicalName);
+        JsonObject? current = null;
+        if (Content.Id.HasValue)
+        {
+            current = await ExecuteQueryHandler.GetAsync($"{_entity.EntitySetName}({Content.Id})");
+        }
+
+        foreach (var attribute in _entity.Attributes.Where(c => c.IsEditable))
+        {
+            var jsonVal = current?[attribute.LookupPropertyNameOrLogicalName];
+            //if (jsonVal is null) { continue; }
+            var set = new EditDialogSet { Attribute = attribute, };
+            set.FormattedValue = current?[$"{attribute.LookupPropertyNameOrLogicalName}@OData.Community.Display.V1.FormattedValue"]?.GetValue<string>();
+            set.Value = attribute switch
+            {
+                {
+                    AttributeType: "Uniqueidentifier"
+                } => jsonVal?.GetValue<string>(),
+                {
+                    DerivedType: AttributeMetadataDerivedTypes.PicklistAttributeMetadata
+                } => jsonVal?.GetValue<int>(),
+                {
+                    DerivedType: AttributeMetadataDerivedTypes.MultiSelectPicklistAttributeMetadata
+                } => jsonVal?.GetValue<string>(),
+                {
+                    DerivedType: AttributeMetadataDerivedTypes.LookupAttributeMetadata
+                } => jsonVal?.GetValue<string>(),
+                {
+                    DerivedType: AttributeMetadataDerivedTypes.DateTimeAttributeMetadata,
+                    DateTimeFormat: DateTimeFormat.DateAndTime
+                } => jsonVal?.GetValue<string>()?.Replace("Z", ""),
+                {
+                    DerivedType: AttributeMetadataDerivedTypes.DateTimeAttributeMetadata,
+                    DateTimeFormat: DateTimeFormat.DateOnly
+                } => jsonVal?.GetValue<string>()?.Split('T').First(),
+                {
+                    DerivedType: AttributeMetadataDerivedTypes.BooleanAttributeMetadata
+                } => jsonVal?.GetValue<bool>(),
+                {
+                    DerivedType: AttributeMetadataDerivedTypes.DecimalAttributeMetadata
+                } => jsonVal?.GetValue<decimal>(),
+                {
+                    DerivedType: AttributeMetadataDerivedTypes.DoubleAttributeMetadata
+                } => jsonVal?.GetValue<double>(),
+                {
+                    DerivedType: AttributeMetadataDerivedTypes.IntegerAttributeMetadata
+                } => jsonVal?.GetValue<int>(),
+                {
+                    DerivedType: AttributeMetadataDerivedTypes.MoneyAttributeMetadata
+                } => jsonVal?.GetValue<decimal>(),
+                {
+                    DerivedType: AttributeMetadataDerivedTypes.StringAttributeMetadata
+                } => jsonVal?.GetValue<string>(),
+                {
+                    DerivedType: AttributeMetadataDerivedTypes.MemoAttributeMetadata
+                } => jsonVal?.GetValue<string>(),
+                {
+                    DerivedType: AttributeMetadataDerivedTypes.StateAttributeMetadata
+                } => jsonVal?.GetValue<int>(),
+                {
+                    DerivedType: AttributeMetadataDerivedTypes.StatusAttributeMetadata
+                } => jsonVal?.GetValue<int>(),
+                {
+                    DerivedType: AttributeMetadataDerivedTypes.BigIntAttributeMetadata
+                } => jsonVal?.GetValue<long>(),
+                _ => null
+            };
+            set.OriginalValue = set.Value;
+            _fields.Add(set);
+        }
+        if (!Content.Id.HasValue)
+        {
+            var idField = _fields.First();
+            idField.Value = Guid.NewGuid().ToString();
+            MarkForSet(idField);
+        }
+    }
+
+    async Task Submit()
+    {
+        _saving = true;
+        try
+        {
+            if (Content.Id.HasValue)
+            {
+                await EditDialogService.PatchAsync(Content.Id.Value, _entity!.EntitySetName, _settingFields.ToArray());
+            }
+            else
+            {
+                await EditDialogService.PostAsync(_entity!.EntitySetName, _settingFields.ToArray());
+            }
+            await Dialog.CloseAsync(true);
+        }
+        catch (Exception ex)
+        {
+            await DialogService.ShowErrorAsync(ex.Message);
+            Console.WriteLine(ex);
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+}

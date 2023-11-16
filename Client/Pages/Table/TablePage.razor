@@ -1,0 +1,307 @@
+﻿@page "/tbl/{EntityLogicalName}"
+@using System.Text.Json.Nodes;
+@using Cblx.Dynamics.Explorer.Client.Components;
+@using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
+@using Cblx.Dynamics.Explorer.Services.DynamicsServices.Data.Delete;
+@using Cblx.Dynamics.Explorer.Services.DynamicsServices.ExecuteQuery;
+@using System.Web;
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using System.Globalization;
+@using System.Text.Json;
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+@inject IDialogService DialogService
+@inject IGetEntityHandler GetEntityHandler
+@inject IExecuteQueryHandler ExecuteQueryHandler
+@inject IDeleteHandler DeleteHandler
+@inject IDialogService FluentDialogService
+<PageTitle>@EntityLogicalName</PageTitle>
+    <SectionContent SectionName="app-bar-content">
+        <TablePageToolBar Entity="_entity"
+                          ShowingColumns="_showingColumns"
+                          Disabled="_error is not null"
+                          OnChanges="() => _shouldRefresh = true"></TablePageToolBar>
+    </SectionContent>
+    <div scoped-css>
+        @if (_error != null)
+    {
+        <div class="grid">
+            <div style="background-color: red">@_error</div>
+        </div>
+    }
+    @if (_entity is null)
+    {
+        <div class="grid">
+            <div>Loading...</div>
+        </div>
+    }
+    else if (_error is null)
+    {
+        if (!_showingColumns.Any())
+        {
+            <div class="grid">
+                <div>Select at least one column</div>
+            </div>
+        }
+        else
+        {
+            <div class="grid">
+                <FluentDesignSystemProvider TypeRampBaseFontSize="12px" Density="-2">
+                    <QuickGrid @ref="_table" TGridItem="JsonObject"
+                               ItemsProvider="ServerReloadJson"
+                               Pagination="_pagination">
+                        <!-- se um dia não tiver mais o mud no projeto, poderíamos ajustar aqui -->
+                        <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
+                            @{
+                                var canChange = true;
+                            }
+                            <FluentButton IconEnd="@(new Icons.Regular.Size16.Edit())"
+                                          Title="Edit" OnClick="() => OpenEdit(context)" />
+                            <FluentButton IconEnd="@(new Icons.Regular.Size16.Delete().WithColor(Color.Error))"
+                                          Title="Edit" OnClick="() => DeleteAsync(context)" />
+                        </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
+
+                        @foreach (var attribute in _showingColumns)
+                        {
+                            bool isLookup = attribute.DerivedType == AttributeMetadataDerivedTypes.LookupAttributeMetadata;
+                            string logicalName = attribute.LookupPropertyNameOrLogicalName;
+                            <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn Class="mud-typography mud-typography-caption"
+                                                                                      Sortable="!isLookup"
+                                                                                      Title="@(attribute.LogicalName)">
+                                <ColumnOptions>
+                                    <TablePageColumnOptions Attribute="attribute"
+                                                            CurrentFilter="@_filters.GetValueOrDefault(attribute.LogicalName, "")"
+                                                            OnFilterApplied="(filter) => ApplyFilter(attribute.LogicalName, filter)" />
+                                </ColumnOptions>
+                                <ChildContent>
+                                    <FluentStack Orientation="Orientation.Vertical" VerticalGap="1" Style="padding: 1px; position: relative">
+                                        @{
+                                            var text = context[logicalName]?.ToString();
+                                            int maxTextLength = 128;
+                                            var overflown = text?.Length > maxTextLength;
+                                            if (overflown)
+                                            {
+                                                text = text![..maxTextLength] + " (more...)";
+                                            }
+                                            var formattedText = context[$"{logicalName}@OData.Community.Display.V1.FormattedValue"]?.GetValue<string>();
+                                        }
+                                        <FluentLabel Class="truncate" Style="line-height: 1; width: 100%;" title="@text">@text</FluentLabel>
+                                            @if (!string.IsNullOrEmpty(formattedText))
+                                        {
+                                            <FluentLabel Class="truncate" Style="line-height: 1; width: 100%;" Color="Color.Info" title="@formattedText">@formattedText</FluentLabel>
+                                        }
+                                        @if (overflown)
+                                        {
+                                            <FluentIcon Style="position: absolute; right: 0; background-color: var(--neutral-layer-3)" Color="Color.Warning" Title="Too big to show" Icon="Icons.Filled.Size16.Warning" />
+                                        }
+                                    </FluentStack>
+                                </ChildContent>
+                            </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
+                        }
+                    </QuickGrid>
+                </FluentDesignSystemProvider>
+            </div>
+            <Paginator State="_pagination" />
+        }
+    }
+</div>
+@code {
+    [Parameter]
+    [EditorRequired]
+    public required string EntityLogicalName { get; set; }
+    private string? _previousEntityLogicalName;
+    private string? _error = null;
+    private Dictionary<string, int> _columnOrders = new();
+    //private Guid[] _applicationUsersIds = default!;
+    private QuickGrid<JsonObject> _table = default!;
+    private EntityDto? _entity = null;
+    private Microsoft.AspNetCore.Components.QuickGrid.PaginationState _pagination = new()
+        {
+            ItemsPerPage = 50
+        };
+    //private Dictionary<string, string> _inputFilters = new();
+    private Dictionary<string, string> _filters = new();
+    private CultureInfo _cultureInfo = new CultureInfo("en-US");
+
+    private bool _shouldRefresh = false;
+    private string? _lastQuery;
+    private Microsoft.AspNetCore.Components.QuickGrid.GridItemsProviderResult<JsonObject>? _lastProviderResult;
+    private List<AttributeDto> _showingColumns = new();
+    private async ValueTask<Microsoft.AspNetCore.Components.QuickGrid.GridItemsProviderResult<JsonObject>> ServerReloadJson(Microsoft.AspNetCore.Components.QuickGrid.GridItemsProviderRequest<JsonObject> state)
+    {
+        _error = null;
+        try
+        {
+            var pageSize = state.Count ?? 50;
+            var top = state.Count ?? 50;
+            var pageIndex = (state.StartIndex / pageSize);
+            string query = $"{_entity!.EntitySetName}?$top={top}&$skiptoken=<cookie pagenumber='{pageIndex + 1}' />&$count=true";
+            query += $"&$select={string.Join(',', _showingColumns.Select(attribute => attribute.LookupPropertyNameOrLogicalName))}";
+            if (_filters.Any())
+            {
+                var oDataFilters = new List<string>();
+                foreach (var kvp in _filters)
+                {
+                    var attribute = _entity.Attributes.First(a => a.LogicalName == kvp.Key);
+                    switch (attribute.DerivedType)
+                    {
+                        case AttributeMetadataDerivedTypes.DecimalAttributeMetadata:
+                        case AttributeMetadataDerivedTypes.DoubleAttributeMetadata:
+                            if (decimal.TryParse(kvp.Value, _cultureInfo, out var dcm))
+                            {
+                                oDataFilters.Add($"{attribute.LogicalName} eq {dcm}");
+                            }
+                            break;
+                        case AttributeMetadataDerivedTypes.BigIntAttributeMetadata:
+                        case AttributeMetadataDerivedTypes.IntegerAttributeMetadata:
+                        case AttributeMetadataDerivedTypes.PicklistAttributeMetadata:
+                        case AttributeMetadataDerivedTypes.StateAttributeMetadata:
+                        case AttributeMetadataDerivedTypes.StatusAttributeMetadata:
+                            if (int.TryParse(kvp.Value, _cultureInfo, out var nmb))
+                            {
+                                oDataFilters.Add($"{attribute.LogicalName} eq {nmb}");
+                            }
+                            break;
+                        case AttributeMetadataDerivedTypes.LookupAttributeMetadata:
+                            oDataFilters.Add($"{attribute.LookupPropertyNameOrLogicalName} eq '{kvp.Value}'");
+                            break;
+                        case AttributeMetadataDerivedTypes.StringAttributeMetadata:
+                        case AttributeMetadataDerivedTypes.MultiSelectPicklistAttributeMetadata:
+                        case AttributeMetadataDerivedTypes.MemoAttributeMetadata:
+                            oDataFilters.Add($"contains({attribute.LogicalName},'{kvp.Value}')");
+                            break;
+                        default:
+                            if (attribute.AttributeType is "Uniqueidentifier" && Guid.TryParse(kvp.Value, out var _))
+                            {
+                                oDataFilters.Add($"{attribute.LogicalName} eq '{kvp.Value}'");
+                            }
+                            break;
+                    }
+                }
+                if (oDataFilters.Any())
+                {
+                    query += $"&$filter=";
+                    query += string.Join(" and ", oDataFilters);
+                }
+            }
+            if (state.SortByColumn != null)
+            {
+                query += $"&$orderby={state.SortByColumn.Title} {(state.SortByAscending ? "asc" : "desc")}";
+            }
+            if (!_shouldRefresh && query == _lastQuery && _lastProviderResult.HasValue)
+            {
+                return _lastProviderResult.Value;
+            }
+            _shouldRefresh = false;
+            _lastQuery = query;
+
+            query = HttpUtility.UrlEncode(query);
+            var json = await ExecuteQueryHandler.GetAsync(query);
+            if (json.HasError())
+            {
+                Console.WriteLine(json);
+                _error = json.GetErrorMessage();
+                StateHasChanged();
+                return Microsoft.AspNetCore.Components.QuickGrid.GridItemsProviderResult.From(items: Array.Empty<JsonObject>(), totalItemCount: 0);
+
+            }
+            var value = json!["value"]?.AsArray().Select(n => n!.AsObject());
+            var count = json["@odata.count"]?.GetValue<int>();
+            if (count is null)
+            {
+
+                return Microsoft.AspNetCore.Components.QuickGrid.GridItemsProviderResult.From(items: Array.Empty<JsonObject>(), totalItemCount: 0);
+            }
+            _lastProviderResult = Microsoft.AspNetCore.Components.QuickGrid.GridItemsProviderResult.From<JsonObject>(items: value!.ToArray(), totalItemCount: count.Value);
+            return _lastProviderResult.Value;
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+            StateHasChanged();
+            return Microsoft.AspNetCore.Components.QuickGrid.GridItemsProviderResult.From(items: Array.Empty<JsonObject>(), totalItemCount: 0);
+        }
+    }
+
+    private void ApplyFilter(string logicalName, string filter)
+    {
+        _filters[logicalName] = filter;
+        _shouldRefresh = true;
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (EntityLogicalName == _previousEntityLogicalName) { return; }
+        _filters.Clear();
+        _error = null;
+        _entity = null;
+        _previousEntityLogicalName = EntityLogicalName;
+        _showingColumns.Clear();
+        _entity = await GetEntityHandler.GetAsync(EntityLogicalName);
+        int i = 0;
+
+        string[] notRelevantAttributes = [
+            "body",
+            // Esses de created já são satisfeitos pelo modified para análises mais comuns
+            "createdby",
+            "createdon",
+            "createdonbehalfby",
+            "documentbody",
+            "importsequencenumber",
+            "modifiedonbehalfby",
+            "msft_datastate",
+            "organizationid",
+            "overriddencreatedon",
+            "ownerid",
+            "owningbusinessunit",
+            "owningteam",
+            "owninguser",
+            "timezoneruleversionnumber",
+            "utcconversiontimezonecode",
+            "versionnumber"
+        ];
+
+        var relevantAttributes = _entity.Attributes
+            .Where(a => !notRelevantAttributes.Contains(a.LogicalName))
+            .ToArray();
+
+        foreach (var attribute in relevantAttributes)
+        {
+            _showingColumns.Add(attribute);
+            i++;
+            if (i == 15) { break; }
+        }
+    }
+
+
+    private async Task OpenEdit(JsonObject item)
+    {
+        var dialogRef = await FluentDialogService.ShowDialogAsync<AppEditDialog>(new AppEditDialogArguments
+            {
+                EntityLogicalName = EntityLogicalName,
+                Id = item[_entity!.PrimaryId!]!.GetValue<Guid>()
+            }, AppEditDialog.DialogParameters);
+        var result = await dialogRef.Result;
+        _shouldRefresh = result.Data is true;
+    }
+
+    private async Task DeleteAsync(JsonObject item)
+    {
+        var dialog = await FluentDialogService
+            .ShowConfirmationAsync(
+                $"Are you sure you want to delete this {_entity!.CustomName ?? _entity.LogicalName} item?",
+                title: "Delete");
+        var result = await dialog.Result;
+        if (result.Cancelled) { return; }
+        try
+        {
+            StateHasChanged();
+            await DeleteHandler.DeleteAsync(_entity.EntitySetName, item[_entity.PrimaryId!]!.GetValue<Guid>());
+            _shouldRefresh = true;
+        }
+        catch (Exception ex)
+        {
+            await FluentDialogService.ShowErrorAsync(ex.Message);
+            Console.WriteLine(ex);
+        }
+    }
+}

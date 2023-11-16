@@ -1,0 +1,63 @@
+﻿@using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
+@using Cblx.Dynamics.Explorer.Models;
+@using System.Linq.Expressions;
+@using Cblx.Dynamics.Explorer.Shared;
+@switch (Set.Attribute)
+{
+    case { AttributeType: "Uniqueidentifier" }:
+        <AppSetStringField Set="Set" />
+        break;
+    case { DerivedType: AttributeMetadataDerivedTypes.LookupAttributeMetadata }:
+        <AppSetNavigationField Set="Set" />
+        break;
+    case
+    {
+        DerivedType: AttributeMetadataDerivedTypes.PicklistAttributeMetadata
+           or AttributeMetadataDerivedTypes.StateAttributeMetadata
+           or AttributeMetadataDerivedTypes.StatusAttributeMetadata
+    }:
+        <AppSetPicklistField Set="Set" />
+        break;
+    case { DerivedType: AttributeMetadataDerivedTypes.MultiSelectPicklistAttributeMetadata }:
+        <AppSetMultiSelectPicklistField Set="Set" />
+        break;
+    case { DerivedType: AttributeMetadataDerivedTypes.StringAttributeMetadata }:
+        <AppSetStringField Set="Set" />
+        break;
+    case { DerivedType: AttributeMetadataDerivedTypes.IntegerAttributeMetadata }:
+        <Microsoft.Fast.Components.FluentUI.FluentNumberField Placeholder="NULL" Style="width: 100%" Immediate @bind-Value="Set.ValueAsInt32" />
+        break;
+    case { DerivedType: AttributeMetadataDerivedTypes.BigIntAttributeMetadata }:
+        <Microsoft.Fast.Components.FluentUI.FluentNumberField Placeholder="NULL" Style="width: 100%" Immediate @bind-Value="Set.ValueAsInt64" />
+        break;
+    case { DerivedType: AttributeMetadataDerivedTypes.BooleanAttributeMetadata }:
+        <Microsoft.Fast.Components.FluentUI.FluentRadioGroup TValue="int" 
+                Immediate
+                Value="@(Set.ValueAsBoolean is null ? -1 : Convert.ToInt32(Set.ValueAsBoolean.Value))" 
+                ValueChanged="b => Set.ValueAsBoolean = b == -1 ? null : Convert.ToBoolean(b)">
+            <Microsoft.Fast.Components.FluentUI.FluentRadio Value="1">True</Microsoft.Fast.Components.FluentUI.FluentRadio>
+            <Microsoft.Fast.Components.FluentUI.FluentRadio Value="0">False</Microsoft.Fast.Components.FluentUI.FluentRadio>
+            <Microsoft.Fast.Components.FluentUI.FluentRadio Value="-1">NULL</Microsoft.Fast.Components.FluentUI.FluentRadio>
+        </Microsoft.Fast.Components.FluentUI.FluentRadioGroup>
+        break;
+    case { DerivedType: AttributeMetadataDerivedTypes.DateTimeAttributeMetadata, DateTimeFormat: DateTimeFormat.DateAndTime }:
+        <AppSetDateTimeField Set="Set" />
+        break;
+    case { DerivedType: AttributeMetadataDerivedTypes.DateTimeAttributeMetadata, DateTimeFormat: DateTimeFormat.DateOnly }:
+        <AppSetDateField Set="Set" />
+        break;
+    case { DerivedType: AttributeMetadataDerivedTypes.DecimalAttributeMetadata }:
+        <Microsoft.Fast.Components.FluentUI.FluentNumberField Placeholder="NULL" Style="width: 100%" Immediate @bind-Value="Set.ValueAsDecimal" />
+        break;
+    case { DerivedType: AttributeMetadataDerivedTypes.DoubleAttributeMetadata }:
+        <Microsoft.Fast.Components.FluentUI.FluentNumberField Placeholder="NULL" Style="width: 100%" Immediate @bind-Value="Set.ValueAsDouble" />
+        break;
+    default:
+        <Microsoft.Fast.Components.FluentUI.FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Error">Unsupported</Microsoft.Fast.Components.FluentUI.FluentLabel>
+        break;
+}
+@code {
+    [Parameter]
+    [EditorRequired]
+    public required EditDialogSet Set { get; set; }
+}

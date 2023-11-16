@@ -1,9 +1,0 @@
-﻿::deep .mud-input-root{
-    height: auto !important;
-    padding: 6px !important;
-    padding-top: 12px !important;
-}
-
-::deep .mud-typography-caption {
-    line-height: 1.05 !important;
-}

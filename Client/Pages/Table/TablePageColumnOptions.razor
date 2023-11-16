@@ -1,0 +1,46 @@
+﻿@using Cblx.Dynamics.Explorer.Client.Components;
+@using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
+@inject IDialogService DialogService
+<FluentStack Orientation="Orientation.Vertical" VerticalGap="4">
+    <FluentTextField @bind-Value="_filtering" Autofocus Placeholder="Filter..." Style="width: 100%" />
+     <FluentButton OnClick="ApplyFilter">Apply</FluentButton>
+     <FluentDivider Style="width: 100%;" Role="DividerRole.Presentation" />
+     <FluentLabel>@Attribute.LogicalName</FluentLabel>
+     <FluentLabel Color="Color.Info">@Attribute.DisplayName</FluentLabel>
+     <FluentDivider Style="width: 100%;" Role="DividerRole.Presentation" />
+     <FluentStack>
+         <FluentLabel Color="Color.Info">@(Attribute.AttributeType)</FluentLabel>
+         <FluentDivider Orientation="Orientation.Vertical" />
+         <FluentLabel Color="Color.Info">@((Attribute.DerivedType ?? "Not derived").Split('.').Last())</FluentLabel>
+     </FluentStack>
+     <FluentDivider Style="width: 100%;" Role="DividerRole.Presentation" />
+     @if (Attribute.DerivedType is AttributeMetadataDerivedTypes.MultiSelectPicklistAttributeMetadata
+    or AttributeMetadataDerivedTypes.StatusAttributeMetadata
+    or AttributeMetadataDerivedTypes.StateAttributeMetadata
+    or AttributeMetadataDerivedTypes.PicklistAttributeMetadata
+    )
+    {
+        <FluentButton OnClick="ShowOptions">Show options list</FluentButton>
+    }
+</FluentStack>
+@code {
+    private string _filtering = "";
+    [Parameter] public required AttributeDto Attribute { get; set; }
+    [Parameter] public required string CurrentFilter { get; set; }
+    [Parameter] public EventCallback<string> OnFilterApplied { get; set; }
+    protected override void OnInitialized()
+    {
+        _filtering = CurrentFilter;
+    }
+
+    private void ApplyFilter()
+    {
+        OnFilterApplied.InvokeAsync(_filtering);
+    }
+
+    private async Task ShowOptions()
+    {
+        await DialogService.ShowDialogAsync<OptionsDialog>(Attribute, new DialogParameters { });
+    }
+
+}

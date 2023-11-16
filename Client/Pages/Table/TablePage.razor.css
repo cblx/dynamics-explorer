@@ -1,0 +1,82 @@
+﻿/* Fix height and enable scrolling */
+.grid {
+    height: calc(100vh - 109px);
+    overflow-y: auto;
+}
+
+    .grid ::deep table {
+        min-width: 100%;
+    }
+
+/* Sticky header while scrolling */
+::deep thead {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background-color: var(--fill-color);
+}
+
+::deep button.col-title, ::deep button.col-options-button {
+    color: var(--accent-foreground-rest);
+}
+::deep button.col-options-button {
+    background-color: lightgray;
+    border-radius: 4px;
+    /*  background: none;
+    height: 24px;
+    width: 24px;
+    background-color: var(--accent-foreground-rest);
+    -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="-5 -5 30 30" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16" /></svg>');*/
+}
+
+    ::deep table.loading tbody tr:empty:first-child:before {
+    content: 'Loading...';
+    position: absolute;
+}
+
+::deep table:not(.loading) tbody tr:empty:first-child:before {
+    content: 'No items found';
+    position: absolute;
+}
+
+::deep table tbody td, ::deep thead th {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    --size: 250px;
+    min-width: var(--size);
+    max-width: var(--size);
+    /*width: var(--size);*/
+    overflow: hidden;
+}
+
+::deep thead th {
+    overflow: initial;
+}
+
+/*::deep thead th div.col-options{
+    background-color: black !important;
+}*/
+
+    ::deep tbody td:first-child, ::deep thead th:first-child {
+        background-color: var(--fill-color);
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        --size: 52px;
+        padding:0 !important;
+        min-width: var(--size);
+        max-width: var(--size);
+        width: var(--size);
+    }
+
+::deep tbody td {
+    padding-left: 2px !important;
+    padding-right: 4px !important;
+    border-bottom: 1px dotted var(--fill-color);
+    border-right: 1px dotted var(--fill-color);
+    line-height: 1;
+}
+
+::deep .paginator {
+    margin-top: 0;
+}

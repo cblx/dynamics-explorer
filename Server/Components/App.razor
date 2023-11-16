@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <base href="/" />
+    <link href="_content/Microsoft.AspNetCore.Components.QuickGrid/Microsoft.AspNetCore.Components.QuickGrid.bundle.scp.css" rel="stylesheet" />
+    <link href="_content/Microsoft.Fast.Components.FluentUI/Microsoft.Fast.Components.FluentUI.bundle.scp.css" rel="stylesheet" />
+    <link href="_content/Microsoft.Fast.Components.FluentUI/css/reboot.css" rel="stylesheet" />
+    <link href="app.css" rel="stylesheet" />
+    <link href="Cblx.Dynamics.Explorer.styles.css" rel="stylesheet" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    @* <script src="_content/Microsoft.Fast.Components.FluentUI/lib/monaco-editor/min/vs/loader.min.js"></script>
+    <script>require.config({ paths: { 'vs': '_content/Microsoft.Fast.Components.FluentUI/lib/monaco-editor/min/vs' } });</script>
+    <script src="_content/Microsoft.Fast.Components.FluentUI/lib/monaco-editor/min/vs/editor/editor.main.js"></script> *@
+    <script>
+        window.initEr = () => {
+            const diagram = document.querySelector('#mermaid');
+            const maxWidth = parseInt(diagram.style.maxWidth.replace('px', ''));
+            let scale = maxWidth / 1000;
+            if (scale < 1) { scale = 1; }
+            diagram.style.display = 'block';
+            diagram.style.height = '100vh';
+            diagram.style.width = '100%';
+            diagram.style.overflow = 'scroll';
+            diagram.style.transform = `scale(${scale})`
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@9.3.0/dist/mermaid.min.js" integrity="sha384-UFKTpBFnbiXQk3or094iG5Tu+m8KFgRJzH3MW1yS/hk+JstXEc9xhyT38erH95Zk" crossorigin="anonymous"></script>
+    <HeadOutlet />
+</head>
+
+<body>
+    <Cblx.Dynamics.Explorer.Client.Components.ClientRoutes/>
+    @* <Routes /> *@
+    <script src="_framework/blazor.web.js"></script>
+    @* <script src="_content/MudBlazor/MudBlazor.min.js"></script> *@
+</body>
+
+</html>

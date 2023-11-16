@@ -1,0 +1,32 @@
+﻿@using System.Text.Json.Nodes;
+@using System.Net.Http.Json;
+@using Cblx.Dynamics.Explorer.Models;
+@using Cblx.Dynamics.Explorer.Shared;
+@using Microsoft.Fast.Components.FluentUI
+<FluentStack Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical" VerticalGap="0">
+    <FluentTextField @bind-Value="Set.ValueAsString" Style="width: 100%" 
+        Immediate
+        @onkeydown="(args) => AlternateEmptyNull(args, Set)"
+                     Placeholder="@(Set.Value is null ? "NULL" : " ")" />
+    <FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Info" Style="overflow: hidden; text-overflow: ellipsis; width: 100%">@Set.ValueHelperText</FluentLabel>
+</FluentStack>
+@code {
+    [Parameter]
+    [EditorRequired]
+    public required EditDialogSet Set { get; set; }
+    
+    private void AlternateEmptyNull(KeyboardEventArgs args, EditDialogSet set)
+    {
+        if (args.Key == "Backspace")
+        {
+            if (set.Value == null)
+            {
+                set.Value = "";
+            }
+            else if ((set.Value as string) == "")
+            {
+                set.Value = null;
+            }
+        }
+    }
+}
