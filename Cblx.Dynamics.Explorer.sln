@@ -15,8 +15,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cblx.Dynamics.Explorer.Clie
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Old", "Old", "{A8723704-C845-4BFA-B48C-06B75A9898C7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cblx.Dynamics.Explorer.Client.Boot", "NET8\Cblx.Dynamics.Explorer\Cblx.Dynamics.Explorer.Client.Boot\Cblx.Dynamics.Explorer.Client.Boot.csproj", "{6DE8A984-DF62-4252-8863-FE31C50F5986}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,10 +37,6 @@ Global
 		{8344D596-53E7-4441-BB31-50D3B4524C59}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8344D596-53E7-4441-BB31-50D3B4524C59}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8344D596-53E7-4441-BB31-50D3B4524C59}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6DE8A984-DF62-4252-8863-FE31C50F5986}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6DE8A984-DF62-4252-8863-FE31C50F5986}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6DE8A984-DF62-4252-8863-FE31C50F5986}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6DE8A984-DF62-4252-8863-FE31C50F5986}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -52,7 +46,6 @@ Global
 		{D3D60175-91CA-4087-9DD7-FB721DE4226A} = {A8723704-C845-4BFA-B48C-06B75A9898C7}
 		{3CA168F2-D811-4713-97B8-ED338F49A192} = {39D0FFAE-E0D5-483F-840B-FCF7DB7F5B74}
 		{8344D596-53E7-4441-BB31-50D3B4524C59} = {39D0FFAE-E0D5-483F-840B-FCF7DB7F5B74}
-		{6DE8A984-DF62-4252-8863-FE31C50F5986} = {39D0FFAE-E0D5-483F-840B-FCF7DB7F5B74}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {16A4B8BE-132D-4AAD-AFCD-3A116A9CAA3C}
