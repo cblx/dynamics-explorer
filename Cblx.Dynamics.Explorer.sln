@@ -3,17 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cblx.Dynamics.Explorer", "Cblx.Dynamics.Explorer\Cblx.Dynamics.Explorer.csproj", "{843BC26D-D40F-42F3-9BFD-31C2AC366DAD}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cblx.Dynamics.Explorer.Demo", "Cblx.Dynamics.Explorer.Demo\Cblx.Dynamics.Explorer.Demo.csproj", "{D3D60175-91CA-4087-9DD7-FB721DE4226A}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "New", "New", "{39D0FFAE-E0D5-483F-840B-FCF7DB7F5B74}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cblx.Dynamics.Explorer", "NET8\Cblx.Dynamics.Explorer\Cblx.Dynamics.Explorer\Cblx.Dynamics.Explorer.csproj", "{3CA168F2-D811-4713-97B8-ED338F49A192}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cblx.Dynamics.Explorer.Client", "NET8\Cblx.Dynamics.Explorer\Cblx.Dynamics.Explorer.Client\Cblx.Dynamics.Explorer.Client.csproj", "{8344D596-53E7-4441-BB31-50D3B4524C59}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Old", "Old", "{A8723704-C845-4BFA-B48C-06B75A9898C7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,14 +13,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{843BC26D-D40F-42F3-9BFD-31C2AC366DAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{843BC26D-D40F-42F3-9BFD-31C2AC366DAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{843BC26D-D40F-42F3-9BFD-31C2AC366DAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{843BC26D-D40F-42F3-9BFD-31C2AC366DAD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D3D60175-91CA-4087-9DD7-FB721DE4226A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D3D60175-91CA-4087-9DD7-FB721DE4226A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D3D60175-91CA-4087-9DD7-FB721DE4226A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D3D60175-91CA-4087-9DD7-FB721DE4226A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3CA168F2-D811-4713-97B8-ED338F49A192}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3CA168F2-D811-4713-97B8-ED338F49A192}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3CA168F2-D811-4713-97B8-ED338F49A192}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -40,12 +24,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{843BC26D-D40F-42F3-9BFD-31C2AC366DAD} = {A8723704-C845-4BFA-B48C-06B75A9898C7}
-		{D3D60175-91CA-4087-9DD7-FB721DE4226A} = {A8723704-C845-4BFA-B48C-06B75A9898C7}
-		{3CA168F2-D811-4713-97B8-ED338F49A192} = {39D0FFAE-E0D5-483F-840B-FCF7DB7F5B74}
-		{8344D596-53E7-4441-BB31-50D3B4524C59} = {39D0FFAE-E0D5-483F-840B-FCF7DB7F5B74}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {16A4B8BE-132D-4AAD-AFCD-3A116A9CAA3C}
