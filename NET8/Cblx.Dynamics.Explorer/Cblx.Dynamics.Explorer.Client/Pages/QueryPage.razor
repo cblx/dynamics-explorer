@@ -33,6 +33,7 @@
         }
         else
         {
+               @*  <FluentCodeEditor  @bind-Value="@_strJson" Language="@("json")" IsDarkMode /> *@
             <FluentCard>
                 <Virtualize Items="_json">
                     <div style="white-space: pre">
@@ -47,6 +48,7 @@
 @code {
     private string _query = "accounts";
     private string[] _json = Array.Empty<string>();
+    private string _strJson = "";
     private bool _searching = false;
     private string? _error = null;
     public async Task RunAsync()
@@ -56,8 +58,8 @@
         try
         {
             var json = await Handler.GetAsync(_query);
-            var strJson = JsonSerializer.Serialize(json, new JsonSerializerOptions { WriteIndented = true });
-            _json = strJson.ToString().Split(Environment.NewLine);
+            _strJson = JsonSerializer.Serialize(json, new JsonSerializerOptions { WriteIndented = true });
+            _json = _strJson.ToString().Split(Environment.NewLine);
         }
         catch (Exception ex)
         {

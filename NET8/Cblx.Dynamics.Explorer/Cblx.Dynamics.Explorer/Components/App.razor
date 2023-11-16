@@ -9,11 +9,15 @@
     <link href="_content/Microsoft.AspNetCore.Components.QuickGrid/Microsoft.AspNetCore.Components.QuickGrid.bundle.scp.css" rel="stylesheet" />
     <link href="_content/Microsoft.Fast.Components.FluentUI/Microsoft.Fast.Components.FluentUI.bundle.scp.css" rel="stylesheet" />
     <link href="_content/Microsoft.Fast.Components.FluentUI/css/reboot.css" rel="stylesheet" />
-    @* <link href="_content/Microsoft.Fast.Components.FluentUI/css/variables.css" rel="stylesheet" /> *@
+    
     <!-- não entendi, esse fica publicado direto no root? -->
     <link href="_content/Cblx.Dynamics.Explorer.Client/Cblx.Dynamics.Explorer.Client.bundle.scp.css" rel="stylesheet" />
     
     <link rel="icon" type="image/png" href="favicon.png" />
+
+    <script src="_content/Microsoft.Fast.Components.FluentUI/lib/monaco-editor/min/vs/loader.min.js"></script>
+    <script>require.config({ paths: { 'vs': '_content/Microsoft.Fast.Components.FluentUI/lib/monaco-editor/min/vs' } });</script>
+    <script src="_content/Microsoft.Fast.Components.FluentUI/lib/monaco-editor/min/vs/editor/editor.main.js"></script>
     <script>
         window.initEr = () => {
             const diagram = document.querySelector('#mermaid');
