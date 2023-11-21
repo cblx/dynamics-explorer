@@ -2,13 +2,12 @@
 @using System.Net.Http.Json;
 @using Cblx.Dynamics.Explorer.Models;
 @using Cblx.Dynamics.Explorer.Shared;
-@using Microsoft.Fast.Components.FluentUI
-<FluentStack Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical" VerticalGap="0">
+<FluentStack Orientation="Orientation.Vertical" VerticalGap="0">
     <FluentTextField @bind-Value="Set.ValueAsString" Style="width: 100%" 
         Immediate
         @onkeydown="(args) => AlternateEmptyNull(args, Set)"
                      Placeholder="@(Set.Value is null ? "NULL" : " ")" />
-    <FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Info" Style="overflow: hidden; text-overflow: ellipsis; width: 100%">@Set.ValueHelperText</FluentLabel>
+    <FluentLabel Color="Color.Info" Style="overflow: hidden; text-overflow: ellipsis; width: 100%">@Set.ValueHelperText</FluentLabel>
 </FluentStack>
 @code {
     [Parameter]

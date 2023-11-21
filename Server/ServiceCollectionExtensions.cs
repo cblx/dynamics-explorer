@@ -2,12 +2,8 @@
 using Cblx.Dynamics.Explorer.Services;
 using Cblx.Dynamics.Explorer.Services.Authenticator;
 using Cblx.Dynamics.Explorer.Services.DynamicsServices;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Fast.Components.FluentUI;
-using System.Net.Http;
+using Microsoft.FluentUI.AspNetCore.Components;
 
 namespace Cblx.Dynamics.Explorer;
 public static class ServiceCollectionExtensions

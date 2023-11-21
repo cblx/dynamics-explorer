@@ -3,11 +3,10 @@
 @using Cblx.Dynamics.Explorer.Models;
 @using Cblx.Dynamics.Explorer.Services.DynamicsServices.ListMultiSelectPicklistOptions;
 @using Cblx.Dynamics.Explorer.Shared;
-@using Microsoft.Fast.Components.FluentUI
 @inject IListMultiSelectPicklistOptionsHandler Handler
 @if (Options != null)
 {
-    <FluentStack Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical" VerticalGap="0">
+    <FluentStack Orientation="Orientation.Vertical" VerticalGap="0">
         <FluentAutocomplete Items=@Options
                             TOption="PicklistOption"
                             Width="100%"
@@ -15,7 +14,7 @@
                             OptionValue="@(i => i.Value.ToString())"
                             SelectedOptions="_selectedOptions"
                             SelectedOptionsChanged="@((options) =>{ _selectedOptions = options.ToArray(); Set.ValueAsString = options.Any() ? string.Join(", ", options.Select(o => o.Value)) : null; })" />
-        <FluentLabel Typo="Microsoft.Fast.Components.FluentUI.Typography.Body" Color="Microsoft.Fast.Components.FluentUI.Color.Info">@Set.ValueHelperText</FluentLabel>
+        <FluentLabel Typo="Typography.Body" Color="Color.Info">@Set.ValueHelperText</FluentLabel>
     </FluentStack>
 }
 else

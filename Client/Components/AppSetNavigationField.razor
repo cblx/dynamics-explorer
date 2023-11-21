@@ -7,10 +7,9 @@
 @using System.Net.Http.Headers;
 @using Cblx.Dynamics.Explorer.Services.DynamicsServices.ExecuteQuery;
 @using Cblx.Dynamics.Explorer.Shared;
-@using Microsoft.Fast.Components.FluentUI
 @inject IGetEntityHandler GetEntityHandler
 @inject IExecuteQueryHandler ExecuteQueryHandler
-<FluentStack Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical" VerticalGap="0">
+<FluentStack Orientation="Orientation.Vertical" VerticalGap="0">
     <FluentAutocomplete Id="my-autocomplete"
                         Width="100%"
                         TOption="SearchItem"
@@ -20,7 +19,7 @@
                         SelectedOptionsChanged="(options) => { SelectedItems = options; Set.ValueAsString = SelectedItems.FirstOrDefault()?.Value; }"
                         OptionValue="@(item => item.Value)"
                         OptionText="@(item => item.Text)" />
-    <FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Info">@Set.ValueHelperText</FluentLabel>
+    <FluentLabel Color="Color.Info">@Set.ValueHelperText</FluentLabel>
 </FluentStack>
 @code {
     IEnumerable<SearchItem> SelectedItems = Array.Empty<SearchItem>();

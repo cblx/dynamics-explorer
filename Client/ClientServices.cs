@@ -1,8 +1,5 @@
 ﻿using Cblx.Dynamics.Explorer.Client.Services;
 using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Fast.Components.FluentUI;
-using System.Net.Http;
 
 namespace Cblx.Dynamics.Explorer.Client;
 
@@ -10,10 +7,7 @@ public static class ClientServices
 {
     public static IServiceCollection AddClientServices(this IServiceCollection services, string baseAddress)
     {
-        services.AddFluentUIComponents(options =>
-        {
-            options.HostingModel = BlazorHostingModel.WebAssembly;
-        });
+        services.AddFluentUIComponents();
         services.AddSingleton<InstanceContextService>();
         services.AddSingleton(sp => {
             var instanceService = sp.GetRequiredService<InstanceContextService>();

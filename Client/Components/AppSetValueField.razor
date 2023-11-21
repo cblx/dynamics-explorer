@@ -25,20 +25,20 @@
         <AppSetStringField Set="Set" />
         break;
     case { DerivedType: AttributeMetadataDerivedTypes.IntegerAttributeMetadata }:
-        <Microsoft.Fast.Components.FluentUI.FluentNumberField Placeholder="NULL" Style="width: 100%" Immediate @bind-Value="Set.ValueAsInt32" />
+        <FluentNumberField Placeholder="NULL" Style="width: 100%" Immediate @bind-Value="Set.ValueAsInt32" />
         break;
     case { DerivedType: AttributeMetadataDerivedTypes.BigIntAttributeMetadata }:
-        <Microsoft.Fast.Components.FluentUI.FluentNumberField Placeholder="NULL" Style="width: 100%" Immediate @bind-Value="Set.ValueAsInt64" />
+        <FluentNumberField Placeholder="NULL" Style="width: 100%" Immediate @bind-Value="Set.ValueAsInt64" />
         break;
     case { DerivedType: AttributeMetadataDerivedTypes.BooleanAttributeMetadata }:
-        <Microsoft.Fast.Components.FluentUI.FluentRadioGroup TValue="int" 
+        <FluentRadioGroup TValue="int" 
                 Immediate
                 Value="@(Set.ValueAsBoolean is null ? -1 : Convert.ToInt32(Set.ValueAsBoolean.Value))" 
                 ValueChanged="b => Set.ValueAsBoolean = b == -1 ? null : Convert.ToBoolean(b)">
-            <Microsoft.Fast.Components.FluentUI.FluentRadio Value="1">True</Microsoft.Fast.Components.FluentUI.FluentRadio>
-            <Microsoft.Fast.Components.FluentUI.FluentRadio Value="0">False</Microsoft.Fast.Components.FluentUI.FluentRadio>
-            <Microsoft.Fast.Components.FluentUI.FluentRadio Value="-1">NULL</Microsoft.Fast.Components.FluentUI.FluentRadio>
-        </Microsoft.Fast.Components.FluentUI.FluentRadioGroup>
+            <FluentRadio Value="1">True</FluentRadio>
+            <FluentRadio Value="0">False</FluentRadio>
+            <FluentRadio Value="-1">NULL</FluentRadio>
+        </FluentRadioGroup>
         break;
     case { DerivedType: AttributeMetadataDerivedTypes.DateTimeAttributeMetadata, DateTimeFormat: DateTimeFormat.DateAndTime }:
         <AppSetDateTimeField Set="Set" />
@@ -47,13 +47,13 @@
         <AppSetDateField Set="Set" />
         break;
     case { DerivedType: AttributeMetadataDerivedTypes.DecimalAttributeMetadata }:
-        <Microsoft.Fast.Components.FluentUI.FluentNumberField Placeholder="NULL" Style="width: 100%" Immediate @bind-Value="Set.ValueAsDecimal" />
+        <FluentNumberField Placeholder="NULL" Style="width: 100%" Immediate @bind-Value="Set.ValueAsDecimal" />
         break;
     case { DerivedType: AttributeMetadataDerivedTypes.DoubleAttributeMetadata }:
-        <Microsoft.Fast.Components.FluentUI.FluentNumberField Placeholder="NULL" Style="width: 100%" Immediate @bind-Value="Set.ValueAsDouble" />
+        <FluentNumberField Placeholder="NULL" Style="width: 100%" Immediate @bind-Value="Set.ValueAsDouble" />
         break;
     default:
-        <Microsoft.Fast.Components.FluentUI.FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Error">Unsupported</Microsoft.Fast.Components.FluentUI.FluentLabel>
+        <FluentLabel Color="Color.Error">Unsupported</FluentLabel>
         break;
 }
 @code {
