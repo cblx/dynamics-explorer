@@ -57,3 +57,8 @@ a, .btn-link {
 .navmenu.collapsed .menu-header > *:not(fluent-divider) {
     visibility: hidden;
 }
+
+
+header{
+    display: none !important;
+}

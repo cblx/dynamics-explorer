@@ -8,7 +8,7 @@
 <InstanceContextProvider />
 <FluentDesignSystemProvider BaseLayerLuminance="0.15f">
     <FluentDialogProvider />
-    <FluentMainLayout NavMenuTitle="Navigation menu" HeaderHeight="0" Style="background-color: var(--neutral-layer-3)">
+    <FluentMainLayout NavMenuTitle="Navigation menu" HeaderHeight="0" Style="background-color: var(--neutral-layer-3);">
         <SubHeader>
             <FluentToolbar Style="min-height: 60px; max-height: 60px;">
                 <FluentStack VerticalAlignment="VerticalAlignment.Center">
@@ -25,7 +25,7 @@
             </FluentToolbar>
         </SubHeader>
         <Body>
-            <div style="height: calc(100vh - 68px)">
+            <div style="height: calc(100vh - 60px)">
                 @if (Instance != null)
                 {
                     @Body
