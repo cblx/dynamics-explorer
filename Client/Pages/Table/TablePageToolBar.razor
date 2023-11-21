@@ -1,16 +1,14 @@
 ﻿@using Cblx.Dynamics.Explorer.Client.Components;
 @using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
-@using Microsoft.Fast.Components.FluentUI
-@using Microsoft.Fast.Components.FluentUI.DesignTokens
-@inject Microsoft.Fast.Components.FluentUI.IDialogService DialogService
+@inject IDialogService DialogService
 @if (Entity != null)
 {
     <FluentStack VerticalAlignment="VerticalAlignment.Center">
         <div>
             <FluentLabel>@Entity.LogicalName</FluentLabel>
-            <FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Success">@(Entity.DisplayName ?? "-")</FluentLabel>
+            <FluentLabel Color="Color.Success">@(Entity.DisplayName ?? "-")</FluentLabel>
         </div>
-        <FluentDivider Style="height: 40px" Role="DividerRole.Presentation" Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical" />
+        <FluentDivider Style="height: 40px" Role="DividerRole.Presentation" Orientation="Orientation.Vertical" />
         <div>
             <FluentLabel>Showing @ShowingColumns.Count() of @Entity.Attributes.Length columns</FluentLabel>
             <FluentButton Id="@_guid.ToString()"
@@ -20,7 +18,7 @@
             </FluentButton>
             <FluentPopover Style="width: 300px; height: 480px; overflow-y: auto" AnchorId="@_guid.ToString()" @bind-Open="_showColumnSelection">
                 <Body>
-                    <FluentStack Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
+                    <FluentStack Orientation="Orientation.Vertical">
                         @foreach (var attr in Entity.Attributes)
                         {
                             <FluentCheckbox Disabled="attr.IsPrimaryId"
@@ -28,7 +26,7 @@
                                             ValueChanged="isChecked => ToggleShowingColumn(attr, isChecked)">
                                 @attr.LogicalName
                                 <br />
-                                <FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Info">@attr.DisplayName</FluentLabel>
+                                <FluentLabel Color="Color.Info">@attr.DisplayName</FluentLabel>
                             </FluentCheckbox>
                             <FluentDivider />
                         }
@@ -38,7 +36,7 @@
         </div>
         <FluentSpacer />
         <FluentButton Disabled="Disabled"
-                      Appearance="Microsoft.Fast.Components.FluentUI.Appearance.Accent"
+                      Appearance="Appearance.Accent"
                       OnClick="OpenCreate">New...</FluentButton>
     </FluentStack>
 }

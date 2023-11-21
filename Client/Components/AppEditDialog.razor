@@ -1,17 +1,16 @@
 ﻿@using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
 @using Cblx.Dynamics.Explorer.Services.DynamicsServices.ExecuteQuery;
 @using Cblx.Dynamics.Explorer.Shared;
-@using Microsoft.Fast.Components.FluentUI
 @using System.Text.Json.Nodes;
 @implements IDialogContentComponent<AppEditDialogArguments>
 @inject IGetEntityHandler GetEntityHandler
 @inject IExecuteQueryHandler ExecuteQueryHandler
 @inject EditDialogService EditDialogService
-@inject Microsoft.Fast.Components.FluentUI.IDialogService DialogService
+@inject IDialogService DialogService
 <FluentDialogHeader>
-    <FluentStack Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical" VerticalGap="0">
-        <FluentLabel Typo="Microsoft.Fast.Components.FluentUI.Typography.H2">@Content.EntityLogicalName</FluentLabel>
-        <FluentLabel Typo="Microsoft.Fast.Components.FluentUI.Typography.H3" Color="Microsoft.Fast.Components.FluentUI.Color.Info">@_entity?.DisplayName</FluentLabel>
+    <FluentStack Orientation="Orientation.Vertical" VerticalGap="0">
+        <FluentLabel Typo="Typography.H2">@Content.EntityLogicalName</FluentLabel>
+        <FluentLabel Typo="Typography.H3" Color="Color.Info">@_entity?.DisplayName</FluentLabel>
     </FluentStack>
 </FluentDialogHeader>
 <FluentDialogBody>
@@ -21,18 +20,18 @@
     }
     else
     {
-        <FluentStack Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
-            <FluentLabel Typo="Microsoft.Fast.Components.FluentUI.Typography.H4">Setting Fields (@_settingFields.Count)</FluentLabel>
+        <FluentStack Orientation="Orientation.Vertical">
+            <FluentLabel Typo="Typography.H4">Setting Fields (@_settingFields.Count)</FluentLabel>
             @* Não adicionar scroll, senão quebra funcionamento do select do fluent. O painel de opções fica por trás *@
-            <FluentStack Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
+            <FluentStack Orientation="Orientation.Vertical">
                 @if (_settingFields.Any())
                 {
                     @foreach (var field in _settingFields)
                     {
                         <FluentStack>
-                            <FluentStack VerticalGap="0" Width="200px" Style="overflow: hidden" Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
+                            <FluentStack VerticalGap="0" Width="200px" Style="overflow: hidden" Orientation="Orientation.Vertical">
                                 <FluentLabel>@field.Attribute!.LogicalName</FluentLabel>
-                                <FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Info">@field.Attribute!.DisplayName</FluentLabel>
+                                <FluentLabel Color="Color.Info">@field.Attribute!.DisplayName</FluentLabel>
                             </FluentStack>
                             <FluentStack Style="flex: 1" Width="0">
                                 <div style="flex: 1; width: 0;">
@@ -46,23 +45,23 @@
                 }
                 else
                 {
-                    <FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Info">No fields being set</FluentLabel>
+                    <FluentLabel Color="Color.Info">No fields being set</FluentLabel>
                 }
             </FluentStack>
             <FluentDivider />
-            <FluentLabel Typo="Microsoft.Fast.Components.FluentUI.Typography.H4">Available Fields (@_fields.Count)</FluentLabel>
-            <FluentStack Style="max-height: 240px; overflow-y: auto;" Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
+            <FluentLabel Typo="Typography.H4">Available Fields (@_fields.Count)</FluentLabel>
+            <FluentStack Style="max-height: 240px; overflow-y: auto;" Orientation="Orientation.Vertical">
                 @foreach (var field in _fields)
                 {
                     <FluentStack>
-                        <FluentStack VerticalGap="0" Width="200px" Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
+                        <FluentStack VerticalGap="0" Width="200px" Orientation="Orientation.Vertical">
                             <FluentLabel Class="truncate">@field.Attribute!.LogicalName</FluentLabel>
-                            <FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Info">@field.Attribute!.DisplayName</FluentLabel>
+                            <FluentLabel Color="Color.Info">@field.Attribute!.DisplayName</FluentLabel>
                         </FluentStack>
                         <FluentStack Style="flex: 1" Width="0" VerticalAlignment="VerticalAlignment.Center">
-                            <FluentStack VerticalGap="0" Style="flex: 1; overflow: hidden" Width="0" Orientation="Microsoft.Fast.Components.FluentUI.Orientation.Vertical">
+                            <FluentStack VerticalGap="0" Style="flex: 1; overflow: hidden" Width="0" Orientation="Orientation.Vertical">
                                 <FluentLabel>@field.OriginalValue</FluentLabel>
-                                <FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Info">@field.FormattedValue</FluentLabel>
+                                <FluentLabel Color="Color.Info">@field.FormattedValue</FluentLabel>
                             </FluentStack>
                             <FluentButton Appearance="Appearance.Lightweight" OnClick="() => MarkForSet(field)">Edit</FluentButton>
                         </FluentStack>
@@ -91,7 +90,7 @@
     private bool _saving = false;
 
 
-    public static Microsoft.Fast.Components.FluentUI.DialogParameters DialogParameters = new Microsoft.Fast.Components.FluentUI.DialogParameters()
+    public static DialogParameters DialogParameters = new ()
         {
             Width = "900px"
         };

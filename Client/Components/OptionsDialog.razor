@@ -4,7 +4,6 @@
 @using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
 @using Cblx.Dynamics.Explorer.Models;
 @using Cblx.Dynamics.Explorer.Services.DynamicsServices.Metadata.ListOptionsHandler;
-@using Microsoft.Fast.Components.FluentUI;
 @implements IDialogContentComponent<AttributeDto>
 @inject IListOptionsHandler ListOptionsHandler
 <FluentDialogHeader>
@@ -19,7 +18,7 @@
     {
         if (!_options.Any())
         {
-            <FluentLabel Color="Microsoft.Fast.Components.FluentUI.Color.Info">No options for this column</FluentLabel>
+            <FluentLabel Color="Color.Info">No options for this column</FluentLabel>
         }
         else
         {
