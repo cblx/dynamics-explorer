@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
-namespace Cblx.Dynamics.Explorer.Services;
-
+﻿namespace Cblx.Dynamics.Explorer.Services;
 public class ExplorerHttpClient([FromKeyedServices("dynamics.explorer")]HttpClient httpClient)
 {
     public HttpClient HttpClient => httpClient;

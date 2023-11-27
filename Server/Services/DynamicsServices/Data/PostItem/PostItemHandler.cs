@@ -9,10 +9,11 @@ using System.Threading.Tasks;
 
 namespace Cblx.Dynamics.Explorer.Services.DynamicsServices.Data.PostItem;
 
-internal class PostItemHandler(ExplorerHttpClient client) : IPostItem
+internal class PostItemHandler(ExplorerHttpClient client, UserContext userContext) : IPostItem
 {
     public async Task ExecuteAsync(PostItemRequest request)
     {
+        userContext.AssertCanWriteCurrentInstance();
         var response = await client.HttpClient.PostAsJsonAsync(request.EntitySetName, request.Data);
         if (!response.IsSuccessStatusCode)
         {

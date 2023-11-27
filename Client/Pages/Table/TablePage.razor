@@ -2,6 +2,7 @@
 @using System.Text.Json.Nodes;
 @using Cblx.Dynamics.Explorer.Client.Components;
 @using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
+@using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.ListInstances
 @using Cblx.Dynamics.Explorer.Services.DynamicsServices.Data.Delete;
 @using Cblx.Dynamics.Explorer.Services.DynamicsServices.ExecuteQuery;
 @using System.Web;
@@ -52,11 +53,13 @@
                         <!-- se um dia não tiver mais o mud no projeto, poderíamos ajustar aqui -->
                         <Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
                             @{
-                                var canChange = true;
+                                var canChange = Instance.Access == "write";
                             }
                             <FluentButton IconEnd="@(new Icons.Regular.Size16.Edit())"
+                                          Disabled="!canChange"   
                                           Title="Edit" OnClick="() => OpenEdit(context)" />
                             <FluentButton IconEnd="@(new Icons.Regular.Size16.Delete().WithColor(Color.Error))"
+                                          Disabled="!canChange"
                                           Title="Edit" OnClick="() => DeleteAsync(context)" />
                         </Microsoft.AspNetCore.Components.QuickGrid.TemplateColumn>
 
@@ -105,6 +108,9 @@
     }
 </div>
 @code {
+    [CascadingParameter]
+    public InstanceDto Instance { get; set; } = default!;
+
     [Parameter]
     [EditorRequired]
     public required string EntityLogicalName { get; set; }

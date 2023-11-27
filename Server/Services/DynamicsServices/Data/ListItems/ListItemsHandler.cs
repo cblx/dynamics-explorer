@@ -3,10 +3,11 @@ using System.Text.Json.Nodes;
 
 namespace Cblx.Dynamics.Explorer.Services.DynamicsServices.Data.ListItems;
 
-internal class ListItemsHandler(ExplorerHttpClient client) : IListItems
+internal class ListItemsHandler(ExplorerHttpClient client, UserContext userContext) : IListItems
 {
     public Task<JsonObject[]> HandleAsync(ListItemsRequest request)
     {
+        userContext.AssertCanReadCurrentInstance();
         return null;
         //string query = $"{request!.EntitySetName}";
         ////if (state.SortByColumn != null)

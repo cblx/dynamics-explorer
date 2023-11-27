@@ -10,11 +10,13 @@ internal class ListOptionsHandler(
     IListMultiSelectPicklistOptionsHandler listMultiSelectPicklistOptionsHandler,
     IListPicklistOptionsHandler listPicklistOptionsHandler,
     IListStateCodeOptionsHandler listStateCodeOptionsHandler,
-    IListStatusCodeOptionsHandler listStatusCodeOptionsHandler
+    IListStatusCodeOptionsHandler listStatusCodeOptionsHandler,
+    UserContext userContext
 ) : IListOptionsHandler
 {
     public async Task<PicklistOption[]> GetAsync(string entityLogicalName, string attributeLogicalName, string derivedTypeName)
     {
+        userContext.AssertCanReadCurrentInstance();
         return derivedTypeName switch
         {
             Types.MultiSelectPicklistAttributeMetadata => await listMultiSelectPicklistOptionsHandler.GetAsync(entityLogicalName, attributeLogicalName),

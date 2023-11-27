@@ -52,7 +52,7 @@ public static class Apis
 
         app.MapGet(
             Routes.GetEndpoint<IListInstancesHandler>(),
-            (IListInstancesHandler handler) => handler.ExecuteAsync()
+            (IListInstancesHandler handler, HttpContext httpContext) => handler.ExecuteAsync()
         );
 
         app.MapGet(

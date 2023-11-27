@@ -4,10 +4,11 @@ using System.Text.Json.Nodes;
 
 namespace Cblx.Dynamics.Explorer.Services.DynamicsServices.Metadata.ListEntitiesForMenu;
 
-public class ListEntitiesForMenuHandler(ExplorerHttpClient client, DynamicsExplorerOptions options) : IListEntitiesForMenuHandler
+public class ListEntitiesForMenuHandler(ExplorerHttpClient client, DynamicsExplorerOptions options, UserContext userContext) : IListEntitiesForMenuHandler
 {
     public async Task<EntityDto[]> GetAsync()
     {
+        userContext.AssertCanReadCurrentInstance();
         var jsonItems = await client.HttpClient
                     .GetFromJsonAsync<JsonObject>("""
                      EntityDefinitions?$select=LogicalName,DisplayName

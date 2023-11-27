@@ -1,5 +1,6 @@
 ﻿@using Cblx.Dynamics.Explorer.Client.Components;
 @using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
+@using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.ListInstances
 @inject IDialogService DialogService
 @if (Entity != null)
 {
@@ -35,12 +36,15 @@
             </FluentPopover>
         </div>
         <FluentSpacer />
-        <FluentButton Disabled="Disabled"
+        <FluentButton Disabled="@(Disabled || Instance.Access != "write")"
                       Appearance="Appearance.Accent"
                       OnClick="OpenCreate">New...</FluentButton>
     </FluentStack>
 }
 @code {
+    [CascadingParameter]
+    private InstanceDto Instance { get; set; } = default!;
+
     private Guid _guid = Guid.NewGuid();
     private bool _showColumnSelection = false;
     [Parameter]

@@ -4,4 +4,5 @@ public class InstanceDto
 {
     public required string Name { get; set; }
     public required string Group { get; set; }
+    public required string Access { get; set; }
 }
