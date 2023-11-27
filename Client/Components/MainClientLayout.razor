@@ -12,11 +12,13 @@
         <SubHeader>
             <FluentToolbar Style="min-height: 60px; max-height: 60px;">
                 <FluentStack VerticalAlignment="VerticalAlignment.Center">
-                    <FluentSelect Width="190px" Style="min-width: 190px" TOption="InstanceDto" SelectedOption="_instances.FirstOrDefault(i => i.Group == Group && i.Name == Instance, _empty)"
+                    <FluentSelect Width="190px" Style="min-width: 190px" TOption="InstanceDto" SelectedOption="_instances
+                                        .FirstOrDefault(i => i.Group == Group && i.Name == Instance, _empty)"
                                   SelectedOptionChanged="ChangeOption"
+                                  OptionDisabled="@(o => o.Access == "know")"
                                   Items="_instances"
                                   OptionText="@(i => i.Group == "NULL" ? "Select..." : $"{i.Group} - {i.Name}")" />
-                    <FluentDivider/>
+                    <FluentDivider />
                     @if (Instance != null)
                     {
                         <SectionOutlet SectionName="app-bar-content"></SectionOutlet>
@@ -28,7 +30,21 @@
             <div style="height: calc(100vh - 60px)">
                 @if (Instance != null)
                 {
-                    @Body
+                    var instance = _instances.FirstOrDefault(i => i.Group == Group && i.Name == Instance);
+                    if (instance == null)
+                    {
+                        <div>Unknow instance</div>
+                    }
+                    else if (instance.Access == "know")
+                    {
+                        <div>Access denied to @Group - @Instance</div>
+                    }
+                    else
+                    {
+                        <CascadingValue Value="instance">
+                            @Body
+                        </CascadingValue>
+                    }
                 }
                 else
                 {
@@ -37,10 +53,14 @@
             </div>
         </Body>
         <NavMenuContent>
-            @if (Instance != null)
-            {
-                <NavMenu />
+            @{
+                var instance = _instances.FirstOrDefault(i => i.Group == Group && i.Name == Instance);
+                @if (instance != null && instance.Access != "know")
+                {
+                    <NavMenu />
+                }
             }
+
         </NavMenuContent>
     </FluentMainLayout>
 </FluentDesignSystemProvider>
@@ -49,7 +69,12 @@
     public string? Group { get; set; }
     [SupplyParameterFromQuery]
     public string? Instance { get; set; }
-    private readonly InstanceDto _empty = new InstanceDto { Group = "NULL", Name = "NULL" };
+    private readonly InstanceDto _empty = new InstanceDto
+        {
+            Group = "NULL",
+            Name = "NULL",
+            Access = "read"
+        };
     InstanceDto[] _instances = [];
     protected override async Task OnInitializedAsync()
     {

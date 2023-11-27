@@ -4,10 +4,11 @@ using System.Text.Json.Nodes;
 
 namespace Cblx.Dynamics.Explorer.Services.DynamicsServices.Metadata.GetEntity;
 
-public class GetEntityHandler(ExplorerHttpClient client, DynamicsExplorerOptions options) : IGetEntityHandler
+public class GetEntityHandler(ExplorerHttpClient client, DynamicsExplorerOptions options, UserContext userContext) : IGetEntityHandler
 {
     public async Task<EntityDto> GetAsync(string entityLogicalName)
     {
+        userContext.AssertCanReadCurrentInstance();
         var jsonObject = await client.HttpClient
                    .GetFromJsonAsync<JsonObject>($"""
                      EntityDefinitions(LogicalName='{entityLogicalName}')?

@@ -19,16 +19,23 @@ public static class ServiceCollectionExtensions
         services.AddHttpContextAccessor();
         services.AddSingleton<InstanceContextService>();
         services.AddSingleton(options);
+        services.AddScoped<UserContext>();
         services.AddMemoryCache();
         instances?.ToList().ForEach(instance => services.AddHttpClientForInstance(instance));
         services.AddSingleton(instances ?? []);
-        services.AddKeyedScoped("dynamics.explorer", (sp, _key) =>
+        services.AddScoped(sp =>
         {
             var httpContext = sp.GetRequiredService<IHttpContextAccessor>().HttpContext!;
-            var key = DynamicsConfig.CreateKey(
-                httpContext.Request.Headers["x-Dynamics-Explorer-Group"]!,
-                httpContext.Request.Headers["x-Dynamics-Explorer-Instance"]!
-            );
+            var instance = httpContext.Request.Headers["x-Dynamics-Explorer-Instance"]!;
+            var group = httpContext.Request.Headers["x-Dynamics-Explorer-Group"]!;
+            var config = instances!.Find(i => i.Name == instance && i.Group == group);
+            if(config is null) { return new DynamicsConfig(); }
+            return config;
+        });
+        services.AddKeyedScoped("dynamics.explorer", (sp, _key) =>
+        {
+            var currentInstance = sp.GetRequiredService<DynamicsConfig>();
+            var key = DynamicsConfig.CreateKey(currentInstance.Group, currentInstance.Name);
             return sp.GetRequiredService<IHttpClientFactory>().CreateClient(key);
         });
         services.AddRazorComponents()

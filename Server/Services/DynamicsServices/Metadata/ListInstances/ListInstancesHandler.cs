@@ -3,13 +3,18 @@ using Cblx.Dynamics.Explorer.Services.Authenticator;
 
 namespace Cblx.Dynamics.Explorer.Services.DynamicsServices.Metadata.ListInstances;
 
-internal class ListInstancesHandler(DynamicsConfig[] instances) : IListInstancesHandler
+internal class ListInstancesHandler(DynamicsConfig[] instances, UserContext userContext) : IListInstancesHandler
 {
     public Task<InstanceDto[]> ExecuteAsync()
     {
-        return Task.FromResult(instances.Select(i => new InstanceDto {
+        var result = instances.Select(i => new InstanceDto
+        {
             Group = i.Group,
-            Name = i.Name
-        }).ToArray());
+            Name = i.Name,
+            Access = i.Users.Find(u => u.Login == userContext.Login)?.Access ?? i.DefaultAccess,
+        }).Where(i => i.Access is DynamicsAccess.Write or DynamicsAccess.Read or DynamicsAccess.Know)
+          .ToArray();
+
+        return Task.FromResult(result);
     }
 }

@@ -4,10 +4,11 @@ using System.Text.Json.Nodes;
 
 namespace Cblx.Dynamics.Explorer.Services.DynamicsServices.Data.PatchItem;
 
-internal class PatchItemHandler(ExplorerHttpClient client) : IPatchItem
+internal class PatchItemHandler(ExplorerHttpClient client, UserContext userContext) : IPatchItem
 {
     public async Task ExecuteAsync(PatchItemRequest request)
     {
+        userContext.AssertCanWriteCurrentInstance();
         var response = await client.HttpClient.PatchAsJsonAsync($"{request.EntitySetName}({request.Id})", request.Data);
         if (!response.IsSuccessStatusCode)
         {
