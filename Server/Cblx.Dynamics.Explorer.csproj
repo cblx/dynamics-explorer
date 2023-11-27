@@ -11,8 +11,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.0" />
     <PackageReference Include="Microsoft.Identity.Client" Version="4.57.0" />
-	<PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="7.0.0-preview.2" />
-	<PackageReference Include="Microsoft.Identity.Web" Version="2.13.4" />
+	<PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="7.0.0" />
+	<PackageReference Include="Microsoft.Identity.Web" Version="2.15.5" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Client\Cblx.Dynamics.Explorer.Client.csproj" />
