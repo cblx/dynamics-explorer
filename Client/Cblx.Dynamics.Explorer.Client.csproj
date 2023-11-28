@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
-    <StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
-	  <!-- Experimentar quando lançar .net8 final: <RunAOTCompilation>true</RunAOTCompilation>-->
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
+		<StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
+		<!-- Experimentar quando lançar .net8 final: <RunAOTCompilation>true</RunAOTCompilation>-->
+	</PropertyGroup>
 	<ItemGroup>
 		<SupportedPlatform Include="browser" />
 	</ItemGroup>
@@ -15,11 +15,17 @@
 		<!-- Revisar para remover essa visibilidade -->
 		<InternalsVisibleTo Include="Cblx.Dynamics.Explorer" />
 	</ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="8.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.0" />
-    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.0.0" />
-    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.0.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="8.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.0" />
+		<PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.0.0" />
+		<PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.0.0" />
+	</ItemGroup>
 
+	<!-- Copiado do DEMO FluentUI -->
+	<!-- For WASM, Trim Icons and Emojis Libs, -->
+	<!-- but not Core and Shared libs -->
+	<ItemGroup>
+		<TrimmerRootAssembly Include="Microsoft.FluentUI.AspNetCore.Components" />
+	</ItemGroup>
 </Project>
