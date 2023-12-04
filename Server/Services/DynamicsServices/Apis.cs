@@ -4,6 +4,7 @@ using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Data.PostItem;
 using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.GetEntity;
 using Cblx.Dynamics.Explorer.Client.Services.DynamicsServices.Metadata.ListInstances;
 using Cblx.Dynamics.Explorer.Services.DynamicsServices.Data.Delete;
+using Cblx.Dynamics.Explorer.Services.DynamicsServices.Data.ExecuteSqlQuery;
 using Cblx.Dynamics.Explorer.Services.DynamicsServices.ExecuteQuery;
 using Cblx.Dynamics.Explorer.Services.DynamicsServices.ListMultiSelectPicklistOptions;
 using Cblx.Dynamics.Explorer.Services.DynamicsServices.ListTablesForMenu;
@@ -38,6 +39,8 @@ public static class Apis
             Routes.GetEndpoint<IPostItem>(),
             (IPostItem handler, [FromBody]PostItemRequest request) => handler.ExecuteAsync(request)
         );
+
+        app.MapPost($"api/{nameof(ExecuteSqlQueryHandler)}", ExecuteSqlQueryHandler.Handle);
 
         // Metadata
         app.MapGet(

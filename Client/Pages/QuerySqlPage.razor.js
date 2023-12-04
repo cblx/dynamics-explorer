@@ -1,4 +1,4 @@
-const example = `SELECT accountid Id
+const example = `SELECT TOP 100 accountid Id
 FROM account`;
 export class QuerySqlPage {
     static initializeEditor(container) {
@@ -9,6 +9,7 @@ export class QuerySqlPage {
                 language: 'sql',
                 theme: 'vs-dark'
             });
+            console.log(editor);
             editor.layout();
             return editor;
         });

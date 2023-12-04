@@ -1,0 +1,19 @@
+﻿td, th {
+    border-width: 1px;
+    border-color: var(--neutral-layer-1);
+    border-style: solid;
+    padding: 0 2px;
+}
+
+::deep td p, ::deep th p {
+    font-size: 11px !important;
+    white-space: nowrap
+}
+
+
+.result-sets {
+    display: flex;
+    height: 100%;
+    overflow: hidden;
+    flex-flow: column;
+}
