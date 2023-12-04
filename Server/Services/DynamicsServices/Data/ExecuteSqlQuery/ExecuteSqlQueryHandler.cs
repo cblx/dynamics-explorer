@@ -21,17 +21,36 @@ public static class ExecuteSqlQueryHandler
         int currentSet = 0;
         do
         {
+            int itemCount = 0;
             while (await sqlDataReader.ReadAsync())
             {
-                var jsonObject = new JsonObject();
+                var jsonObject = new JsonObject
+                {
+                    { "resultSet", currentSet },
+                    { "isEmptyRow", false }
+                };
                 for (var i = 0; i < sqlDataReader.FieldCount; i++)
                 {
                     var fieldName = sqlDataReader.GetName(i);
                     var fieldValue = sqlDataReader.GetValue(i);
                     jsonObject.Add(fieldName, JsonNode.Parse(JsonSerializer.Serialize(fieldValue)));
                 }
-                jsonObject.Add("resultSet", currentSet);
+                itemCount++;
                 yield return jsonObject;
+            }
+            if (itemCount == 0)
+            {
+                var emptyObject = new JsonObject
+                {
+                    { "resultSet", currentSet },
+                    { "isEmptyRow", true }
+                };
+                for(var i = 0; i < sqlDataReader.FieldCount; i++)
+                {
+                    var fieldName = sqlDataReader.GetName(i);
+                    emptyObject.Add(fieldName, JsonNode.Parse(JsonSerializer.Serialize<string?>(null)));
+                }
+                yield return emptyObject;
             }
             currentSet++;
         } while (await sqlDataReader.NextResultAsync());

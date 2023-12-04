@@ -41,13 +41,13 @@
             <div class="result-sets">
                 @foreach (var resultSet in _resultSets)
                 {
-                    <div style="overflow-y: auto">
+                    <div>
                         <table style="border-spacing: 0; border-collapse: separate;" cellpadding="0" cellspacing="0">
                             <thead style="position: sticky; 
                                       top: 0; background-color: var(--neutral-layer-3); 
                                       z-index: 100">
                                 <tr>
-                                    @foreach (var item in resultSet.First())
+                                    @foreach (var item in resultSet.First().Skip(2))
                                     {
                                         <th>
                                             <FluentLabel>@(string.IsNullOrEmpty(item.Key) ? "(no name)" : item.Key)</FluentLabel>
@@ -56,18 +56,30 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <Virtualize Items="resultSet" OverscanCount="20">
+
+                                @if (resultSet.Count == 1 && resultSet.First()["isEmptyRow"]!.GetValue<bool>()) // empty row
+                                {
                                     <tr>
-                                        @foreach (var item in context)
-                                        {
-                                            <td @key="item">
-                                                <FluentLabel>
-                                                    @item.Value
-                                                </FluentLabel>
-                                            </td>
-                                        }
+                                        <td colspan="@(resultSet.First().Count - 2)">
+                                            <FluentLabel>No results</FluentLabel>
+                                        </td>
                                     </tr>
-                                </Virtualize>
+                                                                        
+                                }
+                                else{
+                                    <Virtualize Items="resultSet" OverscanCount="20">
+                                        <tr>
+                                            @foreach (var item in context.Skip(2))
+                                            {
+                                                <td @key="item">
+                                                    <FluentLabel>
+                                                        @item.Value
+                                                    </FluentLabel>
+                                                </td>
+                                            }
+                                        </tr>
+                                    </Virtualize>
+                                }
                             </tbody>
                         </table>
                     </div>

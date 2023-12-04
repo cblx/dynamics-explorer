@@ -17,3 +17,17 @@
     overflow: hidden;
     flex-flow: column;
 }
+
+.result-sets > div{
+    overflow: auto;
+    flex: 1;
+    border-bottom: 1px solid var(--neutral-layer-1);
+}
+
+.result-sets > div:last-child{
+    border-bottom: none;
+}
+
+.result-sets > table{
+    height: 100%;
+}
