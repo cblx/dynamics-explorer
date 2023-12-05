@@ -47,10 +47,11 @@
                                       top: 0; background-color: var(--neutral-layer-3); 
                                       z-index: 100">
                                 <tr>
+                                    <th></th>
                                     @foreach (var item in resultSet.First().Skip(2))
                                     {
                                         <th>
-                                            <FluentLabel>@(string.IsNullOrEmpty(item.Key) ? "(no name)" : item.Key)</FluentLabel>
+                                            @(string.IsNullOrEmpty(item.Key) ? "(no name)" : item.Key)
                                         </th>
                                     }
                                 </tr>
@@ -64,17 +65,16 @@
                                             <FluentLabel>No results</FluentLabel>
                                         </td>
                                     </tr>
-                                                                        
+
                                 }
                                 else{
                                     <Virtualize Items="resultSet" OverscanCount="20">
-                                        <tr>
-                                            @foreach (var item in context.Skip(2))
+                                        <tr @key="context">
+                                            <td>@(resultSet.IndexOf(context) + 1)</td>
+                                            @foreach (var field in context.Skip(2))
                                             {
-                                                <td @key="item">
-                                                    <FluentLabel>
-                                                        @item.Value
-                                                    </FluentLabel>
+                                                <td @key="field">
+                                                    @field.Value
                                                 </td>
                                             }
                                         </tr>

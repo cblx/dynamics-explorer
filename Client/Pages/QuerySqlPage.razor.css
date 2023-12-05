@@ -5,7 +5,7 @@
     padding: 0 2px;
 }
 
-::deep td p, ::deep th p {
+::deep td, ::deep th {
     font-size: 11px !important;
     white-space: nowrap
 }
