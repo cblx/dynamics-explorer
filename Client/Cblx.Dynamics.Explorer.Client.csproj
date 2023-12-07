@@ -28,4 +28,9 @@
 	<ItemGroup>
 		<TrimmerRootAssembly Include="Microsoft.FluentUI.AspNetCore.Components" />
 	</ItemGroup>
+	<ItemGroup>
+	  <Content Update="Components\MainClientLayoutBkp.razor">
+	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  </Content>
+	</ItemGroup>
 </Project>

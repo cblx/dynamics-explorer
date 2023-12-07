@@ -8,31 +8,26 @@
 <InstanceContextProvider />
 <FluentDesignSystemProvider BaseLayerLuminance="0.15f">
     <FluentDialogProvider />
-    <FluentSplitter Panel1Size="250px" Style="height: 100vh; overflow: hidden">
-        <Panel1>
-            <FluentSelect Width="190px" Style="min-width: 190px" TOption="InstanceDto" SelectedOption="_instances
+    <FluentMainLayout NavMenuTitle="Navigation menu" HeaderHeight="0" Style="background-color: var(--neutral-layer-3);">
+        <SubHeader>
+            <FluentToolbar Style="min-height: 60px; max-height: 60px;">
+                <FluentStack VerticalAlignment="VerticalAlignment.Center">
+                    <FluentSelect Width="190px" Style="min-width: 190px" TOption="InstanceDto" SelectedOption="_instances
                                         .FirstOrDefault(i => i.Group == Group && i.Name == Instance, _empty)"
-                          SelectedOptionChanged="ChangeOption"
-                          OptionDisabled="@(o => o.Access == "know")"
-                          Items="_instances"
-                          OptionText="@(i => i.Group == "NULL" ? "Select..." : $"{i.Group} - {i.Name}")" />
-            @{
-                var instance = _instances.FirstOrDefault(i => i.Group == Group && i.Name == Instance);
-                @if (instance != null && instance.Access != "know")
-                {
-                    <NavMenu />
-                }
-            }
-        </Panel1>
-        <Panel2>
-            <FluentStack VerticalAlignment="VerticalAlignment.Center" Style="height: 33px; border-bottom: 1px solid white">
-                <FluentDivider />
-                @if (Instance != null)
-                {
-                    <SectionOutlet SectionName="app-bar-content"></SectionOutlet>
-                }
-            </FluentStack>
-            <div style="height: calc(100vh - 33px)">
+                                  SelectedOptionChanged="ChangeOption"
+                                  OptionDisabled="@(o => o.Access == "know")"
+                                  Items="_instances"
+                                  OptionText="@(i => i.Group == "NULL" ? "Select..." : $"{i.Group} - {i.Name}")" />
+                    <FluentDivider />
+                    @if (Instance != null)
+                    {
+                        <SectionOutlet SectionName="app-bar-content"></SectionOutlet>
+                    }
+                </FluentStack>
+            </FluentToolbar>
+        </SubHeader>
+        <Body>
+            <div style="height: calc(100vh - 60px)">
                 @if (Instance != null)
                 {
                     var instance = _instances.FirstOrDefault(i => i.Group == Group && i.Name == Instance);
@@ -56,8 +51,18 @@
                     <div>Choose an instance</div>
                 }
             </div>
-        </Panel2>
-    </FluentSplitter>
+        </Body>
+        <NavMenuContent>
+            @{
+                var instance = _instances.FirstOrDefault(i => i.Group == Group && i.Name == Instance);
+                @if (instance != null && instance.Access != "know")
+                {
+                    <NavMenu />
+                }
+            }
+
+        </NavMenuContent>
+    </FluentMainLayout>
 </FluentDesignSystemProvider>
 @code {
     [SupplyParameterFromQuery]

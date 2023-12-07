@@ -5,18 +5,18 @@
 @if (Entity != null)
 {
     <FluentStack VerticalAlignment="VerticalAlignment.Center">
-        <div>
-            <FluentLabel>@Entity.LogicalName</FluentLabel>
-            <FluentLabel Color="Color.Success">@(Entity.DisplayName ?? "-")</FluentLabel>
+        <div style="font-size: 11px">
+            <div>@Entity.LogicalName <span style="color: gray">@(Entity.DisplayName ?? "-")</span></div>
         </div>
-        <FluentDivider Style="height: 40px" Role="DividerRole.Presentation" Orientation="Orientation.Vertical" />
+        <FluentDivider Style="height: 30px" Role="DividerRole.Presentation" Orientation="Orientation.Vertical" />
         <div>
-            <FluentLabel>Showing @ShowingColumns.Count() of @Entity.Attributes.Length columns</FluentLabel>
-            <FluentButton Id="@_guid.ToString()"
-                          Appearance="Appearance.Lightweight"
-                          OnClick="() => _showColumnSelection = !_showColumnSelection">
-                Select columns...
-            </FluentButton>
+            <FluentDesignSystemProvider TypeRampBaseFontSize="11px" Density="-2">
+                <FluentButton Id="@_guid.ToString()"
+                              Appearance="Appearance.Lightweight"
+                              OnClick="() => _showColumnSelection = !_showColumnSelection">
+                    Select columns... (@ShowingColumns.Count() of @Entity.Attributes.Length)
+                </FluentButton>
+            </FluentDesignSystemProvider>
             <FluentPopover Style="width: 300px; height: 480px; overflow-y: auto" AnchorId="@_guid.ToString()" @bind-Open="_showColumnSelection">
                 <Body>
                     <FluentStack Orientation="Orientation.Vertical">
@@ -36,9 +36,12 @@
             </FluentPopover>
         </div>
         <FluentSpacer />
-        <FluentButton Disabled="@(Disabled || Instance.Access != "write")"
-                      Appearance="Appearance.Accent"
-                      OnClick="OpenCreate">New...</FluentButton>
+        <FluentDesignSystemProvider TypeRampBaseFontSize="11px" Density="-2">
+            <FluentButton Disabled="@(Disabled || Instance.Access != "write")"
+                          Appearance="Appearance.Accent"
+                          IconEnd="new Icons.Filled.Size16.Add()"
+                          OnClick="OpenCreate"></FluentButton>
+        </FluentDesignSystemProvider>
     </FluentStack>
 }
 @code {
