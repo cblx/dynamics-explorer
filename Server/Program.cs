@@ -109,7 +109,7 @@ var options = new DynamicsExplorerOptions
                             || table.LogicalName.StartsWith("codek")
                             || table.LogicalName.StartsWith("com")
                             || table.LogicalName.StartsWith("conn")
-                            || table.LogicalName.StartsWith("cont")
+                            || (table.LogicalName.StartsWith("cont") && table.LogicalName != "contact")
                             || table.LogicalName.StartsWith("conver")
                             || table.LogicalName.StartsWith("custom")
                             || table.LogicalName.StartsWith("data")
