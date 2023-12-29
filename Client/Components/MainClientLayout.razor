@@ -8,7 +8,7 @@
 <InstanceContextProvider />
 <FluentDesignSystemProvider BaseLayerLuminance="0.15f">
     <FluentDialogProvider />
-    <FluentSplitter Panel1Size="250px" Style="height: 100vh; overflow: hidden">
+    <FluentSplitter Panel1Size="250px" BarSize="4" Style="height: 100vh; overflow: hidden">
         <Panel1>
             <FluentSelect Width="190px" Style="min-width: 190px" TOption="InstanceDto" SelectedOption="_instances
                                         .FirstOrDefault(i => i.Group == Group && i.Name == Instance, _empty)"

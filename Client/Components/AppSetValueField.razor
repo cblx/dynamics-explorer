@@ -47,12 +47,14 @@
         <AppSetDateField Set="Set" />
         break;
     case { DerivedType: AttributeMetadataDerivedTypes.DecimalAttributeMetadata }:
+    case { DerivedType: AttributeMetadataDerivedTypes.MoneyAttributeMetadata }:
         <FluentNumberField Placeholder="NULL" Style="width: 100%" Immediate @bind-Value="Set.ValueAsDecimal" />
         break;
     case { DerivedType: AttributeMetadataDerivedTypes.DoubleAttributeMetadata }:
         <FluentNumberField Placeholder="NULL" Style="width: 100%" Immediate @bind-Value="Set.ValueAsDouble" />
         break;
     default:
+        <FluentLabel Color="Color.Error">@Set.Attribute.DerivedType</FluentLabel>
         <FluentLabel Color="Color.Error">Unsupported</FluentLabel>
         break;
 }

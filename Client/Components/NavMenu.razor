@@ -31,15 +31,14 @@
              </Density>
              <FluentDivider Style="position: sticky; top: 0" />
          </div>
+         
         @foreach (var tbl in _displayedEntities)
         {
-            <FluentNavLink Href="@(instanceContext.GetRoute($"/tbl/{tbl.LogicalName}"))" title="@tbl.LogicalName">
-
-                <FluentStack Orientation="Orientation.Vertical"
-                             VerticalGap="0" Style="pointer-events: none; overflow: hidden; text-overflow: ellipsis">
-                    <FluentLabel Style="text-overflow: ellipsis; overflow: hidden; width: 100%; line-height: 1">@tbl.LogicalName</FluentLabel>
-                        <FluentLabel Color="Color.Info" Style="font-size: 0.7rem; text-overflow: ellipsis; overflow: hidden; width: 100%;line-height: 1;">@(tbl.DisplayName ?? "-")</FluentLabel>
-                    </FluentStack>
+            <FluentNavLink 
+                Icon="new Icons.Filled.Size16.Table()"
+                Style="font-size: 11px; padding: 2px"
+                Href="@(instanceContext.GetRoute($"/tbl/{tbl.LogicalName}"))" title="@(tbl.LogicalName + " - " + tbl.DisplayName)">
+                    @tbl.LogicalName <span style="color: gray">@(tbl.DisplayName ?? "-")</span>
                 </FluentNavLink>
         }
         </FluentNavMenu>
