@@ -12,9 +12,10 @@ public class GetEntityHandler(ExplorerHttpClient client, DynamicsExplorerOptions
         var jsonObject = await client.HttpClient
                    .GetFromJsonAsync<JsonObject>($"""
                      EntityDefinitions(LogicalName='{entityLogicalName}')?
-                        $select=LogicalName,DisplayName,EntitySetName
+                        $select=LogicalName,DisplayName,EntitySetName,PrimaryIdAttribute 
                         &$expand=Attributes($select=LogicalName,DisplayName,IsPrimaryId,IsPrimaryName,AttributeType,IsValidForUpdate,IsValidForCreate,IsValidForRead,IsValidODataAttribute)
                      """.RemoveLineEndingsForODataQuery());
+        var primaryIdAttribute = jsonObject!["PrimaryIdAttribute"]!.ToString()!;
         var jsonAttributes = jsonObject!["Attributes"]!.AsArray();
         var attributes = jsonAttributes.Select(item => new AttributeDto
         {
@@ -40,7 +41,8 @@ public class GetEntityHandler(ExplorerHttpClient client, DynamicsExplorerOptions
           .Where(e => e.IsValidForRead)
           .Where(e => e.IsValidODataAttribute)
           .Where(e => e.AttributeType != "PartyList") // Tipo de lookup especial onde não vale o padrão _x_value
-          .OrderBy(e => !e.IsPrimaryId)
+          //.OrderBy(e => !e.IsPrimaryId)
+          .OrderBy(e => e.LogicalName != primaryIdAttribute)
           .ThenBy(e => e.CustomName == null)
           .ToArray();
 
