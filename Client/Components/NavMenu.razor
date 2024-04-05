@@ -23,12 +23,10 @@
             @* <FluentNavMenuLink Href="@(instanceContext.GetRoute("/"))">Query</FluentNavMenuLink> *@
             @* <FluentNavMenuLink Href="/diagram">Diagram</FluentNavMenuLink> *@
             <FluentTextField @bind-Value="_filter" Immediate Placeholder="Filter entities..." />
-             <Density Value="-3">
                  <FluentStack>
-                     <FluentLabel> showing @(_displayedEntities.Count()) entities</FluentLabel>
-                     <FluentButton ParentReference="context" IconEnd="@(new Icons.Regular.Size16.ArrowSync())" OnClick="() => LoadAsync(refresh: true)" />
+                    <FluentLabel> showing @(_displayedEntities.Count()) entities</FluentLabel>
+                    <FluentButton IconEnd="@(new Icons.Regular.Size16.ArrowSync())" OnClick="() => LoadAsync(refresh: true)" />
                  </FluentStack>
-             </Density>
              <FluentDivider Style="position: sticky; top: 0" />
          </div>
          

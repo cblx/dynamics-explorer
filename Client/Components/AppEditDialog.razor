@@ -49,9 +49,13 @@
                 }
             </FluentStack>
             <FluentDivider />
-            <FluentLabel Typo="Typography.H4">Available Fields (@_fields.Count)</FluentLabel>
+            <FluentStack>
+                <FluentLabel Typo="Typography.H4">Available Fields (@_fields.Count)</FluentLabel>
+                <FluentDivider />
+                <FluentTextField @bind-Value="@_searchField" Immediate Placeholder="Search" />
+            </FluentStack>
             <FluentStack Style="max-height: 240px; overflow-y: auto;" Orientation="Orientation.Vertical">
-                @foreach (var field in _fields)
+                @foreach (var field in _filteredFields)
                 {
                     <FluentStack>
                         <FluentStack VerticalGap="0" Width="200px" Orientation="Orientation.Vertical">
@@ -88,6 +92,11 @@
     private List<EditDialogSet> _fields = new();
     private List<EditDialogSet> _settingFields = new();
     private bool _saving = false;
+    private string _searchField = "";
+    private List<EditDialogSet> _filteredFields => _fields
+        .Where(f => f.Attribute!.LogicalName.Contains(_searchField)
+                || f.Attribute!.DisplayName?.Contains(_searchField) is true)
+        .ToList();
 
 
     public static DialogParameters DialogParameters = new ()

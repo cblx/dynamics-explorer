@@ -7,6 +7,7 @@
 @using System.Net.Http.Headers;
 @using Cblx.Dynamics.Explorer.Services.DynamicsServices.ExecuteQuery;
 @using Cblx.Dynamics.Explorer.Shared;
+@using System.Web
 @inject IGetEntityHandler GetEntityHandler
 @inject IExecuteQueryHandler ExecuteQueryHandler
 <FluentStack Orientation="Orientation.Vertical" VerticalGap="0">
@@ -18,7 +19,13 @@
                         SelectedOptions="@SelectedItems"
                         SelectedOptionsChanged="(options) => { SelectedItems = options; Set.ValueAsString = SelectedItems.FirstOrDefault()?.Value; }"
                         OptionValue="@(item => item.Value)"
-                        OptionText="@(item => item.Text)" />
+                        OptionText="@(item => item.Text)">
+                       @*  <OptionTemplate>
+                            <FluentStack>
+                                @context.Text
+                            </FluentStack>
+                        </OptionTemplate> *@
+    </FluentAutocomplete>
     <FluentLabel Color="Color.Info">@Set.ValueHelperText</FluentLabel>
 </FluentStack>
 @code {
@@ -60,8 +67,10 @@
                 filters = $"&$filter=contains({foreignPrimaryNameAttribute!.LogicalName},'{e.Text}')";
             }
         }
-        string select = $"&$select={foreignPimaryIdAttribute!.LogicalName},{foreignPrimaryNameAttribute!.LogicalName}";
-        var json = await ExecuteQueryHandler.GetAsync($"{_foreignEntity.EntitySetName}?$top=100{select}{filters}");
+        var select = $"&$select={foreignPimaryIdAttribute!.LogicalName},{foreignPrimaryNameAttribute!.LogicalName}";
+        var query = $"{_foreignEntity.EntitySetName}?$top=100{select}{filters}";
+        query = HttpUtility.UrlEncode(query);
+        var json = await ExecuteQueryHandler.GetAsync(query);
         var jsonItems = json!["value"]!.AsArray();
         var foundIds = new List<string?>() { null };
         var foundItems = new List<SearchItem>();

@@ -10,12 +10,11 @@
     <FluentDialogProvider />
     <FluentSplitter Panel1Size="250px" BarSize="4" Style="height: 100vh; overflow: hidden">
         <Panel1>
-            <FluentSelect Width="190px" Style="min-width: 190px" TOption="InstanceDto" SelectedOption="_instances
-                                        .FirstOrDefault(i => i.Group == Group && i.Name == Instance, _empty)"
+           <FluentSelect Width="190px" Style="min-width: 190px" TOption="InstanceDto" SelectedOption="_instances.FirstOrDefault(i => i?.Group == Group && i?.Name == Instance)"
                           SelectedOptionChanged="ChangeOption"
                           OptionDisabled="@(o => o.Access == "know")"
                           Items="_instances"
-                          OptionText="@(i => i.Group == "NULL" ? "Select..." : $"{i.Group} - {i.Name}")" />
+                          OptionText="@(i => i?.Group == "NULL" ? "Select..." : $"{i?.Group} - {i?.Name}")" />
             @{
                 var instance = _instances.FirstOrDefault(i => i.Group == Group && i.Name == Instance);
                 @if (instance != null && instance.Access != "know")
@@ -76,9 +75,9 @@
         _instances = new[] { _empty }.Union(await ListInstancesHandler.ExecuteAsync()).ToArray();
     }
 
-    private void ChangeOption(InstanceDto instanceDto)
+    private void ChangeOption(InstanceDto? instanceDto)
     {
-        if (instanceDto == _empty)
+        if (instanceDto == null || instanceDto.Group == "NULL")
         {
             NavigationManager.NavigateTo("/");
             return;
